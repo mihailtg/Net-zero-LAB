@@ -1,0 +1,613 @@
+{
+  "nat_2023": {
+    "energy": 32853.46,
+    "ippu": 3855.65,
+    "agri": 5941.62,
+    "waste": 2714.19,
+    "lulucf": -8601.07
+  },
+  "ippu_2023": {
+    "2.A Mineral Industry": 1967.87,
+    "2.B Chemical Industry": 1033.67,
+    "2.C Metal Industry": 158.11,
+    "2.D Non-energy Products": 12.83,
+    "2.F ODS Substitutes": 631.39,
+    "2.G Other": 51.78
+  },
+  "ippu_hist": [
+    {
+      "year": 2010,
+      "total": 4076.82,
+      "mineral": 1811.79,
+      "chemical": 1473.37,
+      "metal": 288.66,
+      "nonenergy": 28.5,
+      "ods": 414.31,
+      "other": 60.19
+    },
+    {
+      "year": 2011,
+      "total": 4619.91,
+      "mineral": 1953.77,
+      "chemical": 1801.33,
+      "metal": 315.88,
+      "nonenergy": 27.27,
+      "ods": 467.86,
+      "other": 53.8
+    },
+    {
+      "year": 2012,
+      "total": 4338.48,
+      "mineral": 2056.84,
+      "chemical": 1430.9,
+      "metal": 290.17,
+      "nonenergy": 23.83,
+      "ods": 483.01,
+      "other": 53.73
+    },
+    {
+      "year": 2013,
+      "total": 4225.19,
+      "mineral": 1941.35,
+      "chemical": 1459.71,
+      "metal": 221.79,
+      "nonenergy": 18.62,
+      "ods": 539.34,
+      "other": 44.37
+    },
+    {
+      "year": 2014,
+      "total": 4518.7,
+      "mineral": 2005.29,
+      "chemical": 1590.85,
+      "metal": 249.29,
+      "nonenergy": 20.35,
+      "ods": 609.02,
+      "other": 43.91
+    },
+    {
+      "year": 2015,
+      "total": 5132.26,
+      "mineral": 2385.67,
+      "chemical": 1776.4,
+      "metal": 224.06,
+      "nonenergy": 14.24,
+      "ods": 681.82,
+      "other": 50.08
+    },
+    {
+      "year": 2016,
+      "total": 5338.84,
+      "mineral": 2508.21,
+      "chemical": 1825.33,
+      "metal": 223.42,
+      "nonenergy": 18.92,
+      "ods": 713.26,
+      "other": 49.69
+    },
+    {
+      "year": 2017,
+      "total": 5218.85,
+      "mineral": 2521.48,
+      "chemical": 1735.87,
+      "metal": 183.08,
+      "nonenergy": 17.18,
+      "ods": 713.76,
+      "other": 47.48
+    },
+    {
+      "year": 2018,
+      "total": 4890.06,
+      "mineral": 2478.52,
+      "chemical": 1442.77,
+      "metal": 186.11,
+      "nonenergy": 15.4,
+      "ods": 718.95,
+      "other": 48.31
+    },
+    {
+      "year": 2019,
+      "total": 4561.88,
+      "mineral": 2357.68,
+      "chemical": 1196.52,
+      "metal": 160.65,
+      "nonenergy": 16.44,
+      "ods": 781.08,
+      "other": 49.51
+    },
+    {
+      "year": 2020,
+      "total": 4280.68,
+      "mineral": 2280.77,
+      "chemical": 1018.29,
+      "metal": 148.93,
+      "nonenergy": 16.08,
+      "ods": 767.48,
+      "other": 49.13
+    },
+    {
+      "year": 2021,
+      "total": 4562.2,
+      "mineral": 2348.9,
+      "chemical": 1247.4,
+      "metal": 132.65,
+      "nonenergy": 16.28,
+      "ods": 763.45,
+      "other": 53.53
+    },
+    {
+      "year": 2022,
+      "total": 4554.75,
+      "mineral": 2650.52,
+      "chemical": 1003.5,
+      "metal": 151.22,
+      "nonenergy": 14.73,
+      "ods": 676.46,
+      "other": 58.32
+    },
+    {
+      "year": 2023,
+      "total": 3855.65,
+      "mineral": 1967.87,
+      "chemical": 1033.67,
+      "metal": 158.11,
+      "nonenergy": 12.83,
+      "ods": 631.39,
+      "other": 51.78
+    }
+  ],
+  "chemical_industry_emissions_trend": [
+    { "year": 2005, "value": 7504.16 },
+    { "year": 2006, "value": 7318.85 },
+    { "year": 2007, "value": 7770.17 },
+    { "year": 2008, "value": 6846.43 },
+    { "year": 2009, "value": 3818.37 },
+    { "year": 2010, "value": 4076.82 },
+    { "year": 2011, "value": 4619.91 },
+    { "year": 2012, "value": 4338.48 },
+    { "year": 2013, "value": 4225.19 },
+    { "year": 2014, "value": 4518.7 },
+    { "year": 2015, "value": 5132.26 },
+    { "year": 2016, "value": 5338.84 },
+    { "year": 2017, "value": 5218.85 },
+    { "year": 2018, "value": 4890.06 },
+    { "year": 2019, "value": 4561.88 },
+    { "year": 2020, "value": 4280.67 },
+    { "year": 2021, "value": 4562.2 },
+    { "year": 2022, "value": 4554.75 },
+    { "year": 2023, "value": 3855.65 }
+  ],
+  "subsec_hist": [
+    {
+      "year": 2010,
+      "petroleum_refining_1a1b": 715.99,
+      "chemicals_1a2c": 215.9,
+      "pulp_paper_1a2d": 112.02,
+      "lime_2a2": 225.13,
+      "clinker_2a1": 807.29,
+      "soda_ash_process_2a4b": 105.64,
+      "carbonate_desox_2a4d": 556.68,
+      "ammonia_2b1": 726.11,
+      "soda_ash_2b7": 504.88,
+      "nitric_acid_2b2": 227.9
+    },
+    {
+      "year": 2011,
+      "petroleum_refining_1a1b": 597.73,
+      "chemicals_1a2c": 223.95,
+      "pulp_paper_1a2d": 123.86,
+      "lime_2a2": 243.8,
+      "clinker_2a1": 787.3,
+      "soda_ash_process_2a4b": 87.91,
+      "carbonate_desox_2a4d": 708.16,
+      "ammonia_2b1": 1035.75,
+      "soda_ash_2b7": 548.82,
+      "nitric_acid_2b2": 201.4
+    },
+    {
+      "year": 2012,
+      "petroleum_refining_1a1b": 705.84,
+      "chemicals_1a2c": 226.13,
+      "pulp_paper_1a2d": 118.94,
+      "lime_2a2": 194.26,
+      "clinker_2a1": 981.29,
+      "soda_ash_process_2a4b": 67.18,
+      "carbonate_desox_2a4d": 690.11,
+      "ammonia_2b1": 757.51,
+      "soda_ash_2b7": 550.17,
+      "nitric_acid_2b2": 111.3
+    },
+    {
+      "year": 2013,
+      "petroleum_refining_1a1b": 647.63,
+      "chemicals_1a2c": 248.73,
+      "pulp_paper_1a2d": 136.3,
+      "lime_2a2": 213.45,
+      "clinker_2a1": 89163.0,
+      "soda_ash_process_2a4b": 94.4,
+      "carbonate_desox_2a4d": 610.83,
+      "ammonia_2b1": 802.18,
+      "soda_ash_2b7": 538.76,
+      "nitric_acid_2b2": 108.65
+    },
+    {
+      "year": 2014,
+      "petroleum_refining_1a1b": 650.4,
+      "chemicals_1a2c": 224.22,
+      "pulp_paper_1a2d": 123.95,
+      "lime_2a2": 203.55,
+      "clinker_2a1": 911.12,
+      "soda_ash_process_2a4b": 90.49,
+      "carbonate_desox_2a4d": 667.83,
+      "ammonia_2b1": 872.52,
+      "soda_ash_2b7": 599.18,
+      "nitric_acid_2b2": 111.3
+    },
+    {
+      "year": 2015,
+      "petroleum_refining_1a1b": 815.95,
+      "chemicals_1a2c": 346.27,
+      "pulp_paper_1a2d": 124.31,
+      "lime_2a2": 204.06,
+      "clinker_2a1": 1105.43,
+      "soda_ash_process_2a4b": 100.68,
+      "carbonate_desox_2a4d": 825.29,
+      "ammonia_2b1": 1084.79,
+      "soda_ash_2b7": 574.38,
+      "nitric_acid_2b2": 111.3
+    },
+    {
+      "year": 2016,
+      "petroleum_refining_1a1b": 833.65,
+      "chemicals_1a2c": 379.19,
+      "pulp_paper_1a2d": 129.68,
+      "lime_2a2": 216.61,
+      "clinker_2a1": 1194.11,
+      "soda_ash_process_2a4b": 219.25,
+      "carbonate_desox_2a4d": 724.01,
+      "ammonia_2b1": 1137.62,
+      "soda_ash_2b7": 579.24,
+      "nitric_acid_2b2": 100.7
+    },
+    {
+      "year": 2017,
+      "petroleum_refining_1a1b": 863.13,
+      "chemicals_1a2c": 1024.32,
+      "pulp_paper_1a2d": 116.88,
+      "lime_2a2": 223.53,
+      "clinker_2a1": 1239.3,
+      "soda_ash_process_2a4b": 110.01,
+      "carbonate_desox_2a4d": 785.25,
+      "ammonia_2b1": 1086.48,
+      "soda_ash_2b7": 561.8,
+      "nitric_acid_2b2": 82.15
+    },
+    {
+      "year": 2018,
+      "petroleum_refining_1a1b": 821.55,
+      "chemicals_1a2c": 1543.73,
+      "pulp_paper_1a2d": 116.34,
+      "lime_2a2": 251.72,
+      "clinker_2a1": 1223.5,
+      "soda_ash_process_2a4b": 99.91,
+      "carbonate_desox_2a4d": 748.22,
+      "ammonia_2b1": 784.0,
+      "soda_ash_2b7": 550.78,
+      "nitric_acid_2b2": 103.35
+    },
+    {
+      "year": 2019,
+      "petroleum_refining_1a1b": 992.43,
+      "chemicals_1a2c": 1432.4,
+      "pulp_paper_1a2d": 112.52,
+      "lime_2a2": 248.63,
+      "clinker_2a1": 1137.77,
+      "soda_ash_process_2a4b": 72.39,
+      "carbonate_desox_2a4d": 750.95,
+      "ammonia_2b1": 600.79,
+      "soda_ash_2b7": 512.15,
+      "nitric_acid_2b2": 76.85
+    },
+    {
+      "year": 2020,
+      "petroleum_refining_1a1b": 803.84,
+      "chemicals_1a2c": 1332.22,
+      "pulp_paper_1a2d": 103.99,
+      "lime_2a2": 201.24,
+      "clinker_2a1": 1065.9,
+      "soda_ash_process_2a4b": 197.26,
+      "carbonate_desox_2a4d": 572.19,
+      "ammonia_2b1": 592.92,
+      "soda_ash_2b7": 442.62,
+      "nitric_acid_2b2": 71.55
+    },
+    {
+      "year": 2021,
+      "petroleum_refining_1a1b": 729.43,
+      "chemicals_1a2c": 1562.08,
+      "pulp_paper_1a2d": 118.19,
+      "lime_2a2": 255.85,
+      "clinker_2a1": 1060.39,
+      "soda_ash_process_2a4b": 144.17,
+      "carbonate_desox_2a4d": 717.05,
+      "ammonia_2b1": 594.52,
+      "soda_ash_2b7": 569.43,
+      "nitric_acid_2b2": 74.2
+    },
+    {
+      "year": 2022,
+      "petroleum_refining_1a1b": 1032.46,
+      "chemicals_1a2c": 1438.31,
+      "pulp_paper_1a2d": 98.17,
+      "lime_2a2": 324.61,
+      "clinker_2a1": 1039.99,
+      "soda_ash_process_2a4b": 217.07,
+      "carbonate_desox_2a4d": 890.44,
+      "ammonia_2b1": 485.63,
+      "soda_ash_2b7": 450.68,
+      "nitric_acid_2b2": 66.25
+    },
+    {
+      "year": 2023,
+      "petroleum_refining_1a1b": 955.79,
+      "chemicals_1a2c": 1090.29,
+      "pulp_paper_1a2d": 64.53,
+      "lime_2a2": 235.8,
+      "clinker_2a1": 1045.91,
+      "soda_ash_process_2a4b": 80.6,
+      "carbonate_desox_2a4d": 483.58,
+      "ammonia_2b1": 492.94,
+      "soda_ash_2b7": 460.03,
+      "nitric_acid_2b2": 75.19
+    }
+  ],
+  "company_sectors": {
+    "Agropolychim": {
+      "energy": "1.A.2.c",
+      "process": "2.B.1"
+    },
+    "Neochim": {
+      "energy": "1.A.2.c",
+      "process": "2.B.1"
+    },
+    "Solvay Sodi": {
+      "energy": "1.A.2.c",
+      "process": "2.B.7"
+    },
+    "Lukoil": {
+      "energy": "1.A.1.b",
+      "process": null
+    },
+    "Svilosa": {
+      "energy": "1.A.2.d",
+      "process": null
+    },
+    "Orgachim": {
+      "energy": "1.A.2.c",
+      "process": "2.D.3"
+    },
+    "Agria": {
+      "energy": "1.A.2.c",
+      "process": null
+    },
+    "Biovet": {
+      "energy": "1.A.2.c",
+      "process": "2.D.3"
+    },
+    "Holcim": {
+      "energy": null,
+      "process": "2.A.1+2.A.2"
+    }
+  },
+  "fuel_combustion_2023": [
+    {
+      "code": "1.A.1.a",
+      "name": "Electricity & Heat Production",
+      "group": "Energy",
+      "total": 14807.21,
+      "liquid": 54.63,
+      "solid": 12978.39,
+      "gas": 1736.86,
+      "waste": 0.0,
+      "biomass": 37.32
+    },
+    {
+      "code": "1.A.1.b",
+      "name": "Petroleum Refining",
+      "group": "Energy",
+      "total": 955.79,
+      "liquid": 914.76,
+      "solid": 0.0,
+      "gas": 41.03,
+      "waste": 0.0,
+      "biomass": 0.0
+    },
+    {
+      "code": "1.A.1.c",
+      "name": "Solid Fuel Manufacture",
+      "group": "Energy",
+      "total": 4.58,
+      "liquid": 3.12,
+      "solid": 0.05,
+      "gas": 1.41,
+      "waste": 0.0,
+      "biomass": 0.0
+    },
+    {
+      "code": "1.A.2.a",
+      "name": "Iron & Steel",
+      "group": "Manufacturing",
+      "total": 111.8,
+      "liquid": 0.63,
+      "solid": 0.0,
+      "gas": 111.17,
+      "waste": 0.0,
+      "biomass": 0.0004
+    },
+    {
+      "code": "1.A.2.b",
+      "name": "Non-Ferrous Metals",
+      "group": "Manufacturing",
+      "total": 240.76,
+      "liquid": 50.47,
+      "solid": 94.82,
+      "gas": 95.46,
+      "waste": 0.0,
+      "biomass": 0.0003
+    },
+    {
+      "code": "1.A.2.c",
+      "name": "Chemical Industry",
+      "group": "Manufacturing",
+      "total": 1090.29,
+      "liquid": 632.03,
+      "solid": 356.02,
+      "gas": 101.22,
+      "waste": 0.0,
+      "biomass": 1.02
+    },
+    {
+      "code": "1.A.2.d",
+      "name": "Pulp, Paper & Print",
+      "group": "Manufacturing",
+      "total": 64.53,
+      "liquid": 1.16,
+      "solid": 4.19,
+      "gas": 52.45,
+      "waste": 0.0,
+      "biomass": 6.74
+    },
+    {
+      "code": "1.A.2.e",
+      "name": "Food & Beverage",
+      "group": "Manufacturing",
+      "total": 290.92,
+      "liquid": 30.74,
+      "solid": 4.18,
+      "gas": 253.7,
+      "waste": 0.0,
+      "biomass": 2.3
+    },
+    {
+      "code": "1.A.2.f",
+      "name": "Non-Metallic Minerals (incl. Cement)",
+      "group": "Manufacturing",
+      "total": 947.07,
+      "liquid": 288.44,
+      "solid": 107.58,
+      "gas": 546.56,
+      "waste": 0.0,
+      "biomass": 4.48
+    },
+    {
+      "code": "1.A.2.g",
+      "name": "Other Industries",
+      "group": "Manufacturing",
+      "total": 1082.76,
+      "liquid": 396.96,
+      "solid": 65.14,
+      "gas": 281.4,
+      "waste": 332.62,
+      "biomass": 6.64
+    },
+    {
+      "code": "1.A.4.a",
+      "name": "Commercial/Institutional Services",
+      "group": "Other",
+      "total": 357.38,
+      "liquid": 113.93,
+      "solid": 7.2,
+      "gas": 199.01,
+      "waste": 0.0,
+      "biomass": 37.25
+    },
+    {
+      "code": "1.A.4.b",
+      "name": "Residential Households",
+      "group": "Other",
+      "total": 489.1,
+      "liquid": 34.36,
+      "solid": 58.08,
+      "gas": 165.39,
+      "waste": 0.0,
+      "biomass": 231.26
+    },
+    {
+      "code": "1.A.4.c",
+      "name": "Agriculture, Forestry & Fishing",
+      "group": "Other",
+      "total": 502.39,
+      "liquid": 445.78,
+      "solid": 32.51,
+      "gas": 22.35,
+      "waste": 0.0,
+      "biomass": 1.76
+    },
+    {
+      "code": "1.A.3.a",
+      "name": "Civil Aviation",
+      "group": "Transport",
+      "total": 17.6,
+      "liquid": 17.6,
+      "solid": 0.0,
+      "gas": 0.0,
+      "waste": 0.0,
+      "biomass": 0.0
+    },
+    {
+      "code": "1.A.3.b",
+      "name": "Road Transport",
+      "group": "Transport",
+      "total": 10437.11,
+      "liquid": 0,
+      "solid": 0,
+      "gas": 0,
+      "waste": 0,
+      "biomass": 0
+    },
+    {
+      "code": "1.A.3.c",
+      "name": "Railways",
+      "group": "Transport",
+      "total": 29.59,
+      "liquid": 29.59,
+      "solid": 0.0,
+      "gas": 0.0,
+      "waste": 0.0,
+      "biomass": 0.0
+    },
+    {
+      "code": "1.A.3.d",
+      "name": "Navigation",
+      "group": "Transport",
+      "total": 5.8,
+      "liquid": 5.8,
+      "solid": 0.0,
+      "gas": 0.0,
+      "waste": 0.0,
+      "biomass": 0.0
+    },
+    {
+      "code": "1.A.3.e",
+      "name": "Pipelines",
+      "group": "Transport",
+      "total": 219.9,
+      "liquid": 0.0,
+      "solid": 0.0,
+      "gas": 219.9,
+      "waste": 0.0,
+      "biomass": 0.0
+    },
+    {
+      "code": "1.A.5.b",
+      "name": "Other Mobile Sources",
+      "group": "Transport",
+      "total": 31.29,
+      "liquid": 31.29,
+      "solid": 0.0,
+      "gas": 0.0,
+      "waste": 0.0,
+      "biomass": 0.0
+    }
+  ]
+}

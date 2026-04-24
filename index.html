@@ -1,0 +1,2591 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Net-Zero Lab - Bulgarian Chemical Industry Decarbonization</title>
+<meta name="description" content="Tracking the decarbonization journey of Bulgaria's chemical industry toward net-zero by 2050.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <img class="logo-img" src="assets/logo.svg" alt="Net-Zero Lab logo">
+      <div>
+        <div class="logo-title">Net-Zero Lab</div>
+        <div class="logo-sub" data-i18n="brand.subtitle">BG Chemical Industry</div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <button class="nav-item active" data-section="dashboard" onclick="showSection('dashboard')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      <span data-i18n="nav.overview">Overview</span>
+    </button>
+    <button class="nav-item" data-section="companies" onclick="showSection('companies')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M3 7l9-4 9 4M4 10v11M20 10v11M8 14v3M16 14v3M12 14v3"/></svg>
+      <span data-i18n="nav.companies">Companies</span>
+    </button>
+    <button class="nav-item" data-section="pathways" onclick="showSection('pathways')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 L12 22 M2 12 L22 12"/><path d="M12 7 L17 12 L12 17"/></svg>
+      <span data-i18n="nav.pathways">Pathways</span>
+    </button>
+    <button class="nav-item" data-section="emissions" onclick="showSection('emissions')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <span data-i18n="nav.emissions">Emissions</span>
+    </button>
+    <button class="nav-item" data-section="policy" onclick="showSection('policy')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+      <span data-i18n="nav.policy">Policy &amp; Regulation</span>
+    </button>
+    <button class="nav-item" data-section="roi" onclick="showSection('roi')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      <span data-i18n="nav.roi">ROI Analysis</span>
+    </button>
+    <button class="nav-item" data-section="investments" onclick="showSection('investments')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      <span data-i18n="nav.investments">Investments</span>
+    </button>
+    <button class="nav-item" data-section="cbam" onclick="showSection('cbam')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M7 8h.01M11 8h6M7 12h.01M11 12h6"/></svg>
+      <span data-i18n="nav.cbam">CBAM &amp; ETS Cost Calculator</span>
+    </button>
+    <button class="nav-item" data-section="netzerolab" onclick="showSection('netzerolab')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <span data-i18n="nav.netzerolab">Net-Zero Lab</span>
+    </button>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="language-toggle" aria-label="Language switch">
+      <button type="button" class="language-btn active" id="langEn" data-lang="en" aria-label="Switch to English" aria-pressed="true">EN</button>
+      <button type="button" class="language-btn" id="langBg" data-lang="bg" aria-label="Switch to Bulgarian" aria-pressed="false">BG</button>
+    </div>
+    <div class="font-size-control" aria-label="Font size controls">
+      <button type="button" class="font-size-btn" id="fontSizeDecrease" aria-label="Decrease font size">-</button>
+      <label class="font-size-label" for="fontSizeSlider" data-i18n="controls.text">Text</label>
+      <input id="fontSizeSlider" class="font-size-slider" type="range" min="80" max="150" step="5" value="100" aria-label="Font size scale">
+      <button type="button" class="font-size-btn" id="fontSizeIncrease" aria-label="Increase font size">+</button>
+      <span class="font-size-value" id="fontSizeValue">100%</span>
+    </div>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" data-theme-toggle>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="themeIcon"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      <span id="themeLabel">Light mode</span>
+    </button>
+    <div class="sidebar-meta" data-i18n="sidebar.sources">Data sources: European Commission · Bulgaria MREW · CEFIC · EBRD</div>
+  </div>
+</aside>
+
+<!-- Mobile header -->
+<header class="mobile-header">
+  <button class="mobile-menu-btn" onclick="toggleMobileSidebar()" aria-label="Toggle menu">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <div class="mobile-logo"><img class="mobile-logo-img" src="assets/logo.svg" alt="">Net-Zero Lab</div>
+  <button class="theme-toggle-sm" onclick="toggleTheme()" aria-label="Toggle theme">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="themeIconMobile"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+  </button>
+</header>
+
+<!-- Overlay -->
+<div class="sidebar-overlay" id="overlay" onclick="closeMobileSidebar()"></div>
+
+<!-- Main content -->
+<main class="main">
+
+  <!-- ═══════════════════════ DASHBOARD ═══════════════════════ -->
+  <section class="section active" id="section-dashboard">
+    <div class="section-head">
+      <div>
+        <h1 class="section-title" data-i18n="section.dashboard.title">Overview Dashboard</h1>
+        <p class="section-desc" data-i18n="section.dashboard.desc">Bulgarian chemical industry decarbonization - key indicators and progress</p>
+      </div>
+      <div class="pill pill-green" data-i18n="section.dashboard.pill">Latest available data · 2026</div>
+    </div>
+
+    <!-- KPI Row -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-icon kpi-green">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+        </div>
+        <div class="kpi-val" data-target="80.88">0</div>
+        <div class="kpi-unit">%</div>
+        <div class="kpi-label">GHG Reduction since 1988</div>
+        <div class="kpi-sub">from 5,211 → 996 Kt CO₂eq</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon kpi-blue">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <div class="kpi-val" data-target="4541">0</div>
+        <div class="kpi-unit">M€</div>
+        <div class="kpi-label">Industry Turnover (2022)</div>
+        <div class="kpi-sub">45% export growth in 2022</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon kpi-amber">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="kpi-val" data-target="12850">0</div>
+        <div class="kpi-unit"></div>
+        <div class="kpi-label">Direct Employees (2022)</div>
+        <div class="kpi-sub">5.22% of industrial workforce</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon kpi-teal">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        </div>
+        <div class="kpi-val" data-target="634">0</div>
+        <div class="kpi-unit"></div>
+        <div class="kpi-label">Active Companies</div>
+        <div class="kpi-sub">4.5% of industrial output</div>
+      </div>
+    </div>
+
+    <!-- Charts row -->
+    <div class="chart-grid-2">
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Total IPPU Emissions</div>
+            <div class="card-sub">Kt CO₂ equivalent · Sector 2 Industrial Processes and Product Use</div>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="emissionsTrendChart"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">IPPU Sector Breakdown (2023)</div>
+            <div class="card-sub">Industrial Processes &amp; Product Use emissions</div>
+          </div>
+        </div>
+        <div class="chart-wrap chart-wrap-sm">
+          <canvas id="ipuPieChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ETS Context -->
+    <div class="card mt-4">
+      <div class="card-head">
+        <div>
+          <div class="card-title">EU ETS Progress &amp; 2030 Targets</div>
+          <div class="card-sub">Bulgaria's emission trading system installations performance</div>
+        </div>
+      </div>
+      <div class="progress-grid">
+        <div class="progress-item">
+          <div class="progress-label">
+            <span>ETS emissions reduction since 2005</span>
+            <span class="progress-val-text">42%</span>
+          </div>
+          <div class="progress-bar-wrap"><div class="progress-bar pb-green" style="width:42%"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-label">
+            <span>Renewable energy share (2023)</span>
+            <span class="progress-val-text">~23%</span>
+          </div>
+          <div class="progress-bar-wrap"><div class="progress-bar pb-blue" style="width:23%"></div></div>
+          <div class="progress-note">Target: 34.48% by 2030</div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-label">
+            <span>Chemical sector share of IPPU emissions</span>
+            <span class="progress-val-text">21.8%</span>
+          </div>
+          <div class="progress-bar-wrap"><div class="progress-bar pb-amber" style="width:21.8%"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-label">
+            <span>Companies with emission-reduction actions (EIB 2025)</span>
+            <span class="progress-val-text">79%</span>
+          </div>
+          <div class="progress-bar-wrap"><div class="progress-bar pb-teal" style="width:79%"></div></div>
+          <div class="progress-note">EU average: 91%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2050 Timeline -->
+    <div class="card mt-4">
+      <div class="card-head">
+        <div class="card-title">Decarbonization Roadmap to 2050</div>
+        <div class="card-sub">Key milestones for the Bulgarian chemical sector</div>
+      </div>
+      <div class="timeline">
+        <div class="timeline-item timeline-done">
+          <div class="tl-dot tl-done"></div>
+          <div class="tl-content">
+            <div class="tl-year">2022–2024</div>
+            <div class="tl-title">First-Wave Transition</div>
+            <div class="tl-desc">Biomass co-firing at Solvay Sodi (30% share); Agropolychim dual-pressure nitric acid plant programme; Svilosa BioTEC biomass plant (16 MW)</div>
+          </div>
+        </div>
+        <div class="timeline-item timeline-active">
+          <div class="tl-dot tl-active"></div>
+          <div class="tl-content">
+            <div class="tl-year">2025–2030</div>
+            <div class="tl-title">Commercial CCUS &amp; Pilot Electrolyzers</div>
+            <div class="tl-desc">ANRAV project: 0.8 MtCO₂/yr capture at Devnya cement; pilot electrolysers for ammonia; Solvay Sodi coal phase-out; EU ETS free allocation reduction begins</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="tl-dot"></div>
+          <div class="tl-content">
+            <div class="tl-year">2030–2040</div>
+            <div class="tl-title">Green Hydrogen Scaling &amp; Process Electrification</div>
+            <div class="tl-desc">Renewable hydrogen decisive for ammonia (feedstock switch); electrified process heat units; CO₂ transport network for Devnya/Varna cluster; CBAM fully operational</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="tl-dot"></div>
+          <div class="tl-content">
+            <div class="tl-year">2040–2050</div>
+            <div class="tl-title">Net-Zero &amp; Climate Neutrality</div>
+            <div class="tl-desc">CCUS indispensable for residual process emissions; circular feedstocks mainstream; green ammonia standard; Bulgaria climate neutrality target</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ COMPANIES ═══════════════════════ -->
+  <section class="section" id="section-companies">
+    <div class="section-head">
+      <div>
+        <h1 class="section-title" data-i18n="section.companies.title">Company Profiles</h1>
+        <p class="section-desc" data-i18n="section.companies.desc">Key chemical industry players and their decarbonization status</p>
+      </div>
+      <div class="filter-row">
+        <button class="filter-btn active" onclick="filterCompanies('all', this)">All</button>
+        <button class="filter-btn" onclick="filterCompanies('advanced', this)">Advanced</button>
+        <button class="filter-btn" onclick="filterCompanies('progressing', this)">Progressing</button>
+        <button class="filter-btn" onclick="filterCompanies('early', this)">Early Stage</button>
+      </div>
+    </div>
+
+    <div class="company-grid" id="companyGrid">
+      <!-- Cards populated by JS -->
+    </div>
+
+    <!-- Company Detail Modal -->
+    <div class="modal-overlay" id="companyModal" onclick="closeCompanyModal(event)">
+      <div class="modal" id="modalContent">
+        <button class="modal-close" onclick="closeCompanyModal()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+        <div id="modalBody"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ PATHWAYS ═══════════════════════ -->
+  <section class="section" id="section-pathways">
+    <div class="section-head">
+      <div>
+        <h1 class="section-title" data-i18n="section.pathways.title">Decarbonization Pathways</h1>
+        <p class="section-desc" data-i18n="section.pathways.desc">Technology levers and transition routes toward net-zero</p>
+      </div>
+    </div>
+
+    <div class="pathway-tabs">
+      <button class="pw-tab active" onclick="showPathway('hydrogen', this)">Green Hydrogen</button>
+      <button class="pw-tab" onclick="showPathway('ccus', this)">CCUS</button>
+      <button class="pw-tab" onclick="showPathway('electrification', this)">Electrification</button>
+      <button class="pw-tab" onclick="showPathway('biomass', this)">Biomass &amp; Alternative Fuels</button>
+      <button class="pw-tab" onclick="showPathway('circular', this)">Circular Economy</button>
+      <button class="pw-tab" onclick="showPathway('n2o', this)">N₂O Abatement</button>
+    </div>
+
+    <div class="pathway-panels">
+
+      <div class="pw-panel active" id="pw-hydrogen">
+        <div class="pw-header pw-green">
+          <div class="pw-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v20M2 7l10 5 10-5M2 17l10-5 10 5"/></svg>
+          </div>
+          <div>
+            <h2 class="pw-title">Green Hydrogen</h2>
+            <p class="pw-subtitle">Electrolytic hydrogen replacing fossil feedstocks and fuel</p>
+          </div>
+          <div class="pw-readiness pw-readiness-med">TRL 7–9 · Mid-term</div>
+        </div>
+        <div class="pw-body">
+          <div class="pw-cols">
+            <div class="pw-col">
+              <h3 class="pw-section-title">How it works</h3>
+              <p>Renewable electricity powers electrolysers to split water into hydrogen and oxygen. Green hydrogen replaces natural gas as feedstock in ammonia synthesis (Haber-Bosch process) and as fuel in high-temperature industrial processes.</p>
+              <h3 class="pw-section-title mt-3">Applicability in Bulgaria</h3>
+              <ul class="pw-list">
+                <li>Ammonia production (Agropolychim, Neochim) - largest near-term opportunity</li>
+                <li>Refinery hydrotreating units (Lukoil Neftohim)</li>
+                <li>High-temperature heat for chemical processes</li>
+              <li>Agropolychim: blue ammonia integrated by 2026; green ammonia by 2030 (confirmed in company document)</li>
+              <li>First low-carbon ammonia delivery by Agropolychim: saves 5,450 tonnes CO₂ (document confirmed)</li>
+              </ul>
+            </div>
+            <div class="pw-col">
+              <h3 class="pw-section-title">Key milestones</h3>
+              <div class="milestone-list">
+                <div class="milestone">
+                  <div class="ms-year">2025</div>
+                  <div class="ms-text">55 MW electrolyser pilot capacity target (National H₂ Roadmap)</div>
+                </div>
+                <div class="milestone">
+                  <div class="ms-year">2026</div>
+                  <div class="ms-text">Agropolychim: first blue ammonia delivery operational - 5,450 t CO₂ saved per delivery</div>
+                </div>
+              <div class="milestone">
+                  <div class="ms-year">2027</div>
+                  <div class="ms-text">Agropolychim new calcium nitrate plant (50,000 t/yr) - runs on blue ammonia + RES</div>
+                </div>
+                <div class="milestone">
+                  <div class="ms-year">2030</div>
+                  <div class="ms-text">7,800 t/yr renewable H₂ production from pilot projects</div>
+                </div>
+                <div class="milestone">
+                  <div class="ms-year">2035+</div>
+                  <div class="ms-text">Green ammonia mainstream; decisive feedstock switch</div>
+                </div>
+              </div>
+              <div class="pw-stat-row">
+                <div class="pw-stat">
+                  <div class="pw-stat-val">90%+</div>
+                  <div class="pw-stat-label">CO₂ reduction potential for ammonia synthesis</div>
+                </div>
+                <div class="pw-stat">
+                  <div class="pw-stat-val">€250M</div>
+                  <div class="pw-stat-label">Agropolychim 5-year investment programme</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pw-panel" id="pw-ccus">
+        <div class="pw-header pw-slate">
+          <div class="pw-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Z"/><path d="M12 8v4l3 3"/></svg>
+          </div>
+          <div>
+            <h2 class="pw-title">CCUS</h2>
+            <p class="pw-subtitle">Carbon Capture, Utilisation and Storage</p>
+          </div>
+          <div class="pw-readiness pw-readiness-low">TRL 6–8 · Long-term</div>
+        </div>
+        <div class="pw-body">
+          <div class="pw-cols">
+            <div class="pw-col">
+              <h3 class="pw-section-title">How it works</h3>
+              <p>CO₂ is captured from industrial process streams or flue gases, transported via pipeline, and stored permanently in geological formations (saline aquifers, depleted gas fields) or used as feedstock for chemicals and materials.</p>
+              <h3 class="pw-section-title mt-3">Bulgaria's CCUS potential</h3>
+              <ul class="pw-list">
+                <li>Estimated storage capacity: ≥2.6 Gt CO₂ (≈79 years of current emissions)</li>
+                <li>Offshore Black Sea storage (Galata depleted gas field)</li>
+                <li>Onshore saline aquifers</li>
+                <li>Devnya/Varna industrial cluster - ideal for shared CO₂ transport</li>
+              </ul>
+            </div>
+            <div class="pw-col">
+              <h3 class="pw-section-title">Key projects</h3>
+              <div class="milestone-list">
+                <div class="milestone">
+                  <div class="ms-year">ANRAV</div>
+                  <div class="ms-text">€600M assumed CCUS CAPEX split into €190M funded by the EU Innovation Fund (incl. €38M for geological storage) and €410M remaining project financing; 800,000 t CO₂/yr captured at Devnya (Heidelberg Materials); hybrid OxyCal + post-combustion technology; ANRAV.beta pilot completed; full-scale commissioning 2028. First full CCUS chain in Eastern Europe. (Source: Heidelberg-Part01.docx)</div>
+                </div>
+                <div class="milestone">
+                  <div class="ms-year">Holcim</div>
+                  <div class="ms-text">Eastern Lights: €24.2M+ CO₂ storage research in NW Bulgaria saline aquifers. Beli Net Zero CCUS project (EU STEP Seal certified) - long-term target.</div>
+                </div>
+                <div class="milestone">
+                  <div class="ms-year">Post-2035</div>
+                  <div class="ms-text">CCUS expected for chemical &amp; refinery sector under Bulgaria's Long-Term Mitigation Strategy</div>
+                </div>
+              </div>
+              <div class="pw-stat-row">
+                <div class="pw-stat">
+                  <div class="pw-stat-val">2.6 Gt</div>
+                  <div class="pw-stat-label">Estimated CO₂ storage capacity</div>
+                </div>
+                <div class="pw-stat">
+                  <div class="pw-stat-val">€190M</div>
+                  <div class="pw-stat-label">EU Innovation Fund share of €600M ANRAV CAPEX</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pw-panel" id="pw-electrification">
+        <div class="pw-header pw-blue">
+          <div class="pw-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </div>
+          <div>
+            <h2 class="pw-title">Process Electrification</h2>
+            <p class="pw-subtitle">Replacing fossil fuel heat with renewable electricity</p>
+          </div>
+          <div class="pw-readiness pw-readiness-med">TRL 5–9 · Near-term</div>
+        </div>
+        <div class="pw-body">
+          <div class="pw-cols">
+            <div class="pw-col">
+              <h3 class="pw-section-title">How it works</h3>
+              <p>Electric heat pumps, resistance heaters, plasma furnaces and induction systems replace gas/coal-fired process heat. Most effective for low- and medium-temperature processes (&lt;400°C) but advancing for high-temperature applications.</p>
+              <h3 class="pw-section-title mt-3">Sector applicability</h3>
+              <ul class="pw-list">
+                <li>Low-heat processes across most chemical sites - near-term opportunity</li>
+                <li>Ceramics: electrified firing where product and kiln allow</li>
+                <li>Constrained by grid capacity and electricity price in Bulgaria</li>
+                <li>Bulgaria's NECP does not yet propose specific electrification policies for industry</li>
+              </ul>
+            </div>
+            <div class="pw-col">
+              <h3 class="pw-section-title">Barriers &amp; enablers</h3>
+              <div class="milestone-list">
+                <div class="milestone">
+                  <div class="ms-year">Barrier</div>
+                  <div class="ms-text">High electricity prices; grid capacity limitations; high capital cost of electrification retrofits</div>
+                </div>
+                <div class="milestone">
+                  <div class="ms-year">Enabler</div>
+                  <div class="ms-text">Expanding renewables (55.51% RES electricity target by 2030); dedicated industrial electricity tariffs; EU funding</div>
+                </div>
+                <div class="milestone">
+                  <div class="ms-year">Policy gap</div>
+                  <div class="ms-text">NECP lacks concrete electrification targets for industry - policy gap identified by CSD (2025)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pw-panel" id="pw-biomass">
+        <div class="pw-header pw-amber">
+          <div class="pw-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22V12M12 12C12 7 7 3 2 3c0 5 4 9 10 9zM12 12c0-5 5-9 10-9-1 5-5 9-10 9"/></svg>
+          </div>
+          <div>
+            <h2 class="pw-title">Biomass &amp; Alternative Fuels</h2>
+            <p class="pw-subtitle">Replacing fossil heat with biomass residues, RDF, tyres, biogas, and other qualified alternative fuels</p>
+          </div>
+          <div class="pw-readiness pw-readiness-high">TRL 8–9 · Near-term</div>
+        </div>
+        <div class="pw-body">
+          <div class="pw-cols">
+            <div class="pw-col">
+              <h3 class="pw-section-title">How it works</h3>
+              <p>Biomass and alternative fuels displace coal, petcoke, natural gas, and other fossil fuels in boilers, kilns, and steam systems. Eligible biomass residues are treated as biogenic under IPCC accounting, while RDF, tyres, biogas, and process residues lower fossil fuel demand and reduce exposure to ETS costs.</p>
+              <h3 class="pw-section-title mt-3">Current deployments</h3>
+              <ul class="pw-list">
+                <li>Solvay Sodi: biomass co-firing is already around 30% in one boiler, delivering about 20% CO₂ reduction; the next step is scale-up to 50% in CFB steam generators No. 7 and No. 8.</li>
+                <li>Svilosa: BioTEC biomass CHP is operational at 16 MW and 65 t steam/hour from waste biomass; future HERB boiler modernization would improve black liquor combustion and may enable BECCS later.</li>
+                <li>Biovet / Huvepharma: Greenburn® treats residual mycelium as biomass for carbon-neutral steam, with biogas from wastewater fermentation; the site reports 30% absolute CO₂ reduction over 2020–2023.</li>
+                <li>Holcim Bulgaria: approximately 90% fossil fuel substitution in clinker production using alternative fuels, contributing to 443 kg CO₂/t cement in 2023, the lowest specific emissions in the global Holcim Group.</li>
+                <li>Heidelberg Materials: RDF and tyre-feeding upgrade on kiln Line No. 7, including a 480 t/day shredder, supports about 60 kt CO₂/year reduction.</li>
+              </ul>
+            </div>
+            <div class="pw-col">
+              <h3 class="pw-section-title">Deployment logic</h3>
+              <div class="milestone-list">
+                <div class="milestone">
+                  <div class="ms-year">Best fit</div>
+                  <div class="ms-text">Steam boilers, cement kilns, pulp and paper recovery systems, and sites with stable biomass or waste-derived fuel supply.</div>
+                </div>
+                <div class="milestone">
+                  <div class="ms-year">Constraints</div>
+                  <div class="ms-text">Sustainable biomass availability, fuel preparation, permitting, air-emission controls, and avoiding competition with higher-value material uses.</div>
+                </div>
+                <div class="milestone">
+                  <div class="ms-year">Bridge role</div>
+                  <div class="ms-text">Alternative fuels can cut fossil emissions immediately while electrification, hydrogen, and CCUS mature for harder process emissions.</div>
+                </div>
+              </div>
+              <div class="pw-stat-row">
+                <div class="pw-stat">
+                  <div class="pw-stat-val">30%→50%</div>
+                  <div class="pw-stat-label">Solvay biomass co-firing scale-up target</div>
+                </div>
+                <div class="pw-stat">
+                  <div class="pw-stat-val">~90%</div>
+                  <div class="pw-stat-label">Holcim alternative fuel substitution</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pw-panel" id="pw-circular">
+        <div class="pw-header pw-green">
+          <div class="pw-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 7h10a5 5 0 0 1 5 5v1"/><path d="M7 4 4 7l3 3"/><path d="M20 17H10a5 5 0 0 1-5-5v-1"/><path d="m17 20 3-3-3-3"/></svg>
+          </div>
+          <div>
+            <h2 class="pw-title">Circular Economy</h2>
+            <p class="pw-subtitle">Reducing virgin material demand through waste valorization, bio-based products, and process redesign</p>
+          </div>
+          <div class="pw-readiness pw-readiness-med">TRL 5–9 · Phased</div>
+        </div>
+        <div class="pw-body">
+          <div class="pw-cols">
+            <div class="pw-col">
+              <h3 class="pw-section-title">How it works</h3>
+              <p>Circular routes reduce emissions by keeping carbon and materials in productive use for longer. The priority is to turn industrial by-products, biomass side streams, agricultural residues, and lower-value waste into higher-value products or process inputs instead of relying on virgin fossil or mineral feedstocks.</p>
+              <h3 class="pw-section-title mt-3">Specific opportunities</h3>
+              <ul class="pw-list">
+                <li>Svilosa: microcrystalline cellulose installation above €13.1M creates higher-value products from biomass and lowers emissions intensity per unit of output.</li>
+                <li>Orgachim: sunflower- and castor-oil-based coatings and resins support bio-based, low-VOC product development and lower dependence on fossil-derived inputs.</li>
+                <li>Solvay Sodi: e.Solvay electrochemical process under testing could reduce CO₂ by about 50% while saving water, salt, and limestone.</li>
+                <li>Solvay Sodi: bio-coke testing replaces metallurgical coke with wood charcoal in lime kilns as a circular bridge before full electrification.</li>
+                <li>Fertilizers: sulfur-containing complex fertilizers and soil conditioners can be produced from selected industrial, agricultural, and waste-derived streams.</li>
+              </ul>
+            </div>
+            <div class="pw-col">
+              <h3 class="pw-section-title">Value levers</h3>
+              <div class="milestone-list">
+                <div class="milestone">
+                  <div class="ms-year">Products</div>
+                  <div class="ms-text">Bio-based coatings, cellulose derivatives, low-VOC formulations, and specialty products improve value per tonne of feedstock.</div>
+                </div>
+                <div class="milestone">
+                  <div class="ms-year">Processes</div>
+                  <div class="ms-text">Electrochemical production and process-water savings cut both direct emissions and resource intensity.</div>
+                </div>
+                <div class="milestone">
+                  <div class="ms-year">Waste streams</div>
+                  <div class="ms-text">Organic, inorganic, agricultural, and industrial residues become inputs for fertilizers, soil conditioners, nano-products, and specialty materials where quality and safety specifications allow.</div>
+                </div>
+              </div>
+              <div class="pw-stat-row">
+                <div class="pw-stat">
+                  <div class="pw-stat-val">50%</div>
+                  <div class="pw-stat-label">Potential CO₂ reduction from e.Solvay if validated</div>
+                </div>
+                <div class="pw-stat">
+                  <div class="pw-stat-val">€13.1M</div>
+                  <div class="pw-stat-label">Svilosa MCC investment</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pw-panel" id="pw-n2o">
+        <div class="pw-header pw-teal">
+          <div class="pw-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>
+          </div>
+          <div>
+            <h2 class="pw-title">N₂O Abatement</h2>
+            <p class="pw-subtitle">Nitrous oxide destruction at nitric acid plants</p>
+          </div>
+          <div class="pw-readiness pw-readiness-high">TRL 9 · Ready now</div>
+        </div>
+        <div class="pw-body">
+          <div class="pw-cols">
+            <div class="pw-col">
+              <h3 class="pw-section-title">How it works</h3>
+              <p>Catalytic N₂O destruction is installed in the tail-gas stream of nitric acid plants. N₂O (a greenhouse gas 265× more potent than CO₂ over 100 years) is decomposed into nitrogen and oxygen before release. This represents the highest-impact, lowest-cost decarbonization measure available to the fertilizer sector.</p>
+              <h3 class="pw-section-title mt-3">Why it matters for Bulgaria</h3>
+              <ul class="pw-list">
+                <li>Nitric acid plants: Agropolychim (Devnya) and Neochim (Dimitrovgrad)</li>
+                <li>N₂O abatement progressively adopted as Best Available Technique under EU IED</li>
+                <li>Cost-effective: high reduction efficiency at relatively low investment</li>
+                <li>Unlocks ETS carbon credits - economic benefit</li>
+              </ul>
+            </div>
+            <div class="pw-col">
+              <h3 class="pw-section-title">Impact</h3>
+              <div class="pw-stat-row pw-stat-col">
+                <div class="pw-stat">
+                  <div class="pw-stat-val">90%+</div>
+                  <div class="pw-stat-label">N₂O removal efficiency</div>
+                </div>
+                <div class="pw-stat">
+                  <div class="pw-stat-val">Low cost</div>
+                  <div class="pw-stat-label">Lowest abatement cost per tonne CO₂eq in fertilizers</div>
+                </div>
+                <div class="pw-stat">
+                  <div class="pw-stat-val">Ready</div>
+                  <div class="pw-stat-label">Mature technology - no regulatory barriers</div>
+                </div>
+              </div>
+              <div class="alert-box alert-green mt-3">
+                <strong>Priority action:</strong> N₂O abatement on nitric acid units is the most immediate "no-regrets" measure in Bulgaria's chemical sector. Agropolychim integrates near-zero N₂O into new HNO₃ plant design (€250M programme). Neochim urgently needs catalytic abatement installation: €3–6M → 277 kt CO₂eq/yr saved → payback &lt;3 months.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pathway comparison table -->
+    <div class="card mt-4">
+      <div class="card-head">
+        <div class="card-title">Pathway Comparison</div>
+        <div class="card-sub">Readiness, cost, and applicability across chemical subsectors</div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Pathway</th>
+              <th>TRL</th>
+              <th>Timeframe</th>
+              <th>Abatement potential</th>
+              <th>Cost tier</th>
+              <th>Key sectors</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge-green">N₂O Abatement</span></td>
+              <td>9</td>
+              <td>Now</td>
+              <td>>90% N₂O · 277–295 kt CO₂eq/yr</td>
+              <td>Very Low (€3–8M)</td>
+              <td>Neochim, Agropolychim (integrated in new plant)</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-amber">Biomass co-firing</span></td>
+              <td>8–9</td>
+              <td>Now–2027</td>
+              <td>20–40% energy CO₂</td>
+              <td>Low–Med</td>
+              <td>Soda ash, pulp, refining</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-blue">Electrification</span></td>
+              <td>5–9</td>
+              <td>2025–2035</td>
+              <td>30–80% heat CO₂</td>
+              <td>Med</td>
+              <td>All chemical sectors</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-green">Green Hydrogen</span></td>
+              <td>7–9</td>
+              <td>2030–2040</td>
+              <td>Up to 90% ammonia CO₂</td>
+              <td>High</td>
+              <td>Fertilizers, refining</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-slate">CCUS</span></td>
+              <td>6–8</td>
+              <td>2028–2050</td>
+              <td>Up to 100% residual CO₂</td>
+              <td>Very high</td>
+              <td>All hard-to-abate</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ EMISSIONS ═══════════════════════ -->
+  <section class="section" id="section-emissions">
+    <div class="section-head">
+      <div>
+        <h1 class="section-title" data-i18n="section.emissions.title">Emissions Data</h1>
+        <p class="section-desc" data-i18n="section.emissions.desc">Official Bulgarian National GHG Inventory · UNFCCC CRF · 2010–2023</p>
+      </div>
+      <div class="pill pill-green" data-i18n="section.emissions.pill">Official · 2023</div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="ems-tabs">
+      <button class="ems-tab active" onclick="showEmsTab('ippu',this)">IPPU Historical (2010–2023)</button>
+      <button class="ems-tab" onclick="showEmsTab('subsector',this)">Industry Sub-sectors</button>
+      <button class="ems-tab" onclick="showEmsTab('fuel2023',this)">Fuel Combustion 2023</button>
+      <button class="ems-tab" onclick="showEmsTab('cbam',this)">CBAM Exposure</button>
+    </div>
+
+    <!-- Tab: IPPU Historical -->
+    <div class="ems-panel active" id="emsp-ippu">
+      <div class="chart-grid-2">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">IPPU Total Emissions 2010–2023</div>
+            <div class="card-sub">CRF Sector 2 · Kt CO₂eq · Official national inventory</div>
+          </div>
+          <div class="chart-wrap" style="height:240px"><canvas id="ippuTotalChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">IPPU Sub-sector Breakdown 2023</div>
+            <div class="card-sub">CRF Sector 2 · Total: 3,855.65 Kt CO₂eq</div>
+          </div>
+          <div class="chart-wrap" style="height:240px"><canvas id="ippu2023PieChart"></canvas></div>
+        </div>
+      </div>
+      <div class="card mt-4">
+        <div class="card-head">
+          <div class="card-title">IPPU Sub-sectors Stacked - 2010–2023</div>
+          <div class="card-sub">Kt CO₂eq · 2.A Mineral Industry · 2.B Chemical Industry · 2.C Metal · 2.F ODS Substitutes</div>
+        </div>
+        <div class="chart-wrap" style="height:260px"><canvas id="ippuStackedChart"></canvas></div>
+      </div>
+      <div class="card mt-4">
+        <div class="card-head">
+          <div class="card-title">IPPU Data Table 2010–2023</div>
+          <div class="card-sub">Kt CO₂eq · CRF Sector 2 · Source: Database_01.xlsx Sheet2</div>
+        </div>
+        <div class="table-wrap"><table class="data-table" id="ippuDataTable"></table></div>
+      </div>
+    </div>
+
+    <!-- Tab: Sub-sectors -->
+    <div class="ems-panel" id="emsp-subsector">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Key Industry Sub-sectors - Energy Combustion 2010–2023</div>
+          <div class="card-sub">Kt CO₂eq · 1.A.1.b Petroleum Refining (Lukoil) · 1.A.2.c Chemical Industry · 1.A.2.d Pulp &amp; Paper (Svilosa)</div>
+        </div>
+        <div class="chart-wrap" style="height:260px"><canvas id="energySubsecChart"></canvas></div>
+      </div>
+      <div class="card mt-4">
+        <div class="card-head">
+          <div class="card-title">Chemical Process Emissions 2010–2023</div>
+          <div class="card-sub">Kt CO₂eq · 2.B.1 Ammonia production · 2.B.7 Soda ash production · 2.B.2 Nitric acid production</div>
+        </div>
+        <div class="chart-wrap" style="height:260px"><canvas id="processEmissionsChart"></canvas></div>
+      </div>
+      <div class="card mt-4">
+        <div class="card-head">
+          <div class="card-title">2023 Company-Level Attribution</div>
+          <div class="card-sub">Official CRF sector totals · company attribution where uniquely identifiable</div>
+        </div>
+        <div class="chart-wrap" style="height:220px"><canvas id="companyEmissionsChart"></canvas></div>
+        <div class="db-note mt-4">* 1.A.2.c (Chemical Industry combustion: 1,090.29 Kt) covers all chemical manufacturers combined. Ammonia (2.B.1: 492.94 Kt) and Nitric Acid (2.B.2: 75.19 Kt) are split between Agropolychim and Neochim. Soda ash (2.B.7: 460.03 Kt) = Solvay Sodi exclusively. Petroleum Refining (1.A.1.b: 955.79 Kt) = Lukoil Neftohim.</div>
+      </div>
+    </div>
+
+    <!-- Tab: Fuel Combustion 2023 (Sheet4) -->
+    <div class="ems-panel" id="emsp-fuel2023">
+      <div class="db-banner" style="margin-bottom:0.875rem">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+        Sheet4: Detailed breakdown of Sector 1.A (Fuel Combustion) emissions for 2023 by sub-sector and fuel type · All values in Kt CO₂eq
+      </div>
+      <div class="chart-grid-2">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Fuel Combustion by Major Group</div>
+            <div class="card-sub">Kt CO₂eq · 2023 · Sector 1.A</div>
+          </div>
+          <div class="chart-wrap" style="height:220px"><canvas id="fuelGroupChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Manufacturing Sub-sectors - Fuel Mix 2023</div>
+            <div class="card-sub">Sector 1.A.2 · Liquid / Solid / Gas fuels</div>
+          </div>
+          <div class="chart-wrap" style="height:220px"><canvas id="mfgFuelChart"></canvas></div>
+        </div>
+      </div>
+      <div class="card mt-4">
+        <div class="card-head">
+          <div class="card-title">Full Fuel Combustion Table - Sector 1.A (2023)</div>
+          <div class="card-sub">Kt CO₂eq · Sub-sectors · Source: Database_01.xlsx Sheet4</div>
+        </div>
+        <div class="table-wrap"><table class="data-table" id="fuelCombustionTable"></table></div>
+        <div class="db-note" style="margin-top:0.75rem">
+          * Biomass column: CH₄ and N₂O only (CO₂ from biomass is carbon-neutral per IPCC methodology and excluded from totals). Road transport total only - fuel-type breakdown unavailable in official report.
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: CBAM Exposure -->
+    <div class="ems-panel" id="emsp-cbam">
+      <div class="card construction-card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">CBAM Exposure</div>
+            <div class="card-sub">Carbon Border Adjustment Mechanism analysis module</div>
+          </div>
+          <div class="pill pill-amber">Under construction</div>
+        </div>
+        <div class="construction-state">
+          <div class="construction-kicker">Module in progress</div>
+          <div class="construction-title">CBAM exposure analysis is being rebuilt.</div>
+          <div class="construction-desc">This tab is temporarily hidden while the methodology, scope, and company-level indicators are updated.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ POLICY ═══════════════════════ -->
+  <section class="section" id="section-policy">
+    <div class="section-head">
+      <div>
+        <h1 class="section-title" data-i18n="section.policy.title">Policy &amp; Regulation</h1>
+        <p class="section-desc" data-i18n="section.policy.desc">The regulatory framework shaping Bulgaria's industrial decarbonization</p>
+      </div>
+    </div>
+
+    <div class="policy-grid">
+      <div class="policy-card">
+        <div class="policy-icon pi-blue">EU</div>
+        <div class="policy-name">EU Emissions Trading System (ETS)</div>
+        <div class="policy-badge pb-active">Active</div>
+        <div class="policy-desc">Cap-and-trade covering all major Bulgarian chemical installations. Carbon price ~€65/t CO₂. Free allocations being phased out through 2034. Chemical sector among "hard-to-abate" with partial free allocation.</div>
+        <div class="policy-details">
+          <div class="policy-detail-item"><span>Phase 4:</span> 2021–2030, annual cap reduction 4.3%</div>
+          <div class="policy-detail-item"><span>Free allocation:</span> Decreasing; sector benchmarks apply</div>
+          <div class="policy-detail-item"><span>Revenue use:</span> Climate Change Mitigation Act - funds CCS &amp; forestry</div>
+        </div>
+      </div>
+
+      <div class="policy-card">
+        <div class="policy-icon pi-green">CB</div>
+        <div class="policy-name">Carbon Border Adjustment Mechanism (CBAM)</div>
+        <div class="policy-badge pb-active">Active from 2026</div>
+        <div class="policy-desc">Levies carbon cost on imports of Cement, Steel, Aluminium, Fertilizers, Electricity, and Hydrogen. Prevents carbon leakage. Currently covers 6 sectors. Feb 2025 Omnibus: 50-tonne de minimis threshold, removing 90% of smaller importers while retaining 99% of emission coverage.</div>
+        <div class="policy-details">
+          <div class="policy-detail-item"><span>Sectors:</span> Cement, Steel, Aluminium, Fertilizers, Electricity, Hydrogen</div>
+          <div class="policy-detail-item"><span>Extension:</span> All ETS sectors planned by 2030</div>
+          <div class="policy-detail-item"><span>Threshold:</span> 50t de minimis (Feb 2025 Omnibus)</div>
+          <div class="policy-detail-item"><span>Certificate price:</span> Q1 2026 €75.36/tCO₂; quarterly in 2026, weekly from 2027 (<a href="https://taxation-customs.ec.europa.eu/carbon-border-adjustment-mechanism/price-cbam-certificates_en#quarterly-prices-in-2026" target="_blank">EC price page</a>)</div>
+        </div>
+      </div>
+
+      <div class="policy-card">
+        <div class="policy-icon pi-amber">ETS2</div>
+        <div class="policy-name">EU ETS 2 (Buildings &amp; Transport)</div>
+        <div class="policy-badge pb-coming">2028</div>
+        <div class="policy-desc">New carbon pricing system for fuel suppliers covering buildings, road transport, and smaller industrial activities not in ETS 1. Bulgaria transposed Directive 2023/959 via amendments to the Climate Change Mitigation Act. Monitoring starts 2025, reporting 2026, compliance from 2028.</div>
+        <div class="policy-details">
+          <div class="policy-detail-item"><span>Phase 1:</span> Monitoring 2026 (Bulgaria)</div>
+          <div class="policy-detail-item"><span>Phase 2:</span> Allowance auctioning 2027</div>
+          <div class="policy-detail-item"><span>Phase 3:</span> Full compliance from 2028</div>
+        </div>
+      </div>
+
+      <div class="policy-card">
+        <div class="policy-icon pi-teal">BG</div>
+        <div class="policy-name">Bulgaria National Energy &amp; Climate Plan (NECP)</div>
+        <div class="policy-badge pb-review">Under review</div>
+        <div class="policy-desc">Sets Bulgaria's 2030 climate and energy targets in line with EU Fit for 55. Targets: 34.48% RES share in gross final energy, 55.51% in electricity, coal phase-out by 2038. Critiqued by CSD (2025) for lacking concrete industrial decarbonization policies - no specific measures for low-heat electrification or green hydrogen deployment.</div>
+        <div class="policy-details">
+          <div class="policy-detail-item"><span>RES target:</span> 34.48% by 2030</div>
+          <div class="policy-detail-item"><span>Coal exit:</span> 2038 (indicative)</div>
+          <div class="policy-detail-item"><span>Gap:</span> No industrial electrification policy</div>
+        </div>
+      </div>
+
+      <div class="policy-card">
+        <div class="policy-icon pi-purple">H₂</div>
+        <div class="policy-name">Bulgaria National Hydrogen Roadmap 2023</div>
+        <div class="policy-badge pb-active">Active</div>
+        <div class="policy-desc">Overseen by Ministry of Innovation and Growth. Targets 55 MW electrolyser capacity by 2025 under pilot projects; 7,800 t/yr renewable H₂. Positions Bulgaria as Southeast Hydrogen Corridor hub. Aims to decarbonize chemicals, glass, and refineries via green hydrogen.</div>
+        <div class="policy-details">
+          <div class="policy-detail-item"><span>Target 2025:</span> 55 MW electrolysers (pilot)</div>
+          <div class="policy-detail-item"><span>Production:</span> 7,800 t/yr renewable H₂</div>
+          <div class="policy-detail-item"><span>Corridor:</span> Southeast Hydrogen Corridor</div>
+        </div>
+      </div>
+
+      <div class="policy-card">
+        <div class="policy-icon pi-slate">RRF</div>
+        <div class="policy-name">Recovery &amp; Resilience Plan (RRP)</div>
+        <div class="policy-badge pb-active">€3.7B green</div>
+        <div class="policy-desc">Bulgaria's RRP allocates €3.7 billion to green transition. Key measures: RES investment, electricity storage, green hydrogen technology, energy efficiency in buildings. Total INECP investment need: €42.7B over 2021–2030.</div>
+        <div class="policy-details">
+          <div class="policy-detail-item"><span>Green allocation:</span> €3.7 billion</div>
+          <div class="policy-detail-item"><span>Instruments:</span> Innovation Fund, Modernisation Fund, EIB</div>
+          <div class="policy-detail-item"><span>RES target 2024:</span> 26% of gross final consumption</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Funding landscape -->
+    <div class="card mt-4">
+      <div class="card-head">
+        <div class="card-title">Available Funding Instruments</div>
+        <div class="card-sub">EU and national financing mechanisms for industrial decarbonization</div>
+      </div>
+      <div class="funding-grid">
+        <div class="fund-item">
+          <div class="fund-name">EU Innovation Fund</div>
+          <div class="fund-type fund-eu">EU</div>
+          <div class="fund-desc">Funds €190M of the assumed €600M ANRAV CCUS CAPEX. Supports first-of-a-kind low-carbon technology demonstrations. Priority for chemicals and refining.</div>
+        </div>
+        <div class="fund-item">
+          <div class="fund-name">Just Transition Fund</div>
+          <div class="fund-type fund-eu">EU</div>
+          <div class="fund-desc">€1.2B approved for Bulgaria (2023) to reskill 15,000 workers in coal-dependent regions. Supports industrial transition in affected areas.</div>
+        </div>
+        <div class="fund-item">
+          <div class="fund-name">Modernisation Fund</div>
+          <div class="fund-type fund-eu">EU</div>
+          <div class="fund-desc">ETS auction revenues directed to energy system modernization. Available for grid upgrades and industrial energy efficiency.</div>
+        </div>
+        <div class="fund-item">
+          <div class="fund-name">EBRD Finance</div>
+          <div class="fund-type fund-dev">Dev Bank</div>
+          <div class="fund-desc">EBRD Country Strategy 2025–2030 prioritizes green economy transition. Equity, debt, guarantees, bonds for RES and industrial decarbonization.</div>
+        </div>
+        <div class="fund-item">
+          <div class="fund-name">Carbon Contracts for Difference (CCfDs)</div>
+          <div class="fund-type fund-policy">Policy tool</div>
+          <div class="fund-desc">Proposed instrument to de-risk first-of-a-kind decarbonization projects by guaranteeing carbon price floor. Recommended by Net-Zero Lab research.</div>
+        </div>
+        <div class="fund-item">
+          <div class="fund-name">EIB Climate Lending</div>
+          <div class="fund-type fund-dev">Dev Bank</div>
+          <div class="fund-desc">European Investment Bank climate finance available for Bulgarian green hydrogen, RES storage, and industrial energy transition projects.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ NET ZERO LAB ═══════════════════════ -->
+  <section class="section" id="section-netzerolab">
+    <div class="section-head">
+      <div>
+        <h1 class="section-title" data-i18n="section.netzerolab.title">Net-Zero Lab</h1>
+        <p class="section-desc" data-i18n="section.netzerolab.desc">Research unit at FEBA, Sofia University, translating climate-neutrality targets into evidence-based transformation</p>
+      </div>
+      <div class="pill pill-green">FEBA · Sofia University</div>
+    </div>
+
+    <div class="nzl-hero">
+      <div class="nzl-icon">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="24" cy="24" r="22"/>
+          <path d="M16 32 L24 16 L32 32"/>
+          <path d="M19 27 H29"/>
+          <circle cx="24" cy="16" r="2.5" fill="currentColor"/>
+          <path d="M20 38 Q24 34 28 38" stroke-linecap="round" fill="none"/>
+        </svg>
+      </div>
+      <div class="nzl-hero-text">
+        <div class="nzl-section-label">About / Mission</div>
+        <h2 class="nzl-title">Knowledge-based pathways for climate-neutral transformation</h2>
+        <p>Net-Zero Lab is a unit established at the Faculty of Economics and Business Administration of Sofia University "St. Kliment Ohridski". It develops applied knowledge, analytical tools, and policy-relevant evidence to support just sustainable transformation in Bulgaria and the region.</p>
+      </div>
+    </div>
+
+    <div class="nzl-fact-strip">
+      <div class="nzl-fact"><span>Institution</span><strong>FEBA, Sofia University</strong></div>
+      <div class="nzl-fact"><span>Focus</span><strong>Energy · Industry · Society</strong></div>
+      <div class="nzl-fact"><span>Geography</span><strong>Bulgaria and the region</strong></div>
+      <div class="nzl-fact"><span>Approach</span><strong>Evidence-based, just transition</strong></div>
+    </div>
+
+    <div class="card mt-4">
+      <div class="card-head">
+        <div>
+          <div class="card-title">Core Expertise</div>
+          <div class="card-sub">Applied research and decision support for climate-neutrality implementation</div>
+        </div>
+      </div>
+      <div class="nzl-pillars">
+        <div class="nzl-pillar">
+          <div class="pillar-num">01</div>
+          <div class="pillar-title">Techno-economic assessments</div>
+          <div class="pillar-desc">Assessment of technology options in energy and industry, including cost, feasibility, emissions impact, and deployment pathways.</div>
+        </div>
+        <div class="nzl-pillar">
+          <div class="pillar-num">02</div>
+          <div class="pillar-title">Decision-support tools</div>
+          <div class="pillar-desc">Energy-system simulation, optimization, regional technology roadmaps, and life-cycle carbon assessment for planning and policy decisions.</div>
+        </div>
+        <div class="nzl-pillar">
+          <div class="pillar-num">03</div>
+          <div class="pillar-title">Societal transformation research</div>
+          <div class="pillar-desc">Applied research on skills, human-resource needs, social partnerships, citizen engagement, and community capacity for change.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mt-4">
+      <div class="card-head">
+        <div>
+          <div class="card-title">Team</div>
+          <div class="card-sub">Current Net-Zero Lab team listed on the official site</div>
+        </div>
+      </div>
+      <div class="nzl-team-grid">
+        <div class="nzl-team-card">
+          <div class="pt-name">Assoc. Prof. Dr. Atanas Georgiev</div>
+          <div class="nzl-role">Director of the Net-Zero Lab</div>
+          <div class="nzl-person-desc">Dean at FEBA; Head of Department "Industrial Economics and Management"; Director of the "Energy Markets and Services" Master's programme.</div>
+        </div>
+        <div class="nzl-team-card">
+          <div class="pt-name">Dr. Mariya Trifonova</div>
+          <div class="nzl-role">Deputy Director of the Net-Zero Lab</div>
+          <div class="nzl-person-desc">Renewable-energy and transition expert with experience in coal-region participation and decarbonization pathway modelling.</div>
+        </div>
+        <div class="nzl-team-card">
+          <div class="pt-name">Lyubimka Georgieva</div>
+          <div class="nzl-role">Research Assistant in Citizens Energy</div>
+          <div class="nzl-person-desc">Works on renewable energy, active citizen engagement, women's empowerment in green transformation, data modelling, and analysis.</div>
+        </div>
+        <div class="nzl-team-card">
+          <div class="pt-name">Bozhil Kondev</div>
+          <div class="nzl-role">Research Fellow</div>
+          <div class="nzl-person-desc">Energy and climate expert focused on transition risks and sustainable finance, with international technical-assistance experience.</div>
+        </div>
+        <div class="nzl-team-card">
+          <div class="pt-name">Maya Todorova</div>
+          <div class="nzl-role">Project Coordinator</div>
+          <div class="nzl-person-desc">Coordinates workflows, communication, administration, and operational data support.</div>
+        </div>
+        <div class="nzl-team-card">
+          <div class="pt-name">Remina Aleksieva</div>
+          <div class="nzl-role">Research Fellow</div>
+          <div class="nzl-person-desc">Works on energy and climate policy, renewable energy, citizen engagement, and regulatory compliance.</div>
+        </div>
+        <div class="nzl-team-card">
+          <div class="pt-name">Nursen Syuleyman</div>
+          <div class="nzl-role">Research Assistant</div>
+          <div class="nzl-person-desc">Supports research projects through data collection, analysis, methodology, and strategic planning.</div>
+        </div>
+        <div class="nzl-team-card">
+          <div class="pt-name">Mihail Georgiev</div>
+          <div class="nzl-role">Research Fellow · Industrial Decarbonisation</div>
+          <div class="nzl-person-desc">Chemical engineer and physicochemistry researcher focused on sustainable industrial efficacy, decarbonization, and advanced characterization.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-grid-2 mt-4">
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Selected Publications</div>
+            <div class="card-sub">Recent reports and analytical outputs</div>
+          </div>
+          <a class="export-btn" href="https://netzerolab-feba.bg/publications/" target="_blank">View all</a>
+        </div>
+        <div class="nzl-link-list">
+          <a class="nzl-list-item" href="https://netzerolab-feba.bg/publications/" target="_blank">
+            <strong>The Bulgarian Chemical Industry</strong>
+            <span>Carbon footprint, resource dependencies, and regulatory challenges.</span>
+          </a>
+          <a class="nzl-list-item" href="https://netzerolab-feba.bg/publications/" target="_blank">
+            <strong>Scientific Research and Innovation in Support of the Energy Transition</strong>
+            <span>First steps toward a sustainable, digital, and energy-secure Bulgaria.</span>
+          </a>
+          <a class="nzl-list-item" href="https://netzerolab-feba.bg/publications/" target="_blank">
+            <strong>Analysis of Available Financial Mechanisms in Support of Energy Communities</strong>
+            <span>Funding and technical-support pathways for local energy communities.</span>
+          </a>
+          <a class="nzl-list-item" href="https://netzerolab-feba.bg/publications/" target="_blank">
+            <strong>Flexibility Assessment of the Bulgarian Power Grid</strong>
+            <span>Scaling variable renewables for a resilient energy system by 2030.</span>
+          </a>
+          <a class="nzl-list-item" href="https://netzerolab-feba.bg/publications/" target="_blank">
+            <strong>Raw Materials, Critical Choices</strong>
+            <span>Strategic materials as a foundation for Bulgaria's low-carbon future.</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Latest Insights</div>
+            <div class="card-sub">Recent analysis from the official Net-Zero Lab news feed</div>
+          </div>
+          <a class="export-btn" href="https://netzerolab-feba.bg/news/" target="_blank">News</a>
+        </div>
+        <div class="nzl-link-list">
+          <a class="nzl-list-item" href="https://netzerolab-feba.bg/are-bulgarias-wholesale-electricity-prices-isolated/" target="_blank">
+            <strong>Are Bulgaria's wholesale electricity prices isolated?</strong>
+            <span>Evidence on cross-border capacity, congestion, and regional price convergence.</span>
+          </a>
+          <a class="nzl-list-item" href="https://netzerolab-feba.bg/news/" target="_blank">
+            <strong>More renewables = lower prices. But not more stable prices.</strong>
+            <span>Analysis of renewable penetration, average prices, and short-term volatility.</span>
+          </a>
+          <a class="nzl-list-item" href="https://netzerolab-feba.bg/news/" target="_blank">
+            <strong>Why is electricity more expensive in Bulgaria and its neighbours?</strong>
+            <span>Regional demand, grid constraints, and generation mix behind price divergence.</span>
+          </a>
+          <a class="nzl-list-item" href="https://netzerolab-feba.bg/news/" target="_blank">
+            <strong>Bulgaria vs. EU: Where do wholesale power prices stand?</strong>
+            <span>Comparison of Bulgarian day-ahead prices against wider European patterns.</span>
+          </a>
+          <a class="nzl-list-item" href="https://netzerolab-feba.bg/co-creating-industrial-decarbonisation-turning-european-ambition-into-national-and-industrial-priority/" target="_blank">
+            <strong>Co-Creating Industrial Decarbonisation</strong>
+            <span>Industrial transition as a national competitiveness and policy priority.</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-grid-2 mt-4">
+      <div class="card nzl-cta">
+        <div class="card-title">Partner With Us</div>
+        <div class="card-sub">Collaboration with business, institutions, and civil society</div>
+        <p class="nzl-cta-text">The lab works with partners on clean-energy markets, industrial process transformation, supply-chain sustainability, technology transfer, and cluster-based decarbonization strategies.</p>
+        <a class="export-btn" href="https://netzerolab-feba.bg/" target="_blank">Open official site</a>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Contact</div>
+            <div class="card-sub">Net-Zero Lab at FEBA, Sofia University</div>
+          </div>
+        </div>
+        <div class="nzl-contact-grid">
+          <div class="nzl-contact-item">
+            <span>Institution</span>
+            <strong>Faculty of Economics and Business Administration, Sofia University "St. Kliment Ohridski"</strong>
+          </div>
+          <div class="nzl-contact-item">
+            <span>Address</span>
+            <strong>1113 Sofia, 125 Tsarigradsko Shose Blvd., bl. 3</strong>
+          </div>
+          <div class="nzl-contact-item">
+            <span>Email</span>
+            <strong><a href="mailto:netzero@feb.uni-sofia.bg">netzero@feb.uni-sofia.bg</a></strong>
+          </div>
+          <div class="nzl-contact-item">
+            <span>Web</span>
+            <strong><a href="https://netzerolab-feba.bg/" target="_blank">netzerolab-feba.bg</a></strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ ROI ANALYSIS ═══════════════════════ -->
+  <section class="section" id="section-roi">
+    <div class="section-head">
+      <div>
+        <h1 class="section-title" data-i18n="section.roi.title">ROI Analysis</h1>
+        <p class="section-desc" data-i18n="section.roi.desc">How avoided ETS compliance costs compensate decarbonization investments - payback periods and cumulative cashflows 2026–2040</p>
+      </div>
+      <div class="pill pill-green" data-i18n="section.roi.pill">9 companies · Official data</div>
+    </div>
+
+    <!-- Hero insight -->
+    <div class="roi-hero">
+      <div class="roi-hero-icon">&#9651;</div>
+      <div class="roi-hero-text">
+        <strong>Rising carbon prices transform decarbonization from a cost into a financial advantage.</strong>
+        With the EU ETS price projected to reach €126–145/t CO₂ by 2030 and CBAM phased in at 48.5%, investments made today will generate returns that accelerate with every passing year.
+      </div>
+    </div>
+
+    <!-- Scenario selector -->
+    <div class="roi-scenario-bar">
+      <span class="rsb-label">Carbon price trajectory:</span>
+      <div class="rsb-pills">
+        <button class="rsb-pill" data-roiscenario="low" onclick="setRoiScenario('low',this)">Low &nbsp;<span class="rsb-desc">€60→122/t by 2040</span></button>
+        <button class="rsb-pill active" data-roiscenario="base" onclick="setRoiScenario('base',this)">Base ★ <span class="rsb-desc">€85→175/t by 2040</span></button>
+        <button class="rsb-pill" data-roiscenario="high" onclick="setRoiScenario('high',this)">High &nbsp;<span class="rsb-desc">€105→235/t by 2040 (BNEF)</span></button>
+      </div>
+    </div>
+
+    <!-- ROI KPIs -->
+    <div class="roi-kpi-row">
+      <div class="roi-kpi roi-kpi-accent">
+        <div class="rk-icon">&#9650;</div>
+        <div class="rk-val" id="rk-best-payback">0.2 yr</div>
+        <div class="rk-label">Best payback period</div>
+        <div class="rk-sub">N₂O abatement at Neochim (€4.5M, 277 kt CO₂eq/yr)</div>
+      </div>
+      <div class="roi-kpi">
+        <div class="rk-icon" style="color:var(--blue)">&#8857;</div>
+        <div class="rk-val" id="rk-sector-breakeven">2031</div>
+        <div class="rk-label">Sector break-even year</div>
+        <div class="rk-sub">Committed investments, 9 companies</div>
+      </div>
+      <div class="roi-kpi">
+        <div class="rk-icon" style="color:var(--amber)">&#9650;</div>
+        <div class="rk-val" id="rk-savings-2030">€250M</div>
+        <div class="rk-label">Annual carbon savings 2030</div>
+        <div class="rk-sub">All committed pathways, 9 companies</div>
+      </div>
+      <div class="roi-kpi">
+        <div class="rk-icon" style="color:var(--teal)">&#8730;</div>
+        <div class="rk-val" id="rk-pct-positive">78%</div>
+        <div class="rk-label">Pathways with &gt;10% IRR</div>
+        <div class="rk-sub">Excluding long-term green ammonia</div>
+      </div>
+    </div>
+
+    <!-- Two charts side by side -->
+    <div class="chart-grid-2 mt-4">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Payback Period by Pathway</div>
+          <div class="card-sub">Years from commissioning · sorted ascending · <span id="paybackScenLabel">Base scenario</span></div>
+        </div>
+        <div class="payback-filter-row" id="paybackFilterRow">
+          <span class="pf-label">Company:</span>
+          <button class="pf-btn active" data-co="all"     onclick="filterPayback('all',this)">All</button>
+          <button class="pf-btn" data-co="agropolychim"  onclick="filterPayback('agropolychim',this)">Agropolychim</button>
+          <button class="pf-btn" data-co="neochim"       onclick="filterPayback('neochim',this)">Neochim</button>
+          <button class="pf-btn" data-co="solvay"        onclick="filterPayback('solvay',this)">Solvay Sodi</button>
+          <button class="pf-btn" data-co="lukoil"        onclick="filterPayback('lukoil',this)">Lukoil</button>
+          <button class="pf-btn" data-co="heidelberg"    onclick="filterPayback('heidelberg',this)">Heidelberg</button>
+          <button class="pf-btn" data-co="holcim"        onclick="filterPayback('holcim',this)">Holcim</button>
+          <button class="pf-btn" data-co="biovet"        onclick="filterPayback('biovet',this)">Biovet</button>
+          <button class="pf-btn" data-co="svilosa"       onclick="filterPayback('svilosa',this)">Svilosa</button>
+          <button class="pf-btn" data-co="orgachim"      onclick="filterPayback('orgachim',this)">Orgachim</button>
+        </div>
+        <div class="chart-wrap" id="paybackChartWrap" style="height:340px">
+          <canvas id="paybackChart"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Cumulative Cashflow 2026–2040</div>
+            <div class="card-sub">Company: <select id="roiCompanySelect" onchange="updateCashflowChart()" class="roi-co-select">
+              <option value="all">All Companies</option>
+              <option value="agropolychim">Agropolychim AD</option>
+              <option value="neochim">Neochim AD</option>
+              <option value="solvay">Solvay Sodi Bulgaria</option>
+              <option value="lukoil">Lukoil Neftochim</option>
+              <option value="svilosa">Svilosa AD</option>
+              <option value="heidelberg">Heidelberg Materials BG</option>
+              <option value="holcim">Holcim Bulgaria AD</option>
+              <option value="biovet">Biovet / Huvepharma</option>
+              <option value="orgachim">Orgachim AD</option>
+            </select></div>
+            <div class="cashflow-subtitle" id="cashflowSubtitle">ETS costs compensate decarbonization investments</div>
+            <div class="cashflow-tech-controls">
+              <div class="ctc-label">Technology availability</div>
+              <div class="ctc-pills">
+                <button type="button" class="ctc-pill active" data-tech="hydrogen" onclick="toggleCashflowPathway('hydrogen', this)">Green H₂ / ammonia</button>
+                <button type="button" class="ctc-pill active" data-tech="ccus" onclick="toggleCashflowPathway('ccus', this)">CCUS</button>
+                <button type="button" class="ctc-pill active" data-tech="electrification" onclick="toggleCashflowPathway('electrification', this)">Electrification / efficiency</button>
+                <button type="button" class="ctc-pill active" data-tech="biomass" onclick="toggleCashflowPathway('biomass', this)">Biomass / circularity</button>
+                <button type="button" class="ctc-pill active" data-tech="n2o" onclick="toggleCashflowPathway('n2o', this)">N₂O abatement</button>
+              </div>
+              <button type="button" class="ctc-reset" onclick="resetCashflowPathways()">Reset all</button>
+              <button type="button" class="ctc-reset" id="cashflowLogToggle" onclick="toggleCashflowLogScale(this)">Log y-axis</button>
+            </div>
+            <div class="cashflow-market-controls">
+              <button type="button" class="ctc-reset" id="cashflowCbamToggle" onclick="toggleCashflowCbamAdjustment(this)">Include CBAM market adjustment</button>
+              <label class="cashflow-pass-label" for="cbamPassThroughShare">
+                CBAM pass-through share
+                <input id="cbamPassThroughShare" type="number" min="0" max="1" step="0.05" value="0.5" onchange="updateCashflowChart()" disabled>
+              </label>
+            </div>
+            <div class="cashflow-filter-note" id="cashflowFilterNote">All pathway groups enabled.</div>
+          </div>
+        </div>
+        <div class="chart-wrap" style="height:300px">
+          <canvas id="cashflowChart"></canvas>
+        </div>
+        <div class="cashflow-legend">
+          <div class="cf-legend-item"><div class="cf-dot cf-invest"></div>Cumul. Investment</div>
+          <div class="cf-legend-item"><div class="cf-dot cf-save"></div>Cumul. ETS avoided compliance cost</div>
+          <div class="cf-legend-item" id="cfCbamLegend" style="display:none"><div class="cf-dot cf-cbam"></div>Cumul. CBAM proxy adjustment</div>
+          <div class="cf-legend-item"><div class="cf-dot cf-net"></div>Net Position (break-even = 0)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Abatement cost curve concept -->
+    <div class="card mt-4">
+      <div class="card-head">
+        <div class="card-title">Marginal Abatement Cost vs. ETS Price</div>
+        <div class="card-sub">When pathway cost falls below the ETS price - investment becomes self-financing. Threshold shown for base scenario 2026 (€85/t) and 2030 (€126/t).</div>
+      </div>
+      <div class="chart-wrap" style="height:240px">
+        <canvas id="macChart"></canvas>
+      </div>
+      <div class="mac-note">Break-even carbon price = CAPEX (€) ÷ annual CO₂ saved (t). Investments below the ETS threshold line are profitable from day 1.</div>
+    </div>
+
+    <!-- Detailed ROI table -->
+    <div class="card mt-4">
+      <div class="card-head">
+        <div class="card-title">Full ROI Metrics by Pathway</div>
+        <div class="card-sub">Annual savings calculated as CO₂ reduced × ETS price · <span id="roiTableScenLabel">Base scenario</span> · Payback from commissioning year</div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table roi-table">
+          <thead>
+            <tr>
+              <th>Pathway</th>
+              <th>Company</th>
+              <th>CAPEX (M€)</th>
+              <th>CO₂ saved (kt/yr)</th>
+              <th>2026 saving (M€)</th>
+              <th>2030 saving (M€)</th>
+              <th>Payback (yrs)</th>
+              <th>Net by 2040</th>
+              <th>IRR signal</th>
+            </tr>
+          </thead>
+          <tbody id="roiTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Sensitivity box -->
+    <div class="card mt-4 sens-card">
+      <div class="card-head">
+        <div class="card-title">Carbon Price Sensitivity on Payback</div>
+        <div class="card-sub">How payback period changes across ETS price scenarios for key investments</div>
+      </div>
+      <div class="sens-grid">
+        <div class="sens-row sens-head">
+          <div>Pathway</div>
+          <div>Low (€88/t 2030)</div>
+          <div>Base (€126/t 2030)</div>
+          <div>High (€165/t 2030)</div>
+          <div>Key driver</div>
+        </div>
+        <div class="sens-row">
+          <div class="sens-name">N₂O Abatement (both)</div>
+          <div class="sens-val sv-green">0.3–0.4 yr</div>
+          <div class="sens-val sv-green">0.2–0.3 yr</div>
+          <div class="sens-val sv-green">&lt;0.2 yr</div>
+          <div class="sens-note">Extreme ROI at any price - deploy immediately</div>
+        </div>
+        <div class="sens-row">
+          <div class="sens-name">Coal Phase-Out (Solvay)</div>
+          <div class="sens-val sv-green">7.3 yr</div>
+          <div class="sens-val sv-green">5.4 yr</div>
+          <div class="sens-val sv-green">4.1 yr</div>
+          <div class="sens-note">Positive in all scenarios; committed</div>
+        </div>
+        <div class="sens-row">
+          <div class="sens-name">New HNO₃ Plant (Agropolychim)</div>
+          <div class="sens-val sv-yellow">12.4 yr</div>
+          <div class="sens-val sv-green">9.4 yr</div>
+          <div class="sens-val sv-green">7.1 yr</div>
+          <div class="sens-note">Committed; rising price accelerates return</div>
+        </div>
+        <div class="sens-row">
+          <div class="sens-name">Low-C H₂ (Lukoil, from 2030)</div>
+          <div class="sens-val sv-yellow">7.5 yr</div>
+          <div class="sens-val sv-green">5.0 yr</div>
+          <div class="sens-val sv-green">3.8 yr</div>
+          <div class="sens-note">Very attractive - pending decision</div>
+        </div>
+        <div class="sens-row">
+          <div class="sens-name">Solvay Lime Kilns Electrification (500–600 kt CO₂/yr, €320M)</div>
+          <div class="sens-val sv-yellow">5.9 yr</div>
+          <div class="sens-val sv-green">4.6 yr</div>
+          <div class="sens-val sv-green">3.5 yr</div>
+          <div class="sens-note">From document: 550 kt CO₂/yr savings · Strong ROI at all scenarios</div>
+        </div>
+        <div class="sens-row">
+          <div class="sens-name">ANRAV CCUS - Heidelberg Materials (800 kt CO₂/yr, €600M CAPEX)</div>
+          <div class="sens-val sv-yellow">10.0 yr</div>
+          <div class="sens-val sv-green">7.1 yr</div>
+          <div class="sens-val sv-green">5.6 yr</div>
+          <div class="sens-note">Gross model uses €600M CCUS CAPEX. Financing split: €190M EU Innovation Fund support and €410M remaining project financing. Payback from ETS savings. 2028 commissioning.</div>
+        </div>
+        <div class="sens-row">
+          <div class="sens-name">Biovet 300 MW PV + BESS (~€222M, ~320 kt CO₂/yr)</div>
+          <div class="sens-val sv-green">9.1 yr</div>
+          <div class="sens-val sv-green">7.0 yr</div>
+          <div class="sens-val sv-green">5.7 yr</div>
+          <div class="sens-note">100 MW already operational end-2024. ~€300M total programme for carbon neutrality by 2030.</div>
+        </div>
+        <div class="sens-row">
+          <div class="sens-name">e.Solvay Electrochemical (1,000 kt CO₂/yr, €500M - under testing)</div>
+          <div class="sens-val sv-yellow">9.5 yr</div>
+          <div class="sens-val sv-green">7.1 yr</div>
+          <div class="sens-val sv-green">5.4 yr</div>
+          <div class="sens-note">Revolutionary technology in testing. If validated, largest single decarbonization investment in sector.</div>
+        </div>
+        <div class="sens-row">
+          <div class="sens-name">Agropolychim €250M HNO₃ Programme (295 kt CO₂/yr)</div>
+          <div class="sens-val sv-green">12.4 yr</div>
+          <div class="sens-val sv-green">9.0 yr</div>
+          <div class="sens-val sv-green">7.0 yr</div>
+          <div class="sens-note">Confirmed €250M programme from document. Integrates N₂O abatement by design. 1.5 Mt/yr capacity.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mt-4" style="background:var(--surface-offset)">
+      <div class="card-title" style="font-size:0.8125rem;margin-bottom:0.5rem">Model Assumptions</div>
+      <div class="assumptions-grid">
+        <div class="assum-item"><div class="assum-title">ETS price trajectory</div><div class="assum-text">Base: Reuters analyst consensus (Jan 2026). High: BNEF base case (€145/t in 2030, €175/t in 2036). <a href="https://dukespace.lib.duke.edu/bitstreams/57c7fed1-d68e-408d-8028-1ab526613169/download" target="_blank">Carbon price outlook (Drive)</a>.</div></div>
+        <div class="assum-item"><div class="assum-title">N₂O saving calculation</div><div class="assum-text">~5.5 kgN₂O/t HNO₃ reduced (no abatement → tertiary). GWP100 = 265. <a href="https://calyxglobal.com/research-hub/research/what-is-n2o-abatement-in-nitric-acid-production" target="_blank">Calyx Global (1t N₂O ≈ 273 tCO₂e)</a>.</div></div>
+        <div class="assum-item"><div class="assum-title">Cashflow model</div><div class="assum-text">Capex and CO₂ figures from company documents. Cashflow uses avoided ETS compliance cost, not full ETS price: avoided CO₂ × ETS price × paid ETS share. CBAM-sector paid share follows the official free-allocation phase-out. Non-CBAM sectors use a separate explicit free-allocation assumption. Optional CBAM adjustment is a market proxy, not a legal CBAM cost for EU producers.</div></div>
+        <div class="assum-item"><div class="assum-title">IRR signal thresholds</div><div class="assum-text">&gt;10% IRR: payback &lt;7 yr. 5–10%: payback 7–14 yr. &lt;5%: payback &gt;14 yr. Near-zero or negative: &gt;20 yr. Consistent with <a href="https://climateprogramportal.org/wp-content/uploads/2025/02/20230921-Pathways-to-Commercial-Liftoff-Chemicals-Refining.pdf" target="_blank">US DOE Chemicals Liftoff (&gt;10% IRR threshold)</a>.</div></div>
+      </div>
+    </div>
+
+    <div class="card mt-4 roi-formulas-card">
+      <div class="card-head">
+        <div>
+          <div class="card-title">ROI Calculation Formulas</div>
+          <div class="card-sub">Notation: CAPEX is in M€, CO₂ savings are in ktCO₂e/year, ETS and CBAM certificate prices are €/tCO₂, and all annual outputs are in M€ unless stated otherwise.</div>
+        </div>
+      </div>
+      <div class="formula-grid">
+        <div class="formula-item">
+          <div class="formula-title">Pathway annual ETS value</div>
+          <code class="formula-eq">annual_saving_y = CO2_saved_kt × ETS_price_y / 1000</code>
+          <div class="formula-note">Used for the payback chart, ROI table 2026/2030 savings, sensitivity table, and simple pathway screening.</div>
+        </div>
+        <div class="formula-item">
+          <div class="formula-title">Payback period</div>
+          <code class="formula-eq">payback_years = CAPEX_MEUR / annual_saving_commissioning_year</code>
+          <div class="formula-note">If a pathway starts before 2026, the 2026 ETS price is used. Pathways with zero direct CO₂ savings are shown as enablers.</div>
+        </div>
+        <div class="formula-item">
+          <div class="formula-title">Net by 2040</div>
+          <code class="formula-eq">net_2040 = Σ annual_saving_y - CAPEX_MEUR</code>
+          <div class="formula-note">The sum starts in the commissioning year and runs through 2040. This is the net value shown in the ROI metrics table.</div>
+        </div>
+        <div class="formula-item">
+          <div class="formula-title">Marginal abatement cost</div>
+          <code class="formula-eq">break_even_price = CAPEX_EUR / annual_CO2_saved_t</code>
+          <div class="formula-note">Shown as €/tCO₂ in the MAC chart. A pathway below the ETS threshold line is cheaper than paying the carbon price on the same tonnes.</div>
+        </div>
+        <div class="formula-item">
+          <div class="formula-title">Cashflow CAPEX deployment</div>
+          <code class="formula-eq">investment_y = CAPEX_MEUR × capex_fraction_y</code>
+          <div class="formula-note">Cumulative investment is Σ investment_y. The chart plots this as a negative line so outflows are visible below zero.</div>
+        </div>
+        <div class="formula-item">
+          <div class="formula-title">Cashflow ETS avoided compliance cost</div>
+          <code class="formula-eq">ets_savings_y = CO2_saved_kt × ETS_price_y × paid_ETS_share_y / 1000</code>
+          <div class="formula-note">This is the cashflow-specific savings formula. CBAM-sector installations use the official CBAM-linked free-allocation phase-out; non-CBAM sectors use the separate free-allocation assumption.</div>
+        </div>
+        <div class="formula-item">
+          <div class="formula-title">Paid ETS share</div>
+          <code class="formula-eq">paid_ETS_share_y = CBAM_schedule_y OR non_CBAM_assumption_y</code>
+          <div class="formula-note">CBAM-sector schedule: 2.5% in 2026, 5% in 2027, 10% in 2028, 22.5% in 2029, 48.5% in 2030, 61% in 2031, 73.5% in 2032, 86% in 2033, 100% from 2034. Non-CBAM sectors use the explicit model assumption in code.</div>
+        </div>
+        <div class="formula-item">
+          <div class="formula-title">Optional CBAM market proxy</div>
+          <code class="formula-eq">cbam_proxy_y = volume_t × emission_factor × certificate_price_y × CBAM_paid_share_y × pass_through_share / 1,000,000</code>
+          <div class="formula-note">Only included when “Include CBAM market adjustment” is ON. It is a market adjustment proxy, not a direct legal CBAM cost for EU producers.</div>
+        </div>
+        <div class="formula-item">
+          <div class="formula-title">Cumulative net cashflow</div>
+          <code class="formula-eq">net_position_y = Σ[(ets_savings_y + optional_cbam_proxy_y) - investment_y]</code>
+          <div class="formula-note">Break-even occurs when cumulative net position reaches or crosses zero.</div>
+        </div>
+        <div class="formula-item">
+          <div class="formula-title">Signed log y-axis</div>
+          <code class="formula-eq">chart_value = sign(x) × log10(1 + abs(x))</code>
+          <div class="formula-note">Used only when the cashflow log toggle is ON, so positive and negative values remain visible on the same axis. Tooltips show the original M€ values.</div>
+        </div>
+        <div class="formula-item">
+          <div class="formula-title">N₂O abatement input</div>
+          <code class="formula-eq">CO2e_saved_kt = HNO3_output_t × N2O_reduced_kg_per_t × GWP100 / 1,000,000</code>
+          <div class="formula-note">Used to derive nitric-acid abatement pathway inputs where production and N₂O reduction factors are the underlying source data.</div>
+        </div>
+        <div class="formula-item">
+          <div class="formula-title">IRR signal proxy</div>
+          <code class="formula-eq">IRR_signal = threshold(payback_years)</code>
+          <div class="formula-note">&gt;10% IRR if payback is below 7 years; 5–10% if 7–14 years; &lt;5% if 14–20 years; very long-term above 20 years.</div>
+        </div>
+        <div class="formula-item formula-wide">
+          <div class="formula-title">Scenario and KPI aggregation</div>
+          <code class="formula-eq">annual_carbon_savings_2030 = Σ(CO2_saved_kt × ETS_price_2030 / 1000)</code>
+          <div class="formula-note">The 2030 savings KPI sums all pathways commissioned by 2030 under the selected ETS price scenario. Company-level cashflow aggregates sum annual investment, ETS savings, CBAM proxy, and net position across the selected companies and enabled technology groups.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ INVESTMENTS ═══════════════════════ -->
+  <section class="section" id="section-investments">
+    <div class="section-head">
+      <div>
+        <h1 class="section-title" data-i18n="section.investments.title">Technology Investment Needs</h1>
+        <p class="section-desc" data-i18n="section.investments.desc">Required CAPEX per company and decarbonization pathway toward net-zero by 2050</p>
+      </div>
+      <div class="pill pill-amber" data-i18n="section.investments.pill">Estimates · 2026</div>
+    </div>
+
+    <!-- Summary overview -->
+    <div class="inv-overview">
+      <div class="inv-kpi-row">
+        <div class="inv-kpi">
+          <div class="ik-val">€2.6B–5.9B</div>
+          <div class="ik-label">Total sector investment to 2035 (9 companies)</div>
+        </div>
+        <div class="inv-kpi">
+          <div class="ik-val">€550M+</div>
+          <div class="ik-label">Confirmed commitments (Agropolychim €250M + Biovet €300M)</div>
+        </div>
+        <div class="inv-kpi">
+          <div class="ik-val">€1.2B</div>
+          <div class="ik-label">Heidelberg + Holcim CCUS CAPEX assumption</div>
+        </div>
+        <div class="inv-kpi">
+          <div class="ik-val">9 companies</div>
+          <div class="ik-label">Covered in Net-Zero Lab analysis</div>
+        </div>
+      </div>
+
+      <!-- Range chart -->
+      <div class="card mt-4">
+        <div class="card-head">
+          <div class="card-title">Investment Range by Company (full pathway to 2035)</div>
+          <div class="card-sub">CAPEX low–high estimates · Sources: company disclosures, IEA, IRENA, EBRD benchmarks</div>
+        </div>
+        <div class="chart-wrap" style="height:240px">
+          <canvas id="invRangeChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- View toggle -->
+    <div class="inv-view-row">
+      <div class="inv-view-label">View:</div>
+      <button class="inv-view-btn active" onclick="setInvView('company',this)">By Company</button>
+      <button class="inv-view-btn" onclick="setInvView('pathway',this)">By Pathway</button>
+    </div>
+
+    <!-- Company view -->
+    <div id="inv-company-view">
+
+      <!-- Agropolychim -->
+      <div class="inv-company-card">
+        <div class="icc-header">
+          <div class="icc-logo" style="background:var(--success-light);color:var(--success)">AP</div>
+          <div class="icc-info"><div class="icc-name">Agropolychim AD</div><div class="icc-desc">Nitrogen &amp; phosphate fertilizers · Devnya · CRF: 1.A.2.c + 2.B.2</div></div>
+          <div class="icc-total"><div class="icc-total-val">€250M+</div><div class="icc-total-label">Confirmed investment programme</div></div>
+          <div class="icc-badge" style="background:var(--success-light);color:var(--success)">CBAM-exposed · €250M programme confirmed</div>
+        </div>
+        <div class="pathway-rows">
+          <div class="pw-invest-row status-committed">
+            <div class="pir-status"><span class="status-dot"></span>Committed</div>
+            <div class="pir-name">New HNO₃ Plant - Negligible N₂O (1.5 Mt/yr capacity, Devnya)</div>
+            <div class="pir-capex">€250M (total programme)</div>
+            <div class="pir-timeline">2024–2029</div>
+            <div class="pir-co2">↓~295 kt CO₂eq/yr</div>
+            <div class="pir-bar"><div class="pir-fill" style="width:18%"></div></div>
+            <div class="pir-note">Part of confirmed €250M investment programme. Integrates N₂O abatement by design. 1.5 million tonnes/year nitrogen fertilizer capacity. (Source: Agropolychim-Part01.docx)</div>
+          </div>
+          <div class="pw-invest-row status-committed">
+            <div class="pir-status"><span class="status-dot"></span>Committed</div>
+            <div class="pir-name">New Calcium Nitrate Installation (50,000 t/yr) - Blue Ammonia + RES</div>
+            <div class="pir-capex">Incl. in €250M</div>
+            <div class="pir-timeline">2027</div>
+            <div class="pir-co2">↓ Scope 3</div>
+            <div class="pir-bar"><div class="pir-fill" style="width:4%"></div></div>
+            <div class="pir-note">Operates entirely on blue ammonia and renewable energy. Creates 50 new jobs. First delivery of low-carbon ammonia: saves 5,450 t CO₂.</div>
+          </div>
+          <div class="pw-invest-row status-committed">
+            <div class="pir-status"><span class="status-dot"></span>Committed</div>
+            <div class="pir-name">Ammonia Logistics Infrastructure (3rd tank 12,500 t + 100 trucks)</div>
+            <div class="pir-capex">€50M est.</div>
+            <div class="pir-timeline">2024–2026</div>
+            <div class="pir-co2">↓ Scope 3 (CBAM)</div>
+            <div class="pir-bar"><div class="pir-fill" style="width:4%"></div></div>
+            <div class="pir-note">Total ammonia storage reaches 36,500 t. Enables blue (2026) → green (2030) ammonia supply chain. Key decarbonization via Scope 3.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Biovet -->
+      <div class="inv-company-card">
+        <div class="icc-header">
+          <div class="icc-logo" style="background:var(--teal-light);color:var(--teal)">BV</div>
+          <div class="icc-info"><div class="icc-name">Biovet AD (Huvepharma group)</div><div class="icc-desc">Veterinary pharmaceuticals · Peshtera, Razgrad, Botevgrad · CRF: 1.A.2.c</div></div>
+          <div class="icc-total"><div class="icc-total-val">~€300M</div><div class="icc-total-label">Total decarbonization programme by 2030</div></div>
+          <div class="icc-badge" style="background:var(--teal-light);color:var(--teal)">Carbon neutral 2030 target · EU-largest private BESS</div>
+        </div>
+        <div class="pathway-rows">
+          <div class="pw-invest-row status-committed">
+            <div class="pir-status"><span class="status-dot"></span>Committed</div>
+            <div class="pir-name">300 MW Photovoltaic Capacity - Multi-site (Peshtera, Razgrad, Botevgrad)</div>
+            <div class="pir-capex">~€200M (est.)</div>
+            <div class="pir-timeline">2022–2030</div>
+            <div class="pir-co2">↓~280 kt CO₂/yr</div>
+            <div class="pir-bar"><div class="pir-fill" style="width:14%"></div></div>
+            <div class="pir-note">~100 MW already operational end-2024. Target 300 MW total PV by 2030. Key pillar of €300M carbon neutrality programme. (Source: Biovet-Part01.docx)</div>
+          </div>
+          <div class="pw-invest-row status-committed">
+            <div class="pir-status"><span class="status-dot"></span>Committed</div>
+            <div class="pir-name">BESS at Razgrad - Largest Private Battery Storage in EU (13.4 MW / 26.8 MWh)</div>
+            <div class="pir-capex">~€22M (EU co-financed)</div>
+            <div class="pir-timeline">2025–2026</div>
+            <div class="pir-co2">↓~40 kt CO₂/yr</div>
+            <div class="pir-bar"><div class="pir-fill" style="width:2%"></div></div>
+            <div class="pir-note">Partially financed under EU Recovery and Resilience Mechanism. Enables PV balancing, grid stability, and green energy self-sufficiency.</div>
+          </div>
+          <div class="pw-invest-row status-done">
+            <div class="pir-status"><span class="status-dot"></span>Done</div>
+            <div class="pir-name">Greenburn® Biomass Installations + Biogas from Wastewater</div>
+            <div class="pir-capex">~€35M</div>
+            <div class="pir-timeline">2022–2024</div>
+            <div class="pir-co2">↓~65 kt CO₂/yr</div>
+            <div class="pir-bar"><div class="pir-fill pir-done" style="width:5%"></div></div>
+            <div class="pir-note">Greenburn® thermal treatment of residual mycelium → carbon-neutral steam. Anaerobic wastewater treatment → biogas for cogeneration. 30% absolute CO₂ reduction achieved 2020–2023.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Heidelberg Materials -->
+      <div class="inv-company-card">
+        <div class="icc-header">
+          <div class="icc-logo" style="background:var(--primary-light);color:var(--primary)">HM</div>
+          <div class="icc-info"><div class="icc-name">Heidelberg Materials Bulgaria</div><div class="icc-desc">Cement · Devnya Cement + Vulkan Cement · CRF: 2.A.1 + 1.A.2.f</div></div>
+          <div class="icc-total"><div class="icc-total-val">€625M+</div><div class="icc-total-label">ANRAV €600M: €190M grant + €410M remaining</div></div>
+          <div class="icc-badge" style="background:var(--primary-light);color:var(--primary)">ANRAV: 1st CCUS chain in Eastern Europe · €190M of €600M funded by EU Innovation Fund</div>
+        </div>
+        <div class="pathway-rows">
+          <div class="pw-invest-row status-committed">
+            <div class="pir-status"><span class="status-dot"></span>Committed</div>
+            <div class="pir-name">ANRAV - Full CCUS Chain at Devnya (€600M assumed CAPEX: €190M EU Innovation Fund + €410M remaining)</div>
+            <div class="pir-capex">€600M total · €190M funded</div>
+            <div class="pir-timeline">2023–2028</div>
+            <div class="pir-co2">↓800,000 t CO₂/yr</div>
+            <div class="pir-bar"><div class="pir-fill" style="width:43%"></div></div>
+            <div class="pir-note">First full carbon capture, transport, and storage (CCUS) chain in Eastern Europe. Financing split: €190M from the EU Innovation Fund, including €38M for storage, and €410M remaining project financing. Hybrid OxyCal + post-combustion technology. Full-scale operational 2028. Cumulative target: 10 Mt CO₂ captured. (Source: Heidelberg-Part01.docx)</div>
+          </div>
+          <div class="pw-invest-row status-done">
+            <div class="pir-status"><span class="status-dot"></span>Done</div>
+            <div class="pir-name">ANRAV.beta - Pilot CCUS Installation</div>
+            <div class="pir-capex">Incl. in €600M</div>
+            <div class="pir-timeline">Completed</div>
+            <div class="pir-co2">↓ Validation</div>
+            <div class="pir-bar"><div class="pir-fill pir-done" style="width:2%"></div></div>
+            <div class="pir-note">Pilot installation validating OxyCal hybrid technology. Precedes full-scale ANRAV deployment.</div>
+          </div>
+          <div class="pw-invest-row status-done">
+            <div class="pir-status"><span class="status-dot"></span>Done</div>
+            <div class="pir-name">Kiln Line No.7 Alternative Fuels Upgrade (RDF + Tyres)</div>
+            <div class="pir-capex">€15M est.</div>
+            <div class="pir-timeline">Completed</div>
+            <div class="pir-co2">↓~60 kt CO₂/yr</div>
+            <div class="pir-bar"><div class="pir-fill pir-done" style="width:1%"></div></div>
+            <div class="pir-note">New shredder (480 t/24h) for direct RDF and tyre feeding to main burner. RDF acceptance capacity significantly increased.</div>
+          </div>
+          <div class="pw-invest-row status-planned">
+            <div class="pir-status"><span class="status-dot"></span>Planned</div>
+            <div class="pir-name">Own RES (Solar/Wind) at Vulkan Cement</div>
+            <div class="pir-capex">€10M est.</div>
+            <div class="pir-timeline">2026–2027</div>
+            <div class="pir-co2">↓~20 kt CO₂/yr</div>
+            <div class="pir-bar"><div class="pir-fill" style="width:1%"></div></div>
+            <div class="pir-note">Feasibility studies underway. Financing secured for green initiatives and RES studies at Vulkan Cement plant.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Solvay Sodi -->
+      <div class="inv-company-card">
+        <div class="icc-header">
+          <div class="icc-logo" style="background:var(--info-light);color:var(--info)">SS</div>
+          <div class="icc-info"><div class="icc-name">Solvay Sodi Bulgaria AD</div><div class="icc-desc">Soda ash &amp; sodium bicarbonate · Devnya · CRF: 1.A.2.c + 2.B.7</div></div>
+          <div class="icc-total"><div class="icc-total-val">€865M+</div><div class="icc-total-label">Biomass + kilns + e.Solvay to full decarbonization</div></div>
+          <div class="icc-badge" style="background:var(--info-light);color:var(--info)">~2 Mt CO₂/yr total · Lime kiln electrification 500–600 kt/yr · e.Solvay 1 Mt/yr</div>
+        </div>
+        <div class="pathway-rows">
+          <div class="pw-invest-row status-committed">
+            <div class="pir-status"><span class="status-dot"></span>Committed</div>
+            <div class="pir-name">Biomass Scale-Up 30% → 50% in CFB Steam Generators (No.7 + No.8)</div>
+            <div class="pir-capex">€45M est.</div>
+            <div class="pir-timeline">2025–2026</div>
+            <div class="pir-co2">↓~130 kt CO₂/yr</div>
+            <div class="pir-bar"><div class="pir-fill" style="width:3%"></div></div>
+            <div class="pir-note">Delayed 5 months due to administrative procedure. Confirmed investment intention. Previous procedure showed 20% CO₂ reduction achieved at 30% biomass. (Source: Solvay-Sodi-Bulgaria-Part01.docx)</div>
+          </div>
+          <div class="pw-invest-row status-planned">
+            <div class="pir-status"><span class="status-dot"></span>Planned</div>
+            <div class="pir-name">Electrification of Lime Kilns (anthracite/coke → electric heating)</div>
+            <div class="pir-capex">€320M est.</div>
+            <div class="pir-timeline">2026–2030</div>
+            <div class="pir-co2">↓500,000–600,000 t/yr</div>
+            <div class="pir-bar"><div class="pir-fill" style="width:23%"></div></div>
+            <div class="pir-note">Largest single Solvay decarbonization investment. Transition from anthracite/metallurgical coke to electric heating of lime kilns. Expected savings: 500,000–600,000 tonnes CO₂/year. Grid capacity upgrade required.</div>
+          </div>
+          <div class="pw-invest-row status-exploring">
+            <div class="pir-status"><span class="status-dot"></span>Under Testing</div>
+            <div class="pir-name">e.Solvay Electrochemical Process (50% CO₂ reduction - revolutionary)</div>
+            <div class="pir-capex">€500M est.</div>
+            <div class="pir-timeline">2028–2032</div>
+            <div class="pir-co2">↓~1,000 kt CO₂/yr</div>
+            <div class="pir-bar"><div class="pir-fill" style="width:36%"></div></div>
+            <div class="pir-note">Revolutionary electrochemical process: 50% CO₂ reduction; also saves water, salt, and limestone. Currently under testing by Solvay Group. Game-changer for soda ash production globally if validated.</div>
+          </div>
+          <div class="pw-invest-row status-exploring">
+            <div class="pir-status"><span class="status-dot"></span>Exploring</div>
+            <div class="pir-name">Bio-Coke Testing (replacing metallurgical coke in lime kilns)</div>
+            <div class="pir-capex">€5M est.</div>
+            <div class="pir-timeline">2025–2027</div>
+            <div class="pir-co2">↓20–40 kt/yr</div>
+            <div class="pir-bar"><div class="pir-fill" style="width:0.5%"></div></div>
+            <div class="pir-note">Partial replacement of metallurgical coke with bio-coke (wood charcoal). Bridge solution while lime kiln electrification is developed.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lukoil -->
+      <div class="inv-company-card">
+        <div class="icc-header">
+          <div class="icc-logo" style="background:var(--danger-light);color:var(--danger)">LN</div>
+          <div class="icc-info"><div class="icc-name">Lukoil Neftochim Burgas AD</div><div class="icc-desc">Petroleum refining &amp; petrochemicals · Burgas · CRF: 1.A.1.b</div></div>
+          <div class="icc-total"><div class="icc-total-val">€1.0B–2.1B</div><div class="icc-total-label">ORC + modernization + H₂ + RES + CCUS</div></div>
+          <div class="icc-badge" style="background:var(--danger-light);color:var(--danger)">Largest Balkan refinery · 5 modeled pathways · 2026–2031 decisions pending</div>
+        </div>
+        <div class="pathway-rows">
+          <div class="pw-invest-row status-committed">
+            <div class="pir-status"><span class="status-dot"></span>In Progress</div>
+            <div class="pir-name">LIVE WATEROIL - ORC Turbines (Waste Heat → Electricity)</div>
+            <div class="pir-capex">€30M est.</div>
+            <div class="pir-timeline">2024–2026</div>
+            <div class="pir-co2">↓~50 kt CO₂/yr</div>
+            <div class="pir-bar"><div class="pir-fill" style="width:2%"></div></div>
+            <div class="pir-note">Organic Rankine Cycle turbines transforming low-potential waste heat into electricity. Confirmed ongoing project (LIVE WATEROIL). (Source: Lukoil-Part01.docx)</div>
+          </div>
+          <div class="pw-invest-row status-committed">
+            <div class="pir-status"><span class="status-dot"></span>Ongoing</div>
+            <div class="pir-name">Equipment Modernization + Digital Energy Management</div>
+            <div class="pir-capex">€20–50M est.</div>
+            <div class="pir-timeline">Ongoing–2027</div>
+            <div class="pir-co2">↓~107 kt CO₂/yr</div>
+            <div class="pir-bar"><div class="pir-fill" style="width:2%"></div></div>
+            <div class="pir-note">Power plant and distillation unit modernization with digital energy management systems. Complements waste-heat recovery and lowers energy intensity.</div>
+          </div>
+          <div class="pw-invest-row status-exploring">
+            <div class="pir-status"><span class="status-dot"></span>Pending Decision</div>
+            <div class="pir-name">Green/Low-Carbon H₂ for Hydrotreating (highest-emission processes)</div>
+            <div class="pir-capex">€225M est.</div>
+            <div class="pir-timeline">2027–2033 (if decided)</div>
+            <div class="pir-co2">↓~355 kt CO₂/yr</div>
+            <div class="pir-bar"><div class="pir-fill" style="width:16%"></div></div>
+            <div class="pir-note">Transition from SMR-based H₂ to green/low-carbon hydrogen. Investment decision for 2026–2031 period still pending. Decarbonizes highest-emission refinery processes.</div>
+          </div>
+          <div class="pw-invest-row status-exploring">
+            <div class="pir-status"><span class="status-dot"></span>Pending Decision</div>
+            <div class="pir-name">Own RES - PV and Wind Capacity</div>
+            <div class="pir-capex">€100M est.</div>
+            <div class="pir-timeline">2027–2030 (if decided)</div>
+            <div class="pir-co2">↓~150 kt CO₂/yr</div>
+            <div class="pir-bar"><div class="pir-fill" style="width:7%"></div></div>
+            <div class="pir-note">Construction of PV and wind to minimize Scope 2 emissions. Investment decision for 2026–2031 period pending. Group target: 20% Scope 1+2 reduction by 2030 vs. 2017.</div>
+          </div>
+          <div class="pw-invest-row status-exploring">
+            <div class="pir-status"><span class="status-dot"></span>Long-term</div>
+            <div class="pir-name">Refinery CCUS for Residual Process Emissions</div>
+            <div class="pir-capex">€700M–1.5B est.</div>
+            <div class="pir-timeline">2032–2040</div>
+            <div class="pir-co2">↓~1,470 kt CO₂/yr</div>
+            <div class="pir-bar"><div class="pir-fill pir-longterm" style="width:52%"></div></div>
+            <div class="pir-note">Long-term option for residual refinery emissions where efficiency, RES, and hydrogen cannot fully abate process emissions. Included for consistency with the pathway matrix.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Holcim Bulgaria -->
+      <div class="inv-company-card">
+        <div class="icc-header">
+          <div class="icc-logo" style="background:rgba(160,96,143,0.13);color:#a0608f">HC</div>
+          <div class="icc-info"><div class="icc-name">Holcim Bulgaria AD</div><div class="icc-desc">Cement · Beli Izvor (Vratsa) · CRF: 2.A.1 + 1.A.2.f</div></div>
+          <div class="icc-total"><div class="icc-total-val">€615M+</div><div class="icc-total-label">WHR + PV + Beli Net Zero</div></div>
+          <div class="icc-badge" style="background:rgba(160,96,143,0.13);color:#a0608f">443 kg CO₂/t - lowest in global Holcim Group 2024 · ~90% alt. fuel substitution</div>
+        </div>
+        <div class="pathway-rows">
+          <div class="pw-invest-row status-done">
+            <div class="pir-status"><span class="status-dot"></span>Done</div>
+            <div class="pir-name">Alternative Fuels Programme (~90% fossil fuel substitution in clinker)</div>
+            <div class="pir-capex">Incl. in €147M programme</div>
+            <div class="pir-timeline">Since privatization</div>
+            <div class="pir-co2">↓ Best-in-class achieved</div>
+            <div class="pir-bar"><div class="pir-fill pir-done" style="width:10%"></div></div>
+            <div class="pir-note">~90% fossil fuel substitution with alternative fuels (RDF, tyres, etc.) in clinker burning. Achieved lowest specific emissions in entire global Holcim Group (443 kg CO₂/t, 2023). Total post-privatization investment: ~€147M. (Source: Holcim-Part01.docx)</div>
+          </div>
+          <div class="pw-invest-row status-planned">
+            <div class="pir-status"><span class="status-dot"></span>Planned</div>
+            <div class="pir-name">WHR System (Waste Heat Recovery, up to 4 MWh → 9,600 t CO₂/yr)</div>
+            <div class="pir-capex">€8M est.</div>
+            <div class="pir-timeline">2026–2027</div>
+            <div class="pir-co2">↓9,600 t CO₂/yr</div>
+            <div class="pir-bar"><div class="pir-fill" style="width:0.5%"></div></div>
+            <div class="pir-note">WHR capacity up to 4 MWh. 9,600 t CO₂/year savings confirmed in document. Reduces grid electricity dependence.</div>
+          </div>
+          <div class="pw-invest-row status-planned">
+            <div class="pir-status"><span class="status-dot"></span>Planned</div>
+            <div class="pir-name">Own Photovoltaic Plant (3–9 MWp)</div>
+            <div class="pir-capex">€7M est.</div>
+            <div class="pir-timeline">2026–2027</div>
+            <div class="pir-co2">↓~12 kt CO₂/yr</div>
+            <div class="pir-bar"><div class="pir-fill" style="width:0.5%"></div></div>
+            <div class="pir-note">Own consumption PV. Reduces Scope 2 emissions.</div>
+          </div>
+          <div class="pw-invest-row status-exploring">
+            <div class="pir-status"><span class="status-dot"></span>Research</div>
+            <div class="pir-name">Eastern Lights - CO₂ Storage in NW Bulgaria Saline Aquifers</div>
+            <div class="pir-capex">€24.2M+ (research)</div>
+            <div class="pir-timeline">Ongoing</div>
+            <div class="pir-co2">↓ Prerequisite for CCUS</div>
+            <div class="pir-bar"><div class="pir-fill" style="width:2%"></div></div>
+            <div class="pir-note">Research initiative studying onshore CO₂ storage in saline aquifers in Northwest Bulgaria. Required to establish geological storage for Beli Net Zero CCUS project.</div>
+          </div>
+          <div class="pw-invest-row status-exploring">
+            <div class="pir-status"><span class="status-dot"></span>Long-term</div>
+            <div class="pir-name">Beli Net Zero - Full CCUS Chain (€600M assumed CAPEX; EU STEP Seal certified)</div>
+            <div class="pir-capex">€600M est.</div>
+            <div class="pir-timeline">2029–2033</div>
+            <div class="pir-co2">↓~400 kt CO₂/yr</div>
+            <div class="pir-bar"><div class="pir-fill pir-longterm" style="width:43%"></div></div>
+            <div class="pir-note">Project certified with EU STEP Seal. Assumed €600M CCUS CAPEX for the full CO₂ capture chain at Beli Izvor. Dependent on Eastern Lights storage research results and CO₂ transport infrastructure.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Svilosa -->
+      <div class="inv-company-card">
+        <div class="icc-header">
+          <div class="icc-logo" style="background:var(--teal-light);color:var(--teal)">SV</div>
+          <div class="icc-info"><div class="icc-name">Sviloza AD</div><div class="icc-desc">Bleached sulphate cellulose · Svishtov · CRF: 1.A.2.d</div></div>
+          <div class="icc-total"><div class="icc-total-val">€70M+</div><div class="icc-total-label">MCC + PV + HERB boilers to 2035</div></div>
+          <div class="icc-badge" style="background:var(--teal-light);color:var(--teal)">Kyoto Protocol Gold Standard GS3379 · 2 decades decarbonization leadership</div>
+        </div>
+        <div class="pathway-rows">
+          <div class="pw-invest-row status-done">
+            <div class="pir-status"><span class="status-dot"></span>Done</div>
+            <div class="pir-name">BioTEC Biomass CHP (16 MW · 65 t steam/hour) - Kyoto Gold Standard</div>
+            <div class="pir-capex">€21M</div>
+            <div class="pir-timeline">2021–2024</div>
+            <div class="pir-co2">↓~33 kt CO₂/yr</div>
+            <div class="pir-bar"><div class="pir-fill pir-done" style="width:30%"></div></div>
+            <div class="pir-note">COMPLETED. Pioneer: Sviloza Biomass project registered under Kyoto Protocol (Gold Standard GS3379). Waste biomass → 65 t steam/hour. (Source: Sviloza-Part01.docx)</div>
+          </div>
+          <div class="pw-invest-row status-committed">
+            <div class="pir-status"><span class="status-dot"></span>Committed</div>
+            <div class="pir-name">MCC Production Installation (Microcrystalline Cellulose)</div>
+            <div class="pir-capex">€13.1M confirmed</div>
+            <div class="pir-timeline">2025–2030</div>
+            <div class="pir-co2">↓~25 kt CO₂/yr specific</div>
+            <div class="pir-bar"><div class="pir-fill" style="width:18%"></div></div>
+            <div class="pir-note">Over €13.1M confirmed investment. High-value MCC product optimizes biomass use and reduces specific emissions per unit output. New revenue stream.</div>
+          </div>
+          <div class="pw-invest-row status-planned">
+            <div class="pir-status"><span class="status-dot"></span>Planned</div>
+            <div class="pir-name">On-site PV Park (850 polycrystalline panels)</div>
+            <div class="pir-capex">€5M est.</div>
+            <div class="pir-timeline">2026–2027</div>
+            <div class="pir-co2">↓~8 kt CO₂/yr</div>
+            <div class="pir-bar"><div class="pir-fill" style="width:7%"></div></div>
+            <div class="pir-note">Reduces Scope 2 emissions. 850 polycrystalline panels on existing site infrastructure.</div>
+          </div>
+          <div class="pw-invest-row status-exploring">
+            <div class="pir-status"><span class="status-dot"></span>Future</div>
+            <div class="pir-name">HERB Recovery Boilers (High-Efficiency Black Liquor Combustion)</div>
+            <div class="pir-capex">€40M est.</div>
+            <div class="pir-timeline">2029–2032</div>
+            <div class="pir-co2">↓~50 kt CO₂/yr</div>
+            <div class="pir-bar"><div class="pir-fill" style="width:57%"></div></div>
+            <div class="pir-note">Modernization of black liquor combustion systems (by-product of sulphate cellulose process). Would enable potential BECCS (bioenergy + CCS) in future.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Neochim -->
+      <div class="inv-company-card">
+        <div class="icc-header">
+          <div class="icc-logo" style="background:var(--primary-light);color:var(--primary)">NC</div>
+          <div class="icc-info"><div class="icc-name">Neochim AD</div><div class="icc-desc">Ammonia &amp; nitric acid · Dimitrovgrad · CRF: 1.A.2.c + 2.B.1 + 2.B.2</div></div>
+          <div class="icc-total"><div class="icc-total-val">€16M–800M</div><div class="icc-total-label">From N₂O abatement now to green ammonia long-term</div></div>
+          <div class="icc-badge" style="background:var(--danger-light);color:var(--danger)">Under stress · Urgent action needed · N₂O abatement = highest ROI</div>
+        </div>
+        <div class="pathway-rows">
+          <div class="pw-invest-row status-immediate">
+            <div class="pir-status"><span class="status-dot"></span>Immediate</div>
+            <div class="pir-name">N₂O Catalytic Abatement (tertiary) on HNO₃ Units</div>
+            <div class="pir-capex">€3–6M</div>
+            <div class="pir-timeline">2025–2026</div>
+            <div class="pir-co2">↓>90% N₂O</div>
+            <div class="pir-bar"><div class="pir-fill" style="width:1%"></div></div>
+            <div class="pir-note">Critical priority. Lowest capex, fastest payback via ETS credits. CDM/JI-proven technology. Cost: €0.1–4/tCO₂eq abated (SEI). ~277 kt CO₂eq/yr saved.</div>
+          </div>
+          <div class="pw-invest-row status-planned">
+            <div class="pir-status"><span class="status-dot"></span>Planned</div>
+            <div class="pir-name">Energy Efficiency Upgrades (heat recovery, steam optimization)</div>
+            <div class="pir-capex">€8–15M</div>
+            <div class="pir-timeline">2025–2028</div>
+            <div class="pir-co2">↓10–15%</div>
+            <div class="pir-bar"><div class="pir-fill" style="width:2%"></div></div>
+            <div class="pir-note">Critical after 2022–2024 production outages due to gas price crisis. Reduces gas cost exposure.</div>
+          </div>
+          <div class="pw-invest-row status-exploring">
+            <div class="pir-status"><span class="status-dot"></span>Exploring</div>
+            <div class="pir-name">Blue Ammonia Transition (SMR + CCS)</div>
+            <div class="pir-capex">€100–200M</div>
+            <div class="pir-timeline">2028–2033</div>
+            <div class="pir-co2">↓60–80%</div>
+            <div class="pir-bar"><div class="pir-fill" style="width:14%"></div></div>
+            <div class="pir-note">Transitional route. CCS on existing SMR. Requires CO₂ pipeline to Black Sea. Capture cost €22–32/t CO₂ (Belfer Center).</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Orgachim -->
+      <div class="inv-company-card">
+        <div class="icc-header">
+          <div class="icc-logo" style="background:var(--danger-light);color:var(--danger)">OC</div>
+          <div class="icc-info"><div class="icc-name">Orgachim AD (Polycolor-Orgachim Group)</div><div class="icc-desc">Paints, varnishes, resins, anhydrides · Ruse + Bucharest · CRF: 1.A.2.c + 2.D.3</div></div>
+          <div class="icc-total"><div class="icc-total-val">€20M+</div><div class="icc-total-label">Modernization + heating decentralization + PV</div></div>
+          <div class="icc-badge" style="background:var(--danger-light);color:var(--danger)">120+ years history · Class A investment certificate 2024 · Low-VOC products</div>
+        </div>
+        <div class="pathway-rows">
+          <div class="pw-invest-row status-done">
+            <div class="pir-status"><span class="status-dot"></span>Done</div>
+            <div class="pir-name">Heating Decentralization - Steam Network → Local Gas Boilers (Resalta co-financed)</div>
+            <div class="pir-capex">€3M (co-financed)</div>
+            <div class="pir-timeline">Completed</div>
+            <div class="pir-co2">↓~5 kt CO₂/yr</div>
+            <div class="pir-bar"><div class="pir-fill pir-done" style="width:60%"></div></div>
+            <div class="pir-note">Replaced centralized steam network with local gas boilers. Eliminates thermal losses along pipelines. Energy efficiency certified project. Co-financed with Resalta. (Source: Orgachim-Part01.docx)</div>
+          </div>
+          <div class="pw-invest-row status-committed">
+            <div class="pir-status"><span class="status-dot"></span>Committed</div>
+            <div class="pir-name">Orgachim Resins Reconstruction (Class A Investment Certificate, 2024)</div>
+            <div class="pir-capex">€5M est.</div>
+            <div class="pir-timeline">2024–2025</div>
+            <div class="pir-co2">↓ Process optimization</div>
+            <div class="pir-bar"><div class="pir-fill" style="width:50%"></div></div>
+            <div class="pir-note">Reconstruction and modernization of Orgachim Resins facility. Received Class A investment certificate in 2024. Deploys state-of-the-art technology for sustainable production.</div>
+          </div>
+          <div class="pw-invest-row status-planned">
+            <div class="pir-status"><span class="status-dot"></span>Planned</div>
+            <div class="pir-name">Rooftop PV + BESS (energy independence)</div>
+            <div class="pir-capex">€5M est.</div>
+            <div class="pir-timeline">2026–2027</div>
+            <div class="pir-co2">↓~8 kt CO₂/yr</div>
+            <div class="pir-bar"><div class="pir-fill" style="width:80%"></div></div>
+            <div class="pir-note">Rooftop photovoltaic combined with battery storage. Aims for energy independence and Scope 2 decarbonization.</div>
+          </div>
+          <div class="pw-invest-row status-planned">
+            <div class="pir-status"><span class="status-dot"></span>Planned</div>
+            <div class="pir-name">Modern Equipment + Automation (€3M by 2025)</div>
+            <div class="pir-capex">€3M</div>
+            <div class="pir-timeline">By 2025</div>
+            <div class="pir-co2">↓ Efficiency</div>
+            <div class="pir-bar"><div class="pir-fill" style="width:30%"></div></div>
+            <div class="pir-note">Automated tinting lines, robotic palletizing. Reduces energy consumption per unit. Sustainable low-VOC product development.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Agria -->
+      <div class="inv-company-card">
+        <div class="icc-header">
+          <div class="icc-logo" style="background:var(--success-light);color:var(--success)">AG</div>
+          <div class="icc-info"><div class="icc-name">Agria AD</div><div class="icc-desc">Plant protection products · Plovdiv · CRF: 1.A.2.c</div></div>
+          <div class="icc-total"><div class="icc-total-val">Early stage</div><div class="icc-total-label">PV + process optimization underway</div></div>
+          <div class="icc-badge" style="background:var(--success-light);color:var(--success)">Only Bulgarian plant protection producer · Responsible Care member</div>
+        </div>
+        <div class="pathway-rows">
+          <div class="pw-invest-row status-planned">
+            <div class="pir-status"><span class="status-dot"></span>Planned</div>
+            <div class="pir-name">Photovoltaic Plant for Own Consumption</div>
+            <div class="pir-capex">Not specified</div>
+            <div class="pir-timeline">Announced Sept 2024</div>
+            <div class="pir-co2">↓ Scope 2</div>
+            <div class="pir-bar"><div class="pir-fill" style="width:40%"></div></div>
+            <div class="pir-note">Announced September 2024. Decarbonizes Scope 2 emissions. Reduces dependence on national grid. (Source: Argia-Part01.docx)</div>
+          </div>
+          <div class="pw-invest-row status-planned">
+            <div class="pir-status"><span class="status-dot"></span>Planned</div>
+            <div class="pir-name">Settling Basin + Workshop Extension (dithiocarbamate synthesis)</div>
+            <div class="pir-capex">Not specified</div>
+            <div class="pir-timeline">2025</div>
+            <div class="pir-co2">↓ Environmental performance</div>
+            <div class="pir-bar"><div class="pir-fill" style="width:30%"></div></div>
+            <div class="pir-note">New settling basin for dithiocarbamate synthesis + suspension concentrate workshop extension for optimized production zones and lower energy losses.</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end inv-company-view -->
+
+    <!-- Pathway view -->
+    <div id="inv-pathway-view" style="display:none">
+      <div class="pw-matrix">
+        <div class="pwm-head">
+          <div class="pwm-pathway">Pathway</div>
+          <div class="pwm-co">Agropolychim</div>
+          <div class="pwm-co">Neochim</div>
+          <div class="pwm-co">Solvay Sodi</div>
+          <div class="pwm-co">Lukoil</div>
+          <div class="pwm-co">Svilosa</div>
+          <div class="pwm-co">Biovet</div>
+          <div class="pwm-co">Heidelberg</div>
+          <div class="pwm-co">Holcim</div>
+          <div class="pwm-co">Orgachim</div>
+          <div class="pwm-co">Agria</div>
+        </div>
+        <div class="pwm-row">
+          <div class="pwm-pathway-label">
+            <div class="pwm-pname">N₂O Abatement</div>
+            <div class="pwm-ptype">Immediate · Low cost</div>
+          </div>
+          <div class="pwm-cell cell-committed"><span class="pwm-capex">€5–8M</span><span class="pwm-timeline">2025–27</span></div>
+          <div class="pwm-cell cell-immediate"><span class="pwm-capex">€3–6M</span><span class="pwm-timeline">2025–26</span></div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">n/a</span></div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">n/a</span></div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">n/a</span></div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">n/a</span></div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">n/a</span></div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">n/a</span></div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">n/a</span></div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">n/a</span></div>
+        </div>
+        <div class="pwm-row">
+          <div class="pwm-pathway-label">
+            <div class="pwm-pname">Biomass &amp; Alt. Fuels</div>
+            <div class="pwm-ptype">Near-term · Proven</div>
+          </div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">n/a</span></div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">n/a</span></div>
+          <div class="pwm-cell cell-committed"><span class="pwm-capex">€65–125M</span><span class="pwm-timeline">2022–30</span></div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">n/a</span></div>
+          <div class="pwm-cell cell-done"><span class="pwm-capex">€43–69M</span><span class="pwm-timeline">Done+</span></div>
+          <div class="pwm-cell cell-done"><span class="pwm-capex">€35M</span><span class="pwm-timeline">2022–24</span></div>
+          <div class="pwm-cell cell-done"><span class="pwm-capex">€15M</span><span class="pwm-timeline">Done</span></div>
+          <div class="pwm-cell cell-done"><span class="pwm-capex">Incl. €147M</span><span class="pwm-timeline">Done</span></div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">n/a</span></div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">n/a</span></div>
+        </div>
+        <div class="pwm-row">
+          <div class="pwm-pathway-label">
+            <div class="pwm-pname">Energy Efficiency</div>
+            <div class="pwm-ptype">Near-term · Low risk</div>
+          </div>
+          <div class="pwm-cell cell-committed"><span class="pwm-capex">€30–60M</span><span class="pwm-timeline">2025–29</span></div>
+          <div class="pwm-cell cell-planned"><span class="pwm-capex">€8–15M</span><span class="pwm-timeline">2025–28</span></div>
+          <div class="pwm-cell cell-planned"><span class="pwm-capex">Incl.</span><span class="pwm-timeline">ongoing</span></div>
+          <div class="pwm-cell cell-committed"><span class="pwm-capex">€20–50M</span><span class="pwm-timeline">ongoing</span></div>
+          <div class="pwm-cell cell-planned"><span class="pwm-capex">€5–12M</span><span class="pwm-timeline">2024–28</span></div>
+          <div class="pwm-cell cell-committed"><span class="pwm-capex">€22M</span><span class="pwm-timeline">2025–26</span></div>
+          <div class="pwm-cell cell-planned"><span class="pwm-capex">€10M</span><span class="pwm-timeline">2026–27</span></div>
+          <div class="pwm-cell cell-planned"><span class="pwm-capex">€8–15M</span><span class="pwm-timeline">2026–27</span></div>
+          <div class="pwm-cell cell-done"><span class="pwm-capex">€3–8M</span><span class="pwm-timeline">Done–27</span></div>
+          <div class="pwm-cell cell-planned"><span class="pwm-capex">Not spec.</span><span class="pwm-timeline">2024–25</span></div>
+        </div>
+        <div class="pwm-row">
+          <div class="pwm-pathway-label">
+            <div class="pwm-pname">New Process Plant</div>
+            <div class="pwm-ptype">Near-term · High impact</div>
+          </div>
+          <div class="pwm-cell cell-committed"><span class="pwm-capex">€100–130M</span><span class="pwm-timeline">2025–27</span></div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">n/a</span></div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">n/a</span></div>
+          <div class="pwm-cell cell-planned"><span class="pwm-capex">€200–300M</span><span class="pwm-timeline">2026–30</span></div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">n/a</span></div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">n/a</span></div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">n/a</span></div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">n/a</span></div>
+          <div class="pwm-cell cell-committed"><span class="pwm-capex">€5M</span><span class="pwm-timeline">2024–25</span></div>
+          <div class="pwm-cell cell-planned"><span class="pwm-capex">Not spec.</span><span class="pwm-timeline">2025</span></div>
+        </div>
+        <div class="pwm-row">
+          <div class="pwm-pathway-label">
+            <div class="pwm-pname">Process Electrification</div>
+            <div class="pwm-ptype">Mid-term · Growing</div>
+          </div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">indirect</span></div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">indirect</span></div>
+          <div class="pwm-cell cell-planned"><span class="pwm-capex">€60–120M</span><span class="pwm-timeline">2027–33</span></div>
+          <div class="pwm-cell cell-exploring"><span class="pwm-capex">€100–250M</span><span class="pwm-timeline">2028–34</span></div>
+          <div class="pwm-cell cell-planned"><span class="pwm-capex">€15–30M</span><span class="pwm-timeline">2026–31</span></div>
+          <div class="pwm-cell cell-committed"><span class="pwm-capex">€200M</span><span class="pwm-timeline">2022–30</span></div>
+          <div class="pwm-cell cell-planned"><span class="pwm-capex">€10M</span><span class="pwm-timeline">2026–27</span></div>
+          <div class="pwm-cell cell-planned"><span class="pwm-capex">€7M</span><span class="pwm-timeline">2026–27</span></div>
+          <div class="pwm-cell cell-planned"><span class="pwm-capex">€5M</span><span class="pwm-timeline">2026–27</span></div>
+          <div class="pwm-cell cell-planned"><span class="pwm-capex">Not spec.</span><span class="pwm-timeline">2024+</span></div>
+        </div>
+        <div class="pwm-row">
+          <div class="pwm-pathway-label">
+            <div class="pwm-pname">Green / Low-C Hydrogen</div>
+            <div class="pwm-ptype">Mid-term · Transformative</div>
+          </div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">n/a</span></div>
+          <div class="pwm-cell cell-exploring"><span class="pwm-capex">€450–800M</span><span class="pwm-timeline">2030–38</span></div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">indirect</span></div>
+          <div class="pwm-cell cell-exploring"><span class="pwm-capex">€150–300M</span><span class="pwm-timeline">2027–33</span></div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">n/a</span></div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">n/a</span></div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">n/a</span></div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">n/a</span></div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">n/a</span></div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">n/a</span></div>
+        </div>
+        <div class="pwm-row">
+          <div class="pwm-pathway-label">
+            <div class="pwm-pname">CCUS</div>
+            <div class="pwm-ptype">Long-term · High cost</div>
+          </div>
+          <div class="pwm-cell cell-exploring"><span class="pwm-capex">incl. above</span><span class="pwm-timeline">2030–38</span></div>
+          <div class="pwm-cell cell-exploring"><span class="pwm-capex">€100–200M</span><span class="pwm-timeline">2028–33</span></div>
+          <div class="pwm-cell cell-exploring"><span class="pwm-capex">€80–160M</span><span class="pwm-timeline">2029–35</span></div>
+          <div class="pwm-cell cell-exploring"><span class="pwm-capex">€700M–1.5B</span><span class="pwm-timeline">2032–40</span></div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">n/a</span></div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">n/a</span></div>
+          <div class="pwm-cell cell-committed"><span class="pwm-capex">€600M</span><span class="pwm-timeline">2023–28</span></div>
+          <div class="pwm-cell cell-exploring"><span class="pwm-capex">€600M</span><span class="pwm-timeline">2029–33</span></div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">n/a</span></div>
+          <div class="pwm-cell cell-na"><span class="pwm-na">n/a</span></div>
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div class="matrix-legend">
+        <div class="ml-item"><div class="ml-dot dot-done"></div>Done</div>
+        <div class="ml-item"><div class="ml-dot dot-immediate"></div>Immediate priority</div>
+        <div class="ml-item"><div class="ml-dot dot-committed"></div>Committed</div>
+        <div class="ml-item"><div class="ml-dot dot-planned"></div>Planned</div>
+        <div class="ml-item"><div class="ml-dot dot-exploring"></div>Exploring</div>
+        <div class="ml-item"><div class="ml-dot dot-na"></div>Not applicable</div>
+      </div>
+    </div><!-- end inv-pathway-view -->
+
+    <!-- Sources -->
+    <div class="card mt-4" style="background:var(--surface-offset);border:1px solid var(--divider)">
+      <div class="card-title" style="font-size:0.8125rem;margin-bottom:0.5rem">Sources &amp; Benchmarks</div>
+      <div class="assumptions-grid">
+        <div class="assum-item"><div class="assum-title">Agropolychim €250M programme</div><div class="assum-text">Company confirmed via Net-Zero Publication 2025 (Google Drive) and trade press. Casale dual-pressure HNO₃ plant commissioning end-2027.</div></div>
+        <div class="assum-item"><div class="assum-title">Green H₂ / electrolyzer CAPEX</div><div class="assum-text">Alkaline €500–800/kW, PEM €700–1000/kW (2026). <a href="https://energy-solutions.co/articles/sub/green-hydrogen-production-costs" target="_blank">Energy Solutions 2026</a>. Green ammonia terminal €300M (Hydrogen Europe).</div></div>
+        <div class="assum-item"><div class="assum-title">CCUS industrial cost</div><div class="assum-text">Ammonia CCUS: $22–32/t CO₂ capture cost (<a href="https://www.belfercenter.org/publication/carbon-capture-utilization-and-storage-technologies-and-costs-us-context" target="_blank">Belfer Center 2022</a>). Cement CCUS assumption updated to €600M each for Heidelberg ANRAV and Holcim Beli Net Zero. Heidelberg ANRAV is split into €190M EU Innovation Fund support and €410M remaining project financing.</div></div>
+        <div class="assum-item"><div class="assum-title">Solvay soda ash fuel switch</div><div class="assum-text">Solvay Group global €1B commitment to replace coal across soda ash business (<a href="https://chemicalesg.com/what-will-value-investors-make-of-solvays-soda-ash-transition/" target="_blank">ChemESG</a>). Devnya share estimated proportionally.</div></div>
+        <div class="assum-item"><div class="assum-title">N₂O abatement cost</div><div class="assum-text">Tertiary catalytic abatement: €0.1–4/tCO₂eq, project cost €3–8M per plant (<a href="https://www.sei.org/mediamanager/documents/Publications/Climate/sei-nitricacid-9nov2010.pdf" target="_blank">SEI 2010</a>, CDM project data).</div></div>
+        <div class="assum-item"><div class="assum-title">Biomass boiler benchmark</div><div class="assum-text">~€40M for 250kt/yr industrial biomass boiler retrofit (<a href="https://www.fastmarkets.com/insights/how-to-estimate-the-emissions-of-european-biomass-boiler-investments/" target="_blank">Fastmarkets 2023</a>). Svilosa BioTEC 16 MW estimated €18–24M.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ CBAM CALCULATOR ═══════════════════════ -->
+  <section class="section" id="section-cbam">
+    <div class="section-head">
+      <div>
+        <h1 class="section-title" data-i18n="section.cbam.title">CBAM &amp; ETS Cost Calculator</h1>
+        <p class="section-desc" data-i18n="section.cbam.desc">Estimate 2026–2034 carbon cost exposure from CBAM-linked free allocation phaseout and EU ETS assumptions, by company and product</p>
+      </div>
+      <div class="pill pill-amber" data-i18n="section.cbam.pill">Live Formula · Apr 2026</div>
+    </div>
+
+    <!-- Methodology banner -->
+    <div class="cbam-method-bar">
+      <div class="method-formula">
+        <span class="mf-label">Formula</span>
+        <span class="mf-eq">Annual cost (€) = Volume (t) × Emission factor (tCO₂/t) × CBAM phase-in factor (%) × ETS price (€/tCO₂)</span>
+      </div>
+      <a href="https://taxation-customs.ec.europa.eu/carbon-border-adjustment-mechanism_en" target="_blank" class="method-src">EC CBAM Regulation →</a>
+    </div>
+
+    <div class="calc-layout">
+      <!-- LEFT: Inputs -->
+      <div class="calc-inputs">
+
+        <!-- Carbon price scenario -->
+        <div class="input-block">
+          <div class="input-block-title">Carbon Price Scenario</div>
+          <div class="scenario-pills">
+            <button class="sc-pill" data-scenario="low" onclick="setScenario('low',this)">Low
+              <span class="sc-range">€60–98/t</span></button>
+            <button class="sc-pill active" data-scenario="base" onclick="setScenario('base',this)">Base ★
+              <span class="sc-range">€85–145/t</span></button>
+            <button class="sc-pill" data-scenario="high" onclick="setScenario('high',this)">High
+              <span class="sc-range">€105–195/t</span></button>
+          </div>
+          <div class="price-preview-row" id="pricePreviewRow"></div>
+        </div>
+
+        <!-- Company & Product inputs -->
+        <div class="input-block">
+          <div class="input-block-title">Production / Export Volumes</div>
+          <p class="input-hint">Enter annual volumes (thousand tonnes). Pre-filled with estimated typical values.</p>
+
+          <!-- Agropolychim -->
+          <div class="co-input-card" id="inp-agropolychim">
+            <div class="cic-header">
+              <div class="cic-logo" style="background:var(--success-light);color:var(--success)">AP</div>
+              <div>
+                <div class="cic-name">Agropolychim AD</div>
+                <div class="cic-badge badge-cbam">CBAM-covered</div>
+              </div>
+              <button class="cic-toggle" onclick="toggleCoCard('agropolychim')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="toggle-agropolychim"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+            </div>
+            <div class="cic-products" id="prods-agropolychim">
+              <div class="prod-row">
+                <div class="prod-info">
+                  <div class="prod-name">Ammonium Nitrate (AN/CAN)</div>
+                  <div class="prod-ef">EF: 1.18 tCO₂/t · CBAM in scope</div>
+                </div>
+                <div class="prod-input-wrap">
+                  <input type="number" class="prod-input" id="vol-agropolychim-an" value="480" min="0" max="5000" step="10" oninput="calcCBAM()">
+                  <span class="prod-unit">kt/yr</span>
+                </div>
+              </div>
+              <div class="prod-row">
+                <div class="prod-info">
+                  <div class="prod-name">UAN Solution</div>
+                  <div class="prod-ef">EF: 0.85 tCO₂/t · CBAM in scope</div>
+                </div>
+                <div class="prod-input-wrap">
+                  <input type="number" class="prod-input" id="vol-agropolychim-uan" value="120" min="0" max="2000" step="10" oninput="calcCBAM()">
+                  <span class="prod-unit">kt/yr</span>
+                </div>
+              </div>
+              <div class="prod-row">
+                <div class="prod-info">
+                  <div class="prod-name">Nitric Acid (HNO₃)</div>
+                  <div class="prod-ef">EF: 0.23 tCO₂/t · CBAM in scope</div>
+                </div>
+                <div class="prod-input-wrap">
+                  <input type="number" class="prod-input" id="vol-agropolychim-hno3" value="200" min="0" max="2000" step="10" oninput="calcCBAM()">
+                  <span class="prod-unit">kt/yr</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Neochim -->
+          <div class="co-input-card" id="inp-neochim">
+            <div class="cic-header">
+              <div class="cic-logo" style="background:var(--primary-light);color:var(--primary)">NC</div>
+              <div>
+                <div class="cic-name">Neochim AD</div>
+                <div class="cic-badge badge-cbam">CBAM-covered</div>
+              </div>
+              <button class="cic-toggle" onclick="toggleCoCard('neochim')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="toggle-neochim"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+            </div>
+            <div class="cic-products" id="prods-neochim">
+              <div class="prod-row">
+                <div class="prod-info">
+                  <div class="prod-name">Ammonia (NH₃)</div>
+                  <div class="prod-ef">EF: 1.57 tCO₂/t · Official benchmark</div>
+                </div>
+                <div class="prod-input-wrap">
+                  <input type="number" class="prod-input" id="vol-neochim-nh3" value="130" min="0" max="2000" step="10" oninput="calcCBAM()">
+                  <span class="prod-unit">kt/yr</span>
+                </div>
+              </div>
+              <div class="prod-row">
+                <div class="prod-info">
+                  <div class="prod-name">Nitric Acid (HNO₃)</div>
+                  <div class="prod-ef">EF: 0.23 tCO₂/t · CBAM in scope</div>
+                </div>
+                <div class="prod-input-wrap">
+                  <input type="number" class="prod-input" id="vol-neochim-hno3" value="190" min="0" max="2000" step="10" oninput="calcCBAM()">
+                  <span class="prod-unit">kt/yr</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Solvay Sodi -->
+          <div class="co-input-card" id="inp-solvay">
+            <div class="cic-header">
+              <div class="cic-logo" style="background:var(--info-light);color:var(--info)">SS</div>
+              <div>
+                <div class="cic-name">Solvay Sodi AD</div>
+                <div class="cic-badge badge-ets">ETS exposure (non-CBAM)</div>
+              </div>
+              <button class="cic-toggle" onclick="toggleCoCard('solvay')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="toggle-solvay"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+            </div>
+            <div class="cic-products" id="prods-solvay">
+              <div class="prod-row">
+                <div class="prod-info">
+                  <div class="prod-name">Soda Ash (light + heavy)</div>
+                  <div class="prod-ef">EF: 0.90 tCO₂/t · ETS Annex I · CBAM ext. 2030+</div>
+                </div>
+                <div class="prod-input-wrap">
+                  <input type="number" class="prod-input" id="vol-solvay-soda" value="1200" min="0" max="5000" step="50" oninput="calcCBAM()">
+                  <span class="prod-unit">kt/yr</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lukoil -->
+          <div class="co-input-card" id="inp-lukoil">
+            <div class="cic-header">
+              <div class="cic-logo" style="background:var(--danger-light);color:var(--danger)">LN</div>
+              <div>
+                <div class="cic-name">Lukoil Neftohim Burgas AD</div>
+                <div class="cic-badge badge-ets">ETS exposure (non-CBAM)</div>
+              </div>
+              <button class="cic-toggle" onclick="toggleCoCard('lukoil')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="toggle-lukoil"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+            </div>
+            <div class="cic-products" id="prods-lukoil">
+              <div class="prod-row">
+                <div class="prod-info">
+                  <div class="prod-name">Refined Petroleum Products</div>
+                  <div class="prod-ef">EF: 0.42 tCO₂/t · ETS Annex I (refinery)</div>
+                </div>
+                <div class="prod-input-wrap">
+                  <input type="number" class="prod-input" id="vol-lukoil-petro" value="7000" min="0" max="20000" step="100" oninput="calcCBAM()">
+                  <span class="prod-unit">kt/yr</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Svilosa -->
+          <div class="co-input-card" id="inp-svilosa">
+            <div class="cic-header">
+              <div class="cic-logo" style="background:var(--teal-light);color:var(--teal)">SV</div>
+              <div>
+                <div class="cic-name">Svilosa AD</div>
+                <div class="cic-badge badge-ets">ETS exposure (non-CBAM)</div>
+              </div>
+              <button class="cic-toggle" onclick="toggleCoCard('svilosa')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="toggle-svilosa"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+            </div>
+            <div class="cic-products" id="prods-svilosa">
+              <div class="prod-row">
+                <div class="prod-info">
+                  <div class="prod-name">Bleached Sulphate Cellulose</div>
+                  <div class="prod-ef">EF: 0.22 tCO₂/t · ETS (biomass-adjusted)</div>
+                </div>
+                <div class="prod-input-wrap">
+                  <input type="number" class="prod-input" id="vol-svilosa-pulp" value="200" min="0" max="2000" step="10" oninput="calcCBAM()">
+                  <span class="prod-unit">kt/yr</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Heidelberg Materials -->
+          <div class="co-input-card" id="inp-heidelberg">
+            <div class="cic-header">
+              <div class="cic-logo" style="background:var(--primary-light);color:var(--primary)">HM</div>
+              <div>
+                <div class="cic-name">Heidelberg Materials Bulgaria</div>
+                <div class="cic-badge badge-cbam">CBAM-covered</div>
+              </div>
+              <button class="cic-toggle" onclick="toggleCoCard('heidelberg')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="toggle-heidelberg"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+            </div>
+            <div class="cic-products" id="prods-heidelberg">
+              <div class="prod-row">
+                <div class="prod-info">
+                  <div class="prod-name">Cement clinker / cementitious output</div>
+                  <div class="prod-ef">EF: 0.72 tCO₂/t · CBAM cement scope</div>
+                </div>
+                <div class="prod-input-wrap">
+                  <input type="number" class="prod-input" id="vol-heidelberg-clinker" value="1200" min="0" max="5000" step="50" oninput="calcCBAM()">
+                  <span class="prod-unit">kt/yr</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Holcim -->
+          <div class="co-input-card" id="inp-holcim">
+            <div class="cic-header">
+              <div class="cic-logo" style="background:rgba(160,96,143,0.13);color:#a0608f">HC</div>
+              <div>
+                <div class="cic-name">Holcim Bulgaria AD</div>
+                <div class="cic-badge badge-cbam">CBAM-covered</div>
+              </div>
+              <button class="cic-toggle" onclick="toggleCoCard('holcim')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="toggle-holcim"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+            </div>
+            <div class="cic-products" id="prods-holcim">
+              <div class="prod-row">
+                <div class="prod-info">
+                  <div class="prod-name">Cement clinker / cementitious output</div>
+                  <div class="prod-ef">EF: 0.62 tCO₂/t · CBAM cement scope</div>
+                </div>
+                <div class="prod-input-wrap">
+                  <input type="number" class="prod-input" id="vol-holcim-clinker" value="650" min="0" max="3000" step="50" oninput="calcCBAM()">
+                  <span class="prod-unit">kt/yr</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Biovet -->
+          <div class="co-input-card" id="inp-biovet">
+            <div class="cic-header">
+              <div class="cic-logo" style="background:var(--teal-light);color:var(--teal)">BV</div>
+              <div>
+                <div class="cic-name">Biovet / Huvepharma</div>
+                <div class="cic-badge badge-ets">ETS exposure (non-CBAM)</div>
+              </div>
+              <button class="cic-toggle" onclick="toggleCoCard('biovet')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="toggle-biovet"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+            </div>
+            <div class="cic-products" id="prods-biovet">
+              <div class="prod-row">
+                <div class="prod-info">
+                  <div class="prod-name">Veterinary pharmaceutical products</div>
+                  <div class="prod-ef">EF: 0.18 tCO₂/t · ETS exposure proxy</div>
+                </div>
+                <div class="prod-input-wrap">
+                  <input type="number" class="prod-input" id="vol-biovet-pharma" value="180" min="0" max="2000" step="10" oninput="calcCBAM()">
+                  <span class="prod-unit">kt/yr</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Orgachim -->
+          <div class="co-input-card" id="inp-orgachim">
+            <div class="cic-header">
+              <div class="cic-logo" style="background:var(--danger-light);color:var(--danger)">OC</div>
+              <div>
+                <div class="cic-name">Orgachim AD</div>
+                <div class="cic-badge badge-ets">ETS exposure (non-CBAM)</div>
+              </div>
+              <button class="cic-toggle" onclick="toggleCoCard('orgachim')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="toggle-orgachim"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+            </div>
+            <div class="cic-products" id="prods-orgachim">
+              <div class="prod-row">
+                <div class="prod-info">
+                  <div class="prod-name">Paints, varnishes &amp; resins</div>
+                  <div class="prod-ef">EF: 0.35 tCO₂/t · ETS exposure proxy</div>
+                </div>
+                <div class="prod-input-wrap">
+                  <input type="number" class="prod-input" id="vol-orgachim-resins" value="90" min="0" max="1000" step="10" oninput="calcCBAM()">
+                  <span class="prod-unit">kt/yr</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- end input-block -->
+      </div><!-- end calc-inputs -->
+
+      <!-- RIGHT: Results -->
+      <div class="calc-results">
+        <!-- KPI row -->
+        <div class="cbam-kpi-row" id="cbamKpiRow">
+          <div class="cbam-kpi">
+            <div class="ck-label">2026 exposure</div>
+            <div class="ck-val" id="ck-2026">Pending</div>
+            <div class="ck-sub" id="ck-2026-sub">Calculating…</div>
+          </div>
+          <div class="cbam-kpi">
+            <div class="ck-label">2030 exposure</div>
+            <div class="ck-val" id="ck-2030">Pending</div>
+            <div class="ck-sub" id="ck-2030-sub">Calculating…</div>
+          </div>
+          <div class="cbam-kpi cbam-kpi-highlight">
+            <div class="ck-label">Cumulative 2026–2034</div>
+            <div class="ck-val" id="ck-cumul">Pending</div>
+            <div class="ck-sub">All companies combined</div>
+          </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="card mt-4">
+          <div class="card-head">
+            <div>
+              <div class="card-title">Annual Carbon Cost Exposure 2026–2034</div>
+              <div class="card-sub" id="chartSubtitle">CBAM-linked and EU ETS cost exposure · Base scenario</div>
+            </div>
+            <button class="export-btn" onclick="exportCSV()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export CSV
+            </button>
+          </div>
+          <div class="chart-wrap" style="height:260px">
+            <canvas id="cbamChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Data table -->
+        <div class="card mt-4">
+          <div class="card-head">
+            <div class="card-title">Year-by-Year Breakdown</div>
+            <div class="card-sub">All values in M€ · includes CBAM-covered &amp; ETS-only products</div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table cbam-table" id="cbamTable">
+              <thead>
+                <tr>
+                  <th>Year</th>
+                  <th>CBAM factor</th>
+                  <th>ETS price</th>
+                  <th>Agropolychim</th>
+                  <th>Neochim</th>
+                  <th>Solvay Sodi</th>
+                  <th>Lukoil</th>
+                  <th>Svilosa</th>
+                  <th>Heidelberg</th>
+                  <th>Holcim</th>
+                  <th>Biovet</th>
+                  <th>Orgachim</th>
+                  <th class="col-total">Total (M€)</th>
+                </tr>
+              </thead>
+              <tbody id="cbamTableBody">
+              </tbody>
+              <tfoot id="cbamTableFoot"></tfoot>
+            </table>
+          </div>
+        </div>
+
+        <!-- Assumptions box -->
+        <div class="card mt-4 assumptions-card">
+          <div class="card-title" style="font-size:0.8125rem;margin-bottom:0.5rem">Methodology &amp; Assumptions</div>
+          <div class="assumptions-grid">
+            <div class="assum-item">
+              <div class="assum-title">CBAM phase-in schedule</div>
+              <div class="assum-text">Official EU schedule: 2.5% (2026) → 5% → 10% → 22.5% → 48.5% → 61% → 73.5% → 86% → 100% (2034). Fertilizers/NH₃ in scope from 2026. Source: <a href="https://climat.be/cbam-en/cbam-certificates/gradual-cbam-phase-in" target="_blank">Climat.be</a></div>
+            </div>
+            <div class="assum-item">
+              <div class="assum-title">ETS price scenarios</div>
+              <div class="assum-text">Base: Reuters analyst consensus Jan 2026 (€85–145/t). Low: conservative Enerdata scenario. High: GMK Centre upper range. Source: <a href="https://real-economy-progress.com/eu-ets-carbon-price-to-hit-126-euros-by-2030/" target="_blank">Reuters/GMK Centre</a></div>
+            </div>
+            <div class="assum-item">
+              <div class="assum-title">Emission factors</div>
+              <div class="assum-text">AN/CAN: 1.18 tCO₂/t (EBRD 2023). NH₃: 1.57 tCO₂/t (official CBAM benchmark, Argus/EC). HNO₃: 0.23 tCO₂/t. Soda ash: 0.90 tCO₂/t. Refining: 0.42 tCO₂/t. Cement and non-CBAM chemical product factors are indicative proxies for dashboard screening.</div>
+            </div>
+            <div class="assum-item">
+              <div class="assum-title">Scope &amp; limitations</div>
+              <div class="assum-text">Official CBAM sectors are Cement, Steel, Aluminium, Fertilizers, Electricity, and Hydrogen. In this dashboard, fertilizer/NH₃ and cement exposure is modeled directly; soda ash, petroleum, pulp, pharmaceutical products, and resins are shown as ETS/non-CBAM exposure proxies unless future CBAM extensions apply. Volumes are user inputs. Results are indicative, not compliance-grade.</div>
+            </div>
+          </div>
+        </div>
+      </div><!-- end calc-results -->
+    </div><!-- end calc-layout -->
+  </section>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
+
+
+
+
+
+
