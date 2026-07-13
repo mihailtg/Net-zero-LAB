@@ -670,7 +670,7 @@ const I18N = {
     'section.cbam.desc': 'Estimate 2026–2034 carbon cost exposure from CBAM-linked free allocation phaseout and EU ETS assumptions, by company and product',
     'section.cbam.pill': 'Live Formula · Apr 2026',
     'section.cluster.title': 'Cluster Analysis',
-    'section.cluster.desc': 'Scenario matrix from the Streamlit cluster model, showing how each policy scenario changes the function inputs.',
+    'section.cluster.desc': 'Scenario matrix showing how each policy scenario changes the model inputs.',
     'section.cluster.pill': '5 scenarios · apply_scenario()',
     'section.cluster.cardTitle': 'Cluster analysis module',
     'section.cluster.kicker': 'Module in progress',
@@ -718,7 +718,7 @@ const I18N = {
     'section.cbam.desc': 'Оценка на въглеродната експозиция 2026-2034 от CBAM-свързаното намаляване на безплатните квоти и ETS допускания, по компания и продукт',
     'section.cbam.pill': 'Жива формула · апр 2026',
     'section.cluster.title': 'Клъстерен анализ',
-    'section.cluster.desc': 'Матрица със сценарии от Streamlit клъстерния модел, показваща как всеки политически сценарий променя входовете на функцията.',
+    'section.cluster.desc': 'Матрица със сценарии, показваща как всеки политически сценарий променя входовете на модела.',
     'section.cluster.pill': '5 сценария · apply_scenario()',
     'section.cluster.cardTitle': 'Модул за клъстерен анализ',
     'section.cluster.kicker': 'Модулът се подготвя',
@@ -1406,6 +1406,7 @@ function showPathway(id, btn) {
 const CLUSTER_SCENARIOS = [
   {
     name: 'Carbon pressure without enablement',
+    theme: 'pressure',
     carbon_pressure: 0.95,
     power_access: 0.35,
     grid_readiness: 0.30,
@@ -1418,6 +1419,7 @@ const CLUSTER_SCENARIOS = [
   },
   {
     name: 'Coordinated green industrial policy',
+    theme: 'growth',
     carbon_pressure: 0.85,
     power_access: 0.80,
     grid_readiness: 0.80,
@@ -1430,6 +1432,7 @@ const CLUSTER_SCENARIOS = [
   },
   {
     name: 'Defensive industrial continuity',
+    theme: 'defensive',
     carbon_pressure: 0.40,
     power_access: 0.45,
     grid_readiness: 0.45,
@@ -1442,6 +1445,7 @@ const CLUSTER_SCENARIOS = [
   },
   {
     name: 'Volatile stop-go policy',
+    theme: 'volatile',
     carbon_pressure: 0.70,
     power_access: 0.45,
     grid_readiness: 0.40,
@@ -1454,6 +1458,7 @@ const CLUSTER_SCENARIOS = [
   },
   {
     name: 'Cluster covenant strategy',
+    theme: 'cluster',
     carbon_pressure: 0.80,
     power_access: 0.70,
     grid_readiness: 0.75,
@@ -1464,6 +1469,14 @@ const CLUSTER_SCENARIOS = [
     market_pull: 0.65,
     stability: 0.75,
   },
+];
+
+const CLUSTER_SCENARIO_FOCUS_KEYS = [
+  'carbon_pressure',
+  'power_access',
+  'infra_push',
+  'finance',
+  'stability',
 ];
 
 const CLUSTER_PARAMETER_ROWS = [
@@ -1539,18 +1552,18 @@ const CLUSTER_FUNCTION_BLOCKS = [
 
 const CLUSTER_COPY = {
   en: {
-    sourceKicker: 'Source mapping',
-    sourceTitle: 'Scenario inputs aligned with streamlit_app.py',
-    sourceText: 'The cluster module below mirrors the built-in scenarios and shows how each Scenario field feeds the core apply_scenario() logic.',
-    sourceNote: 'Derived helper inside the function: infra_push = (grid_readiness + hydrogen + co2_infra) / 3. Values are kept on the original 0-1 scale and scenario names remain exactly as in the Streamlit model for one-to-one traceability.',
+    sourceKicker: 'Scenario overview',
+    sourceTitle: 'Scenario inputs',
+    sourceText: 'The matrix below shows how each Scenario field changes across the policy scenarios.',
+    sourceNote: 'Derived helper inside the function: infra_push = (grid_readiness + hydrogen + co2_infra) / 3. Values stay on the original 0-1 scale.',
     functionTitle: 'How apply_scenario() uses the inputs',
     functionDesc: 'Each block shows the output term and the parameter family behind it.',
-    matrixTitle: 'Scenario-by-parameter comparison',
-    matrixDesc: 'Rows show Scenario fields plus the derived infra_push term. Columns keep the original scenario order from the Streamlit file.',
-    matrixNote: 'Scan across a row to compare how one parameter changes across scenarios. Scan down a scenario column to read one full policy profile.',
-    parameterHeader: 'Parameter',
-    usageHeader: 'Used in apply_scenario()',
-    scenarioHeaderMeta: 'source scenario',
+    matrixTitle: 'Scenario profiles',
+    matrixDesc: 'Five policy scenarios presented as compact profiles on a 0-1 scale.',
+    matrixNote: 'Higher values mean stronger enabling conditions. Carbon pressure indicates the intensity of cost pressure.',
+    scenarioMeta: 'policy scenario',
+    supportLabel: 'Enablement score',
+    scaleLabel: '0-1 scale',
     labels: {
       carbon_pressure: 'Carbon pressure',
       power_access: 'Power access',
@@ -1577,18 +1590,18 @@ const CLUSTER_COPY = {
     },
   },
   bg: {
-    sourceKicker: 'Източник и проследимост',
-    sourceTitle: 'Сценарийните входове са подравнени със streamlit_app.py',
-    sourceText: 'Клъстерният модул по-долу следва вградените сценарии и показва как всяко поле от Scenario влиза в основната логика на apply_scenario().',
-    sourceNote: 'Производен helper вътре във функцията: infra_push = (grid_readiness + hydrogen + co2_infra) / 3. Стойностите са запазени в оригиналната скала 0-1, а имената на сценариите са оставени както са в Streamlit модела за директна проследимост.',
+    sourceKicker: 'Преглед на сценариите',
+    sourceTitle: 'Сценарийни входове',
+    sourceText: 'Матрицата по-долу показва как се променя всяко поле от Scenario между отделните политически сценарии.',
+    sourceNote: 'Производен helper вътре във функцията: infra_push = (grid_readiness + hydrogen + co2_infra) / 3. Стойностите са запазени в оригиналната скала 0-1.',
     functionTitle: 'Как apply_scenario() използва входовете',
     functionDesc: 'Всеки блок показва изходния термин и семейството параметри зад него.',
-    matrixTitle: 'Сравнение сценарий-по-параметър',
-    matrixDesc: 'Редовете показват полетата на Scenario плюс производния термин infra_push. Колоните пазят оригиналния ред на сценариите от Streamlit файла.',
-    matrixNote: 'Чети по ред, за да сравниш един и същ параметър между сценариите. Чети по колона, за да видиш пълния профил на даден сценарий.',
-    parameterHeader: 'Параметър',
-    usageHeader: 'Използва се в apply_scenario()',
-    scenarioHeaderMeta: 'сценарий от източника',
+    matrixTitle: 'Профили на сценариите',
+    matrixDesc: 'Пет политически сценария, подредени като компактни профили в скала от 0 до 1.',
+    matrixNote: 'По-високите стойности означават по-силни улесняващи условия. Carbon pressure показва силата на ценовия натиск.',
+    scenarioMeta: 'политически сценарий',
+    supportLabel: 'Индекс на подкрепата',
+    scaleLabel: 'Скала 0-1',
     labels: {
       carbon_pressure: 'Въглероден натиск',
       power_access: 'Достъп до електроенергия',
@@ -1634,94 +1647,60 @@ function getClusterScoreTone(value) {
   return 'cluster-score-weak';
 }
 
+function getClusterScenarioAverage(scenario) {
+  const keys = ['power_access', 'grid_readiness', 'hydrogen', 'co2_infra', 'permitting', 'finance', 'market_pull', 'stability'];
+  const total = keys.reduce((sum, key) => sum + scenario[key], 0);
+  return total / keys.length;
+}
+
 function renderClusterAnalysis() {
-  const sourceCard = document.getElementById('clusterSourceCard');
-  const functionGrid = document.getElementById('clusterFunctionGrid');
-  const scenarioTable = document.getElementById('clusterScenarioTable');
-  if (!sourceCard || !functionGrid || !scenarioTable) return;
+  const scenarioGrid = document.getElementById('clusterScenarioGrid');
+  if (!scenarioGrid) return;
 
   const copy = getClusterCopy();
-
-  sourceCard.innerHTML = `
-    <div class="cluster-source-kicker">${escapeHtml(copy.sourceKicker)}</div>
-    <div class="cluster-source-title">${escapeHtml(copy.sourceTitle)}</div>
-    <div class="cluster-source-text">${escapeHtml(copy.sourceText)}</div>
-    <div class="cluster-table-note">${escapeHtml(copy.sourceNote)}</div>
-  `;
-
-  const functionTitle = document.getElementById('clusterFunctionTitle');
-  const functionDesc = document.getElementById('clusterFunctionDesc');
   const matrixTitle = document.getElementById('clusterMatrixTitle');
   const matrixDesc = document.getElementById('clusterMatrixDesc');
   const matrixNote = document.getElementById('clusterScenarioNote');
-  if (functionTitle) functionTitle.textContent = copy.functionTitle;
-  if (functionDesc) functionDesc.textContent = copy.functionDesc;
   if (matrixTitle) matrixTitle.textContent = copy.matrixTitle;
   if (matrixDesc) matrixDesc.textContent = copy.matrixDesc;
   if (matrixNote) matrixNote.textContent = copy.matrixNote;
 
-  const lang = getLanguage();
-  functionGrid.innerHTML = CLUSTER_FUNCTION_BLOCKS.map(block => `
-    <div class="formula-item${block.wide ? ' formula-wide' : ''}">
-      <div class="formula-title">${escapeHtml(block.title)}</div>
-      <div class="card-sub">${escapeHtml(block.summary[lang] || block.summary.en)}</div>
-      <code class="formula-eq">${escapeHtml(block.formula)}</code>
-      <div class="cluster-function-chips">
-        ${block.drivers.map(driver => `<span class="cluster-function-chip">${escapeHtml(driver)}</span>`).join('')}
-      </div>
-    </div>
-  `).join('');
-
-  const tableHead = `
-    <thead>
-      <tr>
-        <th>${escapeHtml(copy.parameterHeader)}</th>
-        <th>${escapeHtml(copy.usageHeader)}</th>
-        ${CLUSTER_SCENARIOS.map(scenario => `
-          <th>
-            <div class="cluster-scenario-head">
-              <strong>${escapeHtml(scenario.name)}</strong>
-              <span>${escapeHtml(copy.scenarioHeaderMeta)}</span>
-            </div>
-          </th>
-        `).join('')}
-      </tr>
-    </thead>
-  `;
-
-  const tableBody = `
-    <tbody>
-      ${CLUSTER_PARAMETER_ROWS.map(row => `
-        <tr>
-          <td class="cluster-param-cell">
-            <strong>${escapeHtml(copy.labels[row.key] || row.key)}</strong>
-            <span class="cluster-param-code">${escapeHtml(row.key)}</span>
-            <span class="cluster-param-help">${escapeHtml(copy.help[row.key] || '')}</span>
-          </td>
-          <td class="cluster-use-cell">
-            <div class="cluster-usage-tags">
-              ${row.usage.map(name => `<span class="cluster-usage-tag">${escapeHtml(name)}</span>`).join('')}
-            </div>
-          </td>
-          ${CLUSTER_SCENARIOS.map(scenario => {
-            const value = getClusterScenarioValue(scenario, row.key);
-            const width = Math.max(8, Math.round(value * 100));
+  scenarioGrid.innerHTML = CLUSTER_SCENARIOS.map(scenario => {
+    const supportScore = getClusterScenarioAverage(scenario);
+    return `
+      <article class="cluster-scenario-card theme-${escapeHtml(scenario.theme || 'cluster')}">
+        <div class="cluster-scenario-card-head">
+          <div>
+            <div class="cluster-scenario-meta">${escapeHtml(copy.scenarioMeta)}</div>
+            <h3>${escapeHtml(scenario.name)}</h3>
+          </div>
+          <div class="cluster-scenario-score">
+            <span>${escapeHtml(copy.supportLabel)}</span>
+            <strong>${supportScore.toFixed(2)}</strong>
+          </div>
+        </div>
+        <div class="cluster-scenario-metrics">
+          ${CLUSTER_SCENARIO_FOCUS_KEYS.map(key => {
+            const value = getClusterScenarioValue(scenario, key);
+            const width = Math.max(10, Math.round(value * 100));
             const tone = getClusterScoreTone(value);
             return `
-              <td class="cluster-score-cell">
+              <div class="cluster-scenario-metric">
+                <div class="cluster-scenario-metric-top">
+                  <span>${escapeHtml(copy.labels[key] || key)}</span>
+                  <strong>${value.toFixed(2)}</strong>
+                </div>
                 <div class="cluster-score-track ${tone}">
                   <div class="cluster-score-fill" style="width:${width}%"></div>
-                  <div class="cluster-score-text">${value.toFixed(2)}</div>
                 </div>
-              </td>
+              </div>
             `;
           }).join('')}
-        </tr>
-      `).join('')}
-    </tbody>
-  `;
-
-  scenarioTable.innerHTML = tableHead + tableBody;
+        </div>
+        <div class="cluster-scenario-scale">${escapeHtml(copy.scaleLabel)}</div>
+      </article>
+    `;
+  }).join('');
 }
 
 // ── INIT ─────────────────────────────────────

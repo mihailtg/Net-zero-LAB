@@ -2631,33 +2631,19 @@
     <div class="section-head">
       <div>
         <h1 class="section-title" data-i18n="section.cluster.title">Cluster Analysis</h1>
-        <p class="section-desc" data-i18n="section.cluster.desc">Scenario matrix from the Streamlit cluster model, showing how each policy scenario changes the function inputs.</p>
+        <p class="section-desc" data-i18n="section.cluster.desc">Scenario matrix showing how each policy scenario changes the model inputs.</p>
       </div>
       <div class="pill pill-green" data-i18n="section.cluster.pill">5 scenarios · apply_scenario()</div>
-    </div>
-
-    <div class="card cluster-source-card" id="clusterSourceCard"></div>
-
-    <div class="card mt-4 roi-formulas-card">
-      <div class="card-head">
-        <div>
-          <div class="card-title" id="clusterFunctionTitle">How apply_scenario() uses the inputs</div>
-          <div class="card-sub" id="clusterFunctionDesc">Each block mirrors the logic in the source function and shows which parameters drive each output.</div>
-        </div>
-      </div>
-      <div class="formula-grid" id="clusterFunctionGrid"></div>
     </div>
 
     <div class="card mt-4">
       <div class="card-head">
         <div>
-          <div class="card-title" id="clusterMatrixTitle">Scenario-by-parameter comparison</div>
-          <div class="card-sub" id="clusterMatrixDesc">Rows show inputs to the Scenario dataclass and the derived infra_push term used inside apply_scenario().</div>
+          <div class="card-title" id="clusterMatrixTitle">Scenario profiles</div>
+          <div class="card-sub" id="clusterMatrixDesc">Five policy scenarios presented as compact profiles on a 0-1 scale.</div>
         </div>
       </div>
-      <div class="table-wrap">
-        <table class="data-table cluster-scenario-table" id="clusterScenarioTable"></table>
-      </div>
+      <div class="cluster-scenario-grid" id="clusterScenarioGrid"></div>
       <div class="cluster-table-note" id="clusterScenarioNote"></div>
     </div>
   </section>
