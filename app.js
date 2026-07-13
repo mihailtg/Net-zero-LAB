@@ -638,6 +638,7 @@ const I18N = {
     'nav.investments': 'Investments',
     'nav.cbam': 'CBAM & ETS Cost Calculator',
     'nav.netzerolab': 'Net-Zero Lab',
+    'nav.cluster': 'Cluster Analysis',
     'controls.text': 'Text',
     'sidebar.sources': 'Data sources: European Commission · Bulgaria MREW · CEFIC · EBRD',
     'theme.light': 'Light mode',
@@ -667,7 +668,14 @@ const I18N = {
     'section.investments.pill': 'Estimates · 2026',
     'section.cbam.title': 'CBAM & ETS Cost Calculator',
     'section.cbam.desc': 'Estimate 2026–2034 carbon cost exposure from CBAM-linked free allocation phaseout and EU ETS assumptions, by company and product',
-    'section.cbam.pill': 'Live Formula · Apr 2026'
+    'section.cbam.pill': 'Live Formula · Apr 2026',
+    'section.cluster.title': 'Cluster Analysis',
+    'section.cluster.desc': 'A dedicated space for upcoming cluster-level analysis, shared infrastructure logic, and regional decarbonization insights.',
+    'section.cluster.pill': 'Under construction',
+    'section.cluster.cardTitle': 'Cluster analysis module',
+    'section.cluster.kicker': 'Module in progress',
+    'section.cluster.placeholderTitle': 'Cluster analysis is coming soon.',
+    'section.cluster.placeholderDesc': 'This section is reserved for the next phase of the dashboard, where you will add cluster mapping, inter-company linkages, shared infrastructure, and industrial ecosystem insights.'
   },
   bg: {
     'page.title': 'Net-Zero Lab - декарбонизация на българската химическа индустрия',
@@ -681,6 +689,7 @@ const I18N = {
     'nav.investments': 'Инвестиции',
     'nav.cbam': 'CBAM & ETS',
     'nav.netzerolab': 'Net-Zero Lab',
+    'nav.cluster': 'Клъстерен анализ',
     'controls.text': 'Текст',
     'sidebar.sources': 'Източници: Европейска комисия · МОСВ · CEFIC · ЕБВР',
     'theme.light': 'Светъл режим',
@@ -707,7 +716,14 @@ const I18N = {
     'section.investments.pill': 'Оценки · 2026',
     'section.cbam.title': 'CBAM & ETS калкулатор',
     'section.cbam.desc': 'Оценка на въглеродната експозиция 2026-2034 от CBAM-свързаното намаляване на безплатните квоти и ETS допускания, по компания и продукт',
-    'section.cbam.pill': 'Жива формула · апр 2026'
+    'section.cbam.pill': 'Жива формула · апр 2026',
+    'section.cluster.title': 'Клъстерен анализ',
+    'section.cluster.desc': 'Обособено място за предстоящ клъстерен анализ, логика за споделена инфраструктура и регионални изводи за декарбонизация.',
+    'section.cluster.pill': 'В разработка',
+    'section.cluster.cardTitle': 'Модул за клъстерен анализ',
+    'section.cluster.kicker': 'Модулът се подготвя',
+    'section.cluster.placeholderTitle': 'Клъстерният анализ ще бъде добавен скоро.',
+    'section.cluster.placeholderDesc': 'Тази секция е запазена за следващата фаза на таблото, където ще добавиш картиране на клъстери, връзки между компаниите, споделена инфраструктура и изводи за индустриалната екосистема.'
   }
 };
 

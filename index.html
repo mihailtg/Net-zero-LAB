@@ -67,6 +67,10 @@
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
       <span data-i18n="nav.netzerolab">Net-Zero Lab</span>
     </button>
+    <button class="nav-item" data-section="cluster" onclick="showSection('cluster')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><path d="M12 7v5"/><path d="M10.5 11.5 6.5 17"/><path d="M13.5 11.5 17.5 17"/></svg>
+      <span data-i18n="nav.cluster">Cluster Analysis</span>
+    </button>
   </nav>
 
   <div class="sidebar-footer">
@@ -2623,12 +2627,33 @@
     </div><!-- end calc-layout -->
   </section>
 
+  <section class="section" id="section-cluster">
+    <div class="section-head">
+      <div>
+        <h1 class="section-title" data-i18n="section.cluster.title">Cluster Analysis</h1>
+        <p class="section-desc" data-i18n="section.cluster.desc">A dedicated space for upcoming cluster-level analysis, shared infrastructure logic, and regional decarbonization insights.</p>
+      </div>
+      <div class="pill pill-amber" data-i18n="section.cluster.pill">Under construction</div>
+    </div>
+
+    <div class="card construction-card">
+      <div class="card-head">
+        <div class="card-title" data-i18n="section.cluster.cardTitle">Cluster analysis module</div>
+        <div class="pill pill-amber" data-i18n="section.cluster.pill">Under construction</div>
+      </div>
+      <div class="construction-state">
+        <div class="construction-kicker" data-i18n="section.cluster.kicker">Module in progress</div>
+        <div class="construction-title" data-i18n="section.cluster.placeholderTitle">Cluster analysis is coming soon.</div>
+        <div class="construction-desc" data-i18n="section.cluster.placeholderDesc">This section is reserved for the next phase of the dashboard, where you will add cluster mapping, inter-company linkages, shared infrastructure, and industrial ecosystem insights.</div>
+      </div>
+    </div>
+  </section>
+
 </main>
 
 <script src="app.js"></script>
 </body>
 </html>
-
 
 
 
