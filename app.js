@@ -670,8 +670,8 @@ const I18N = {
     'section.cbam.desc': 'Estimate 2026–2034 carbon cost exposure from CBAM-linked free allocation phaseout and EU ETS assumptions, by company and product',
     'section.cbam.pill': 'Live Formula · Apr 2026',
     'section.cluster.title': 'Cluster Analysis',
-    'section.cluster.desc': 'A dedicated space for upcoming cluster-level analysis, shared infrastructure logic, and regional decarbonization insights.',
-    'section.cluster.pill': 'Under construction',
+    'section.cluster.desc': 'Scenario matrix from the Streamlit cluster model, showing how each policy scenario changes the function inputs.',
+    'section.cluster.pill': '5 scenarios · apply_scenario()',
     'section.cluster.cardTitle': 'Cluster analysis module',
     'section.cluster.kicker': 'Module in progress',
     'section.cluster.placeholderTitle': 'Cluster analysis is coming soon.',
@@ -718,8 +718,8 @@ const I18N = {
     'section.cbam.desc': 'Оценка на въглеродната експозиция 2026-2034 от CBAM-свързаното намаляване на безплатните квоти и ETS допускания, по компания и продукт',
     'section.cbam.pill': 'Жива формула · апр 2026',
     'section.cluster.title': 'Клъстерен анализ',
-    'section.cluster.desc': 'Обособено място за предстоящ клъстерен анализ, логика за споделена инфраструктура и регионални изводи за декарбонизация.',
-    'section.cluster.pill': 'В разработка',
+    'section.cluster.desc': 'Матрица със сценарии от Streamlit клъстерния модел, показваща как всеки политически сценарий променя входовете на функцията.',
+    'section.cluster.pill': '5 сценария · apply_scenario()',
     'section.cluster.cardTitle': 'Модул за клъстерен анализ',
     'section.cluster.kicker': 'Модулът се подготвя',
     'section.cluster.placeholderTitle': 'Клъстерният анализ ще бъде добавен скоро.',
@@ -759,6 +759,7 @@ function setLanguage(lang) {
     // Language persistence is optional; the switch still works when storage is blocked.
   }
 
+  renderClusterAnalysis();
   renderDatasetTables();
   updateThemeIcons(document.documentElement.getAttribute('data-theme') || 'light');
 }
@@ -1400,6 +1401,327 @@ function showPathway(id, btn) {
   document.querySelectorAll('.pw-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('pw-' + id)?.classList.add('active');
   btn.classList.add('active');
+}
+
+const CLUSTER_SCENARIOS = [
+  {
+    name: 'Carbon pressure without enablement',
+    carbon_pressure: 0.95,
+    power_access: 0.35,
+    grid_readiness: 0.30,
+    hydrogen: 0.25,
+    co2_infra: 0.20,
+    permitting: 0.25,
+    finance: 0.30,
+    market_pull: 0.25,
+    stability: 0.35,
+  },
+  {
+    name: 'Coordinated green industrial policy',
+    carbon_pressure: 0.85,
+    power_access: 0.80,
+    grid_readiness: 0.80,
+    hydrogen: 0.70,
+    co2_infra: 0.70,
+    permitting: 0.75,
+    finance: 0.80,
+    market_pull: 0.75,
+    stability: 0.80,
+  },
+  {
+    name: 'Defensive industrial continuity',
+    carbon_pressure: 0.40,
+    power_access: 0.45,
+    grid_readiness: 0.45,
+    hydrogen: 0.20,
+    co2_infra: 0.20,
+    permitting: 0.45,
+    finance: 0.40,
+    market_pull: 0.30,
+    stability: 0.55,
+  },
+  {
+    name: 'Volatile stop-go policy',
+    carbon_pressure: 0.70,
+    power_access: 0.45,
+    grid_readiness: 0.40,
+    hydrogen: 0.25,
+    co2_infra: 0.25,
+    permitting: 0.25,
+    finance: 0.45,
+    market_pull: 0.35,
+    stability: 0.20,
+  },
+  {
+    name: 'Cluster covenant strategy',
+    carbon_pressure: 0.80,
+    power_access: 0.70,
+    grid_readiness: 0.75,
+    hydrogen: 0.55,
+    co2_infra: 0.75,
+    permitting: 0.80,
+    finance: 0.75,
+    market_pull: 0.65,
+    stability: 0.75,
+  },
+];
+
+const CLUSTER_PARAMETER_ROWS = [
+  { key: 'carbon_pressure', usage: ['B_eff', 'decarbonisation_depth'] },
+  { key: 'power_access', usage: ['T_eff', 'decarbonisation_depth'] },
+  { key: 'grid_readiness', usage: ['infra_push', 'T_eff', 'M_eff', 'bottleneck_infrastructure'] },
+  { key: 'hydrogen', usage: ['infra_push', 'T_eff', 'M_eff', 'bottleneck_infrastructure'] },
+  { key: 'co2_infra', usage: ['infra_push', 'T_eff', 'M_eff', 'bottleneck_infrastructure'] },
+  { key: 'permitting', usage: ['T_eff', 'M_eff', 'bottleneck_permitting'] },
+  { key: 'finance', usage: ['B_eff', 'T_eff', 'M_eff', 'competitiveness_retention', 'bottleneck_finance'] },
+  { key: 'market_pull', usage: ['B_eff', 'competitiveness_retention', 'bottleneck_market'] },
+  { key: 'stability', usage: ['B_eff', 'M_eff', 'competitiveness_retention'] },
+  { key: 'infra_push', usage: ['T_eff', 'M_eff', 'bottleneck_infrastructure'] },
+];
+
+const CLUSTER_FUNCTION_BLOCKS = [
+  {
+    title: 'infra_push',
+    summary: {
+      en: 'Derived infrastructure readiness proxy',
+      bg: 'Производен proxy за инфраструктурна готовност',
+    },
+    formula: '(grid_readiness + hydrogen + co2_infra) / 3',
+    drivers: ['grid_readiness', 'hydrogen', 'co2_infra'],
+    wide: true,
+  },
+  {
+    title: 'B_eff',
+    summary: {
+      en: 'Business environment effect',
+      bg: 'Ефект върху бизнес средата',
+    },
+    formula: 'clamp(B_i + 0.8·market_pull + 0.6·stability + 0.5·finance − 0.9·carbon_pressure·(carbon_sensitivity / 5))',
+    drivers: ['market_pull', 'stability', 'finance', 'carbon_pressure'],
+  },
+  {
+    title: 'T_eff',
+    summary: {
+      en: 'Technology readiness effect',
+      bg: 'Ефект върху технологичната готовност',
+    },
+    formula: 'clamp(T_i + 0.8·power_access + 0.7·infra_push·(infra_dependency / 5) + 0.4·finance + 0.3·permitting)',
+    drivers: ['power_access', 'infra_push', 'finance', 'permitting'],
+  },
+  {
+    title: 'M_eff',
+    summary: {
+      en: 'Mobility / moveability effect',
+      bg: 'Ефект върху мобилността / способността за преместване',
+    },
+    formula: 'clamp(M_i + 0.9·finance + 0.9·permitting + 0.7·infra_push + 0.5·stability − 0.4·(1 − stability))',
+    drivers: ['finance', 'permitting', 'infra_push', 'stability'],
+  },
+  {
+    title: 'decarbonisation_depth',
+    summary: {
+      en: 'Average decarbonisation depth',
+      bg: 'Средна дълбочина на декарбонизация',
+    },
+    formula: 'clamp(0.35·T_eff + 0.35·M_eff + 0.25·carbon_pressure + 0.05·power_access)',
+    drivers: ['T_eff', 'M_eff', 'carbon_pressure', 'power_access'],
+  },
+  {
+    title: 'competitiveness_retention',
+    summary: {
+      en: 'Competitiveness retention',
+      bg: 'Запазване на конкурентоспособността',
+    },
+    formula: 'clamp(0.45·B_eff + 0.20·market_pull + 0.20·stability + 0.15·finance)',
+    drivers: ['B_eff', 'market_pull', 'stability', 'finance'],
+  },
+];
+
+const CLUSTER_COPY = {
+  en: {
+    sourceKicker: 'Source mapping',
+    sourceTitle: 'Scenario inputs aligned with streamlit_app.py',
+    sourceText: 'The cluster module below mirrors the built-in scenarios and shows how each Scenario field feeds the core apply_scenario() logic.',
+    sourceNote: 'Derived helper inside the function: infra_push = (grid_readiness + hydrogen + co2_infra) / 3. Values are kept on the original 0-1 scale and scenario names remain exactly as in the Streamlit model for one-to-one traceability.',
+    functionTitle: 'How apply_scenario() uses the inputs',
+    functionDesc: 'Each block shows the output term and the parameter family behind it.',
+    matrixTitle: 'Scenario-by-parameter comparison',
+    matrixDesc: 'Rows show Scenario fields plus the derived infra_push term. Columns keep the original scenario order from the Streamlit file.',
+    matrixNote: 'Scan across a row to compare how one parameter changes across scenarios. Scan down a scenario column to read one full policy profile.',
+    parameterHeader: 'Parameter',
+    usageHeader: 'Used in apply_scenario()',
+    scenarioHeaderMeta: 'source scenario',
+    labels: {
+      carbon_pressure: 'Carbon pressure',
+      power_access: 'Power access',
+      grid_readiness: 'Grid readiness',
+      hydrogen: 'Hydrogen availability',
+      co2_infra: 'CO2 infrastructure',
+      permitting: 'Permitting quality',
+      finance: 'Finance support',
+      market_pull: 'Market pull',
+      stability: 'Policy stability',
+      infra_push: 'Инфраструктурен импулс',
+    },
+    help: {
+      carbon_pressure: 'Strength of carbon-cost pressure in the scenario.',
+      power_access: 'Availability and quality of power access for electrification.',
+      grid_readiness: 'Readiness of grid infrastructure for industrial transition.',
+      hydrogen: 'Availability of hydrogen supply and related systems.',
+      co2_infra: 'Readiness of CO2 transport, storage, or shared capture infrastructure.',
+      permitting: 'Quality and speed of the permitting environment.',
+      finance: 'Access to public or private transition finance.',
+      market_pull: 'Demand-side support for low-carbon products.',
+      stability: 'Consistency and predictability of policy signals.',
+      infra_push: 'Derived in apply_scenario() from grid, hydrogen, and CO2 infrastructure readiness.',
+    },
+  },
+  bg: {
+    sourceKicker: 'Източник и проследимост',
+    sourceTitle: 'Сценарийните входове са подравнени със streamlit_app.py',
+    sourceText: 'Клъстерният модул по-долу следва вградените сценарии и показва как всяко поле от Scenario влиза в основната логика на apply_scenario().',
+    sourceNote: 'Производен helper вътре във функцията: infra_push = (grid_readiness + hydrogen + co2_infra) / 3. Стойностите са запазени в оригиналната скала 0-1, а имената на сценариите са оставени както са в Streamlit модела за директна проследимост.',
+    functionTitle: 'Как apply_scenario() използва входовете',
+    functionDesc: 'Всеки блок показва изходния термин и семейството параметри зад него.',
+    matrixTitle: 'Сравнение сценарий-по-параметър',
+    matrixDesc: 'Редовете показват полетата на Scenario плюс производния термин infra_push. Колоните пазят оригиналния ред на сценариите от Streamlit файла.',
+    matrixNote: 'Чети по ред, за да сравниш един и същ параметър между сценариите. Чети по колона, за да видиш пълния профил на даден сценарий.',
+    parameterHeader: 'Параметър',
+    usageHeader: 'Използва се в apply_scenario()',
+    scenarioHeaderMeta: 'сценарий от източника',
+    labels: {
+      carbon_pressure: 'Въглероден натиск',
+      power_access: 'Достъп до електроенергия',
+      grid_readiness: 'Готовност на мрежата',
+      hydrogen: 'Наличност на водород',
+      co2_infra: 'CO2 инфраструктура',
+      permitting: 'Качество на разрешителния режим',
+      finance: 'Финансова подкрепа',
+      market_pull: 'Пазарно търсене',
+      stability: 'Стабилност на политиката',
+      infra_push: 'Infrastructure push',
+    },
+    help: {
+      carbon_pressure: 'Силата на въглеродния ценови натиск в сценария.',
+      power_access: 'Наличност и качество на електрозахранването за електрификация.',
+      grid_readiness: 'Готовност на мрежовата инфраструктура за индустриалния преход.',
+      hydrogen: 'Наличност на водород и свързаните системи.',
+      co2_infra: 'Готовност на CO2 транспорт, съхранение или споделена capture инфраструктура.',
+      permitting: 'Качество и скорост на разрешителната среда.',
+      finance: 'Достъп до публично или частно финансиране за прехода.',
+      market_pull: 'Подкрепа от страна на търсенето за нисковъглеродни продукти.',
+      stability: 'Последователност и предвидимост на policy сигналите.',
+      infra_push: 'Производен термин в apply_scenario(), изчислен от готовността на мрежата, водорода и CO2 инфраструктурата.',
+    },
+  },
+};
+
+function getClusterCopy() {
+  return CLUSTER_COPY[getLanguage()] || CLUSTER_COPY.en;
+}
+
+function getClusterScenarioValue(scenario, key) {
+  if (key === 'infra_push') {
+    return (scenario.grid_readiness + scenario.hydrogen + scenario.co2_infra) / 3;
+  }
+  return scenario[key];
+}
+
+function getClusterScoreTone(value) {
+  if (value >= 0.75) return 'cluster-score-high';
+  if (value >= 0.55) return 'cluster-score-mid';
+  if (value >= 0.35) return 'cluster-score-low';
+  return 'cluster-score-weak';
+}
+
+function renderClusterAnalysis() {
+  const sourceCard = document.getElementById('clusterSourceCard');
+  const functionGrid = document.getElementById('clusterFunctionGrid');
+  const scenarioTable = document.getElementById('clusterScenarioTable');
+  if (!sourceCard || !functionGrid || !scenarioTable) return;
+
+  const copy = getClusterCopy();
+
+  sourceCard.innerHTML = `
+    <div class="cluster-source-kicker">${escapeHtml(copy.sourceKicker)}</div>
+    <div class="cluster-source-title">${escapeHtml(copy.sourceTitle)}</div>
+    <div class="cluster-source-text">${escapeHtml(copy.sourceText)}</div>
+    <div class="cluster-table-note">${escapeHtml(copy.sourceNote)}</div>
+  `;
+
+  const functionTitle = document.getElementById('clusterFunctionTitle');
+  const functionDesc = document.getElementById('clusterFunctionDesc');
+  const matrixTitle = document.getElementById('clusterMatrixTitle');
+  const matrixDesc = document.getElementById('clusterMatrixDesc');
+  const matrixNote = document.getElementById('clusterScenarioNote');
+  if (functionTitle) functionTitle.textContent = copy.functionTitle;
+  if (functionDesc) functionDesc.textContent = copy.functionDesc;
+  if (matrixTitle) matrixTitle.textContent = copy.matrixTitle;
+  if (matrixDesc) matrixDesc.textContent = copy.matrixDesc;
+  if (matrixNote) matrixNote.textContent = copy.matrixNote;
+
+  const lang = getLanguage();
+  functionGrid.innerHTML = CLUSTER_FUNCTION_BLOCKS.map(block => `
+    <div class="formula-item${block.wide ? ' formula-wide' : ''}">
+      <div class="formula-title">${escapeHtml(block.title)}</div>
+      <div class="card-sub">${escapeHtml(block.summary[lang] || block.summary.en)}</div>
+      <code class="formula-eq">${escapeHtml(block.formula)}</code>
+      <div class="cluster-function-chips">
+        ${block.drivers.map(driver => `<span class="cluster-function-chip">${escapeHtml(driver)}</span>`).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  const tableHead = `
+    <thead>
+      <tr>
+        <th>${escapeHtml(copy.parameterHeader)}</th>
+        <th>${escapeHtml(copy.usageHeader)}</th>
+        ${CLUSTER_SCENARIOS.map(scenario => `
+          <th>
+            <div class="cluster-scenario-head">
+              <strong>${escapeHtml(scenario.name)}</strong>
+              <span>${escapeHtml(copy.scenarioHeaderMeta)}</span>
+            </div>
+          </th>
+        `).join('')}
+      </tr>
+    </thead>
+  `;
+
+  const tableBody = `
+    <tbody>
+      ${CLUSTER_PARAMETER_ROWS.map(row => `
+        <tr>
+          <td class="cluster-param-cell">
+            <strong>${escapeHtml(copy.labels[row.key] || row.key)}</strong>
+            <span class="cluster-param-code">${escapeHtml(row.key)}</span>
+            <span class="cluster-param-help">${escapeHtml(copy.help[row.key] || '')}</span>
+          </td>
+          <td class="cluster-use-cell">
+            <div class="cluster-usage-tags">
+              ${row.usage.map(name => `<span class="cluster-usage-tag">${escapeHtml(name)}</span>`).join('')}
+            </div>
+          </td>
+          ${CLUSTER_SCENARIOS.map(scenario => {
+            const value = getClusterScenarioValue(scenario, row.key);
+            const width = Math.max(8, Math.round(value * 100));
+            const tone = getClusterScoreTone(value);
+            return `
+              <td class="cluster-score-cell">
+                <div class="cluster-score-track ${tone}">
+                  <div class="cluster-score-fill" style="width:${width}%"></div>
+                  <div class="cluster-score-text">${value.toFixed(2)}</div>
+                </div>
+              </td>
+            `;
+          }).join('')}
+        </tr>
+      `).join('')}
+    </tbody>
+  `;
+
+  scenarioTable.innerHTML = tableHead + tableBody;
 }
 
 // ── INIT ─────────────────────────────────────
