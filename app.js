@@ -1405,7 +1405,10 @@ function showPathway(id, btn) {
 
 const CLUSTER_SCENARIOS = [
   {
-    name: 'Carbon pressure without enablement',
+    name: {
+      en: 'Carbon pressure without enablement',
+      bg: 'Въглероден натиск без подкрепящи условия',
+    },
     theme: 'pressure',
     carbon_pressure: 0.95,
     power_access: 0.35,
@@ -1418,7 +1421,10 @@ const CLUSTER_SCENARIOS = [
     stability: 0.35,
   },
   {
-    name: 'Coordinated green industrial policy',
+    name: {
+      en: 'Coordinated green industrial policy',
+      bg: 'Координирана зелена индустриална политика',
+    },
     theme: 'growth',
     carbon_pressure: 0.85,
     power_access: 0.80,
@@ -1431,7 +1437,10 @@ const CLUSTER_SCENARIOS = [
     stability: 0.80,
   },
   {
-    name: 'Defensive industrial continuity',
+    name: {
+      en: 'Defensive industrial continuity',
+      bg: 'Защитна индустриална непрекъснатост',
+    },
     theme: 'defensive',
     carbon_pressure: 0.40,
     power_access: 0.45,
@@ -1444,7 +1453,10 @@ const CLUSTER_SCENARIOS = [
     stability: 0.55,
   },
   {
-    name: 'Volatile stop-go policy',
+    name: {
+      en: 'Volatile stop-go policy',
+      bg: 'Непоследователна stop-go политика',
+    },
     theme: 'volatile',
     carbon_pressure: 0.70,
     power_access: 0.45,
@@ -1457,7 +1469,10 @@ const CLUSTER_SCENARIOS = [
     stability: 0.20,
   },
   {
-    name: 'Cluster covenant strategy',
+    name: {
+      en: 'Cluster covenant strategy',
+      bg: 'Стратегия за клъстерен пакт',
+    },
     theme: 'cluster',
     carbon_pressure: 0.80,
     power_access: 0.70,
@@ -1574,7 +1589,7 @@ const CLUSTER_COPY = {
       finance: 'Finance support',
       market_pull: 'Market pull',
       stability: 'Policy stability',
-      infra_push: 'Инфраструктурен импулс',
+      infra_push: 'Infrastructure push',
     },
     help: {
       carbon_pressure: 'Strength of carbon-cost pressure in the scenario.',
@@ -1598,7 +1613,7 @@ const CLUSTER_COPY = {
     functionDesc: 'Всеки блок показва изходния термин и семейството параметри зад него.',
     matrixTitle: 'Профили на сценариите',
     matrixDesc: 'Пет политически сценария, подредени като компактни профили в скала от 0 до 1.',
-    matrixNote: 'По-високите стойности означават по-силни улесняващи условия. Carbon pressure показва силата на ценовия натиск.',
+    matrixNote: 'По-високите стойности означават по-силни улесняващи условия. Въглеродният натиск показва силата на ценовия натиск.',
     scenarioMeta: 'политически сценарий',
     supportLabel: 'Индекс на подкрепата',
     scaleLabel: 'Скала 0-1',
@@ -1612,7 +1627,7 @@ const CLUSTER_COPY = {
       finance: 'Финансова подкрепа',
       market_pull: 'Пазарно търсене',
       stability: 'Стабилност на политиката',
-      infra_push: 'Infrastructure push',
+      infra_push: 'Инфраструктурен импулс',
     },
     help: {
       carbon_pressure: 'Силата на въглеродния ценови натиск в сценария.',
@@ -1653,6 +1668,14 @@ function getClusterScenarioAverage(scenario) {
   return total / keys.length;
 }
 
+function getClusterScenarioName(scenario) {
+  const lang = getLanguage();
+  if (scenario.name && typeof scenario.name === 'object') {
+    return scenario.name[lang] || scenario.name.en || '';
+  }
+  return scenario.name || '';
+}
+
 function renderClusterAnalysis() {
   const scenarioGrid = document.getElementById('clusterScenarioGrid');
   if (!scenarioGrid) return;
@@ -1672,7 +1695,7 @@ function renderClusterAnalysis() {
         <div class="cluster-scenario-card-head">
           <div>
             <div class="cluster-scenario-meta">${escapeHtml(copy.scenarioMeta)}</div>
-            <h3>${escapeHtml(scenario.name)}</h3>
+            <h3>${escapeHtml(getClusterScenarioName(scenario))}</h3>
           </div>
           <div class="cluster-scenario-score">
             <span>${escapeHtml(copy.supportLabel)}</span>
