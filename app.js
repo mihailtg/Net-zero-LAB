@@ -632,6 +632,7 @@ const I18N = {
     'nav.companies': 'Companies',
     'nav.pathways': 'Pathways',
     'nav.emissions': 'Emissions',
+    'nav.dataset': 'Dataset',
     'nav.policy': 'Policy & Regulation',
     'nav.roi': 'ROI Analysis',
     'nav.investments': 'Investments',
@@ -651,6 +652,9 @@ const I18N = {
     'section.emissions.title': 'Emissions Data',
     'section.emissions.desc': 'Official Bulgarian National GHG Inventory · UNFCCC CRF · 2010–2023',
     'section.emissions.pill': 'Official · 2023',
+    'section.dataset.title': 'Structured Dataset',
+    'section.dataset.desc': "Tabular views of the dashboard's source data, history series, and company registry",
+    'section.dataset.pill': '6 generated tables',
     'section.policy.title': 'Policy & Regulation',
     'section.policy.desc': "The regulatory framework shaping Bulgaria's industrial decarbonization",
     'section.netzerolab.title': 'Net-Zero Lab',
@@ -739,6 +743,7 @@ function setLanguage(lang) {
     // Language persistence is optional; the switch still works when storage is blocked.
   }
 
+  renderDatasetTables();
   updateThemeIcons(document.documentElement.getAttribute('data-theme') || 'light');
 }
 
@@ -839,9 +844,16 @@ function showSection(id) {
 
   // Lazy-init section charts
   if (id === 'emissions') { setTimeout(() => { buildIppuCharts(); updateDashboardWithDbData(); }, 50); }
+  if (id === 'dataset') { setTimeout(renderDatasetTables, 50); }
   if (id === 'cbam')      { if (cbamChartInstance) { cbamChartInstance.destroy(); cbamChartInstance = null; } setTimeout(() => { renderPriceChips(); calcCBAM(); }, 50); }
   if (id === 'investments') { if (invRangeChartInstance) { invRangeChartInstance.destroy(); invRangeChartInstance = null; } setTimeout(buildInvRangeChart, 50); }
-  if (id === 'roi') { if (paybackChartInst) { paybackChartInst.destroy(); paybackChartInst = null; } if (cashflowChartInst) { cashflowChartInst.destroy(); cashflowChartInst = null; } setTimeout(initRoi, 50); }
+  if (id === 'roi') {
+    if (paybackChartInst) { paybackChartInst.destroy(); paybackChartInst = null; }
+    if (cashflowChartInst) { cashflowChartInst.destroy(); cashflowChartInst = null; }
+    if (roiScenarioSnapshotChartInst) { roiScenarioSnapshotChartInst.destroy(); roiScenarioSnapshotChartInst = null; }
+    if (roiEtsChartInst) { roiEtsChartInst.destroy(); roiEtsChartInst = null; }
+    setTimeout(initRoi, 50);
+  }
 }
 
 function refreshChartsForTheme() {
@@ -852,6 +864,8 @@ function refreshChartsForTheme() {
   if (invRangeChartInstance) { invRangeChartInstance.destroy(); invRangeChartInstance = null; }
   if (paybackChartInst) { paybackChartInst.destroy(); paybackChartInst = null; }
   if (cashflowChartInst) { cashflowChartInst.destroy(); cashflowChartInst = null; }
+  if (roiScenarioSnapshotChartInst) { roiScenarioSnapshotChartInst.destroy(); roiScenarioSnapshotChartInst = null; }
+  if (roiEtsChartInst) { roiEtsChartInst.destroy(); roiEtsChartInst = null; }
   if (macChartInst) { macChartInst.destroy(); macChartInst = null; }
   if (ippuTotalChartInst) { ippuTotalChartInst.destroy(); ippuTotalChartInst = null; }
   if (ippu2023PieInst) { ippu2023PieInst.destroy(); ippu2023PieInst = null; }
@@ -1373,6 +1387,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initLanguageControl();
   initFontSizeControl();
   renderCompanyGrid();
+  renderDatasetTables();
   animateKPIs();
   setTimeout(buildCharts, 100);
   setTimeout(updateDashboardWithDbData, 250);
@@ -1756,6 +1771,24 @@ const ROI_ETS = {
   high: [105,120,135,150,165,175,182,188,195,202,210,218,225,230,235]
 };
 
+const ROI_SCENARIO_SNAPSHOT = [
+  { year: 2026, investment: -389, lowEts: -380, lowNet: 9.1, baseEts: -376, baseNet: 13, highEts: -373, highNet: 16 },
+  { year: 2027, investment: -772, lowEts: -748, lowNet: 24, baseEts: -738, baseNet: 34, highEts: -729, highNet: 43 },
+  { year: 2028, investment: -1200, lowEts: -1100, lowNet: 53, baseEts: -1100, baseNet: 74, highEts: -1100, highNet: 94 },
+  { year: 2029, investment: -1500, lowEts: -1400, lowNet: 122, baseEts: -1300, baseNet: 172, highEts: -1300, highNet: 221 },
+  { year: 2030, investment: -1900, lowEts: -1700, lowNet: 255, baseEts: -1600, baseNet: 362, highEts: -1500, highNet: 470 },
+  { year: 2031, investment: -2400, lowEts: -1900, lowNet: 423, baseEts: -1800, baseNet: 598, highEts: -1600, highNet: 789 },
+  { year: 2032, investment: -2700, lowEts: -2100, lowNet: 693, baseEts: -1800, baseNet: 978, highEts: -1400, highNet: 1300 },
+  { year: 2033, investment: -2900, lowEts: -1900, lowNet: 1000, baseEts: -1500, baseNet: 1400, highEts: -1000, highNet: 1900 },
+  { year: 2034, investment: -3100, lowEts: -1700, lowNet: 1400, baseEts: -1100, baseNet: 1900, highEts: -437, highNet: 2600 },
+  { year: 2035, investment: -3200, lowEts: -1500, lowNet: 1800, baseEts: -743, baseNet: 2500, highEts: 104, highNet: 3300 },
+  { year: 2036, investment: -3400, lowEts: -1100, lowNet: 2300, baseEts: -156, baseNet: 3300, highEts: 962, highNet: 4400 },
+  { year: 2037, investment: -3600, lowEts: -644, lowNet: 2900, baseEts: 515, baseNet: 4100, highEts: 1900, highNet: 5500 },
+  { year: 2038, investment: -3700, lowEts: -117, lowNet: 3600, baseEts: 1300, baseNet: 5000, highEts: 3000, highNet: 6700 },
+  { year: 2039, investment: -3700, lowEts: 533, lowNet: 4300, baseEts: 2200, baseNet: 6000, highEts: 4300, highNet: 8100 },
+  { year: 2040, investment: -3800, lowEts: 1300, lowNet: 5000, baseEts: 3300, baseNet: 7100, highEts: 5800, highNet: 9600 }
+];
+
 // ─────────────────────────────────────────────────────────────────
 // ALL PATHWAYS — from company documents (real capex & CO₂ figures)
 // capex_M: total CAPEX in M€
@@ -1946,6 +1979,8 @@ const ROI_COMPANY_PATHWAYS = {
 let currentRoiScenario = 'base';
 let paybackChartInst = null;
 let cashflowChartInst = null;
+let roiScenarioSnapshotChartInst = null;
+let roiEtsChartInst = null;
 let cashflowUseLogScale = false;
 let cashflowIncludeCbamAdjustment = false;
 
@@ -2252,6 +2287,72 @@ function irrSignal(payback) {
   return '<span class="irr-neg">Very long-term</span>';
 }
 
+function buildRoiEtsChart() {
+  const ctx = document.getElementById('roiEtsPriceChart');
+  if (!ctx) return;
+  if (roiEtsChartInst) { roiEtsChartInst.destroy(); roiEtsChartInst = null; }
+
+  const c = getChartColors();
+  const scenarioMeta = {
+    low:  { label: 'Low ROI_ETS',  color: c.amber,   name: 'Low' },
+    base: { label: 'Base ROI_ETS', color: c.blue,    name: 'Base' },
+    high: { label: 'High ROI_ETS', color: c.success, name: 'High' },
+  };
+
+  roiEtsChartInst = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ROI_YEARS,
+      datasets: Object.entries(scenarioMeta).map(([key, meta]) => {
+        const active = key === currentRoiScenario;
+        return {
+          label: meta.label,
+          data: ROI_ETS[key],
+          borderColor: active ? meta.color : withChartAlpha(meta.color, '99'),
+          backgroundColor: withChartAlpha(meta.color, active ? '22' : '0f'),
+          borderWidth: active ? 3 : 1.8,
+          pointRadius: active ? 3.4 : 2.4,
+          pointHoverRadius: 5,
+          tension: 0.25,
+          fill: false,
+        };
+      })
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        ...chartDefaults().plugins,
+        legend: { ...chartDefaults().plugins.legend, position: 'bottom' },
+        tooltip: {
+          ...chartDefaults().plugins.tooltip,
+          callbacks: {
+            label: ctx => ` ${ctx.dataset.label}: €${ctx.parsed.y}/tCO₂`
+          }
+        }
+      },
+      scales: {
+        x: { ...chartDefaults().scales.x },
+        y: {
+          ...chartDefaults().scales.y,
+          beginAtZero: false,
+          title: { display: true, text: '€/tCO₂', color: c.textMuted, font: { size: 11, family: 'DM Sans' } },
+          ticks: { ...chartDefaults().scales.y.ticks, callback: value => `€${value}` }
+        }
+      }
+    }
+  });
+
+  const activeMeta = scenarioMeta[currentRoiScenario];
+  const activePrices = ROI_ETS[currentRoiScenario];
+  const pill = document.getElementById('roiEtsActivePill');
+  if (pill) pill.textContent = `${activeMeta.name} selected`;
+  const summary = document.getElementById('roiEtsPriceSummary');
+  if (summary) {
+    summary.textContent = `${activeMeta.name} ROI_ETS values used now: 2026 €${activePrices[0]}/t, 2030 €${activePrices[4]}/t, 2035 €${activePrices[9]}/t, 2040 €${activePrices[14]}/t. Hover over the chart for exact annual values.`;
+  }
+}
+
 // ── PAYBACK CHART ─────────────────────────────
 let currentPaybackFilter = 'all';
 
@@ -2338,6 +2439,144 @@ function buildPaybackChart() {
 }
 
 // ── CASHFLOW CHART ────────────────────────────
+function buildRoiScenarioSnapshotChart() {
+  const ctx = document.getElementById('roiScenarioSnapshotChart');
+  if (!ctx) return;
+  if (roiScenarioSnapshotChartInst) { roiScenarioSnapshotChartInst.destroy(); roiScenarioSnapshotChartInst = null; }
+
+  const c = getChartColors();
+  const lowColor = c.amber;
+  const baseColor = c.blue;
+  const highColor = c.success;
+
+  roiScenarioSnapshotChartInst = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ROI_SCENARIO_SNAPSHOT.map(row => row.year),
+      datasets: [
+        {
+          type: 'bar',
+          label: 'Investment',
+          data: ROI_SCENARIO_SNAPSHOT.map(row => row.investment),
+          backgroundColor: withChartAlpha(c.semantic.investment, '66'),
+          borderColor: withChartAlpha(c.semantic.investment, 'cc'),
+          borderWidth: 1,
+          borderRadius: 3,
+          order: 10
+        },
+        {
+          type: 'line',
+          label: 'Low - ETS',
+          data: ROI_SCENARIO_SNAPSHOT.map(row => row.lowEts),
+          borderColor: lowColor,
+          backgroundColor: withChartAlpha(lowColor, '10'),
+          borderDash: [6, 4],
+          borderWidth: 2,
+          pointRadius: 2.5,
+          pointHoverRadius: 4,
+          tension: 0.28
+        },
+        {
+          type: 'line',
+          label: 'Low - Net',
+          data: ROI_SCENARIO_SNAPSHOT.map(row => row.lowNet),
+          borderColor: lowColor,
+          backgroundColor: withChartAlpha(lowColor, '18'),
+          borderWidth: 2.5,
+          pointRadius: 3,
+          pointHoverRadius: 4,
+          tension: 0.28
+        },
+        {
+          type: 'line',
+          label: 'Base - ETS',
+          data: ROI_SCENARIO_SNAPSHOT.map(row => row.baseEts),
+          borderColor: baseColor,
+          backgroundColor: withChartAlpha(baseColor, '10'),
+          borderDash: [6, 4],
+          borderWidth: 2,
+          pointRadius: 2.5,
+          pointHoverRadius: 4,
+          tension: 0.28
+        },
+        {
+          type: 'line',
+          label: 'Base - Net',
+          data: ROI_SCENARIO_SNAPSHOT.map(row => row.baseNet),
+          borderColor: baseColor,
+          backgroundColor: withChartAlpha(baseColor, '18'),
+          borderWidth: 2.5,
+          pointRadius: 3,
+          pointHoverRadius: 4,
+          tension: 0.28
+        },
+        {
+          type: 'line',
+          label: 'High - ETS',
+          data: ROI_SCENARIO_SNAPSHOT.map(row => row.highEts),
+          borderColor: highColor,
+          backgroundColor: withChartAlpha(highColor, '10'),
+          borderDash: [6, 4],
+          borderWidth: 2,
+          pointRadius: 2.5,
+          pointHoverRadius: 4,
+          tension: 0.28
+        },
+        {
+          type: 'line',
+          label: 'High - Net',
+          data: ROI_SCENARIO_SNAPSHOT.map(row => row.highNet),
+          borderColor: highColor,
+          backgroundColor: withChartAlpha(highColor, '18'),
+          borderWidth: 2.5,
+          pointRadius: 3,
+          pointHoverRadius: 4,
+          tension: 0.28
+        }
+      ]
+    },
+    options: {
+      ...chartDefaults(),
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        ...chartDefaults().plugins,
+        legend: { ...chartDefaults().plugins.legend, position: 'bottom' },
+        tooltip: {
+          ...chartDefaults().plugins.tooltip,
+          callbacks: {
+            label: ctx => ` ${ctx.dataset.label}: ${formatCashflowAxisValue(ctx.parsed.y)}`
+          }
+        },
+        annotation: {
+          annotations: {
+            zeroLine: {
+              type: 'line',
+              yMin: 0,
+              yMax: 0,
+              borderColor: c.grid,
+              borderWidth: 1.5,
+              borderDash: [3, 3]
+            }
+          }
+        }
+      },
+      scales: {
+        x: { ...chartDefaults().scales.x },
+        y: {
+          ...chartDefaults().scales.y,
+          title: { display: true, text: 'M€', color: c.textMuted, font: { size: 11, family: 'DM Sans' } },
+          ticks: {
+            ...chartDefaults().scales.y.ticks,
+            callback: value => formatCashflowAxisValue(Number(value))
+          }
+        }
+      }
+    }
+  });
+}
+
 function updateCashflowChart() {
   const ctx = document.getElementById('cashflowChart');
   if (!ctx) return;
@@ -2590,16 +2829,20 @@ function setRoiScenario(sc, btn) {
     .reduce((s, x) => s + x.co2_kt * p4 / 1000, 0);
   document.getElementById('rk-savings-2030').textContent = `€${allSaving2030.toFixed(0)}M`;
   // Rebuild charts
+  buildRoiEtsChart();
   buildPaybackChart();
   updateCashflowChart();
   buildRoiTable();
+  buildMacChart();
 }
 
 // ── INIT ROI ──────────────────────────────────
 function initRoi() {
   syncCashflowPathwayButtons();
   updateCashflowFilterNote();
+  buildRoiEtsChart();
   buildPaybackChart();
+  buildRoiScenarioSnapshotChart();
   updateCashflowChart();
   buildRoiTable();
   buildMacChart();
@@ -2951,6 +3194,371 @@ function buildFuelCombustionTable() {
 }
 
 // ── UPDATE DASHBOARD CHARTS WITH OFFICIAL DATA ──
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function formatDatasetNumber(value, digits = 2) {
+  if (!Number.isFinite(value)) return '—';
+  const locale = getLanguage() === 'bg' ? 'bg-BG' : 'en-US';
+  return new Intl.NumberFormat(locale, {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits
+  }).format(value);
+}
+
+function formatDatasetPercent(value, digits = 1) {
+  if (!Number.isFinite(value)) return '—';
+  return `${formatDatasetNumber(value, digits)}%`;
+}
+
+function buildDatasetTable(headers, rows, className = '') {
+  const classes = ['data-table'];
+  if (className) classes.push(className);
+  const head = `<thead><tr>${headers.map(header => `<th>${escapeHtml(header)}</th>`).join('')}</tr></thead>`;
+  const body = rows.map(row => `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`).join('');
+  return `<div class="table-wrap"><table class="${classes.join(' ')}">${head}<tbody>${body}</tbody></table></div>`;
+}
+
+function getDatasetCopy() {
+  if (getLanguage() === 'bg') {
+    return {
+      stats: {
+        tables: 'Таблици',
+        coverage: 'Обхват',
+        companies: 'Компании',
+        fuelRows: 'Горивни редове'
+      },
+      snapshot: {
+        kicker: 'Снимка на данните',
+        title: 'Текущи стойности за 2023',
+        desc: 'Национален и IPPU срез на данните, използвани в таблото.',
+        nationalTitle: 'Национален инвентар 2023',
+        nationalSub: 'Основни категории емисии и дял от брутните положителни емисии.',
+        ippuTitle: 'IPPU разбивка 2023',
+        ippuSub: 'Сектор 2 Industrial Processes and Product Use.',
+        headers: ['Категория', 'Стойност (Kt CO2eq)', 'Дял']
+      },
+      historical: {
+        kicker: 'Исторически редове',
+        title: 'Времеви серии 2010-2023',
+        desc: 'Пълни таблични серии за индустриалните емисии и под-секторите.',
+        ippuTitle: 'IPPU история',
+        ippuSub: 'Годишни тотали и под-сектори от националния инвентар.',
+        subsecTitle: 'Индустриални под-сектори',
+        subsecSub: 'Енергийни и процесни емисии по ключови производства.'
+      },
+      operational: {
+        kicker: 'Оперативни данни',
+        title: 'Фирми и горивни профили',
+        desc: 'Структурирана справка за компаниите в приложението и горивното разбиване за 2023.',
+        companyTitle: 'Фирмен регистър',
+        companySub: 'Локация, сектор, зрялост и CRF привързване.',
+        fuelTitle: 'Горивно горене 2023',
+        fuelSub: 'Редовете от Сектор 1.A с разбивка по вид гориво.',
+        companyHeaders: ['Компания', 'Локация', 'Сектор', 'Зрялост', 'Служители', 'CRF'],
+        fuelHeaders: ['Код', 'Под-сектор', 'Група', 'Общо', 'Течни', 'Твърди', 'Газ', 'Отпадък', 'Биомаса']
+      },
+      labels: {
+        energy: 'Енергетика',
+        ippu: 'IPPU',
+        agri: 'Земеделие',
+        waste: 'Отпадъци',
+        lulucf: 'LULUCF',
+        mineral: 'Минерална индустрия',
+        chemical: 'Химическа индустрия',
+        metal: 'Метална индустрия',
+        nonenergy: 'Неенергийни продукти',
+        ods: 'ODS заместители',
+        other: 'Други',
+        year: 'Година',
+        total: 'Общо',
+        petroleum: 'Нефтопреработване 1.A.1.b',
+        chemicals: 'Химическа индустрия 1.A.2.c',
+        pulp: 'Целулоза и хартия 1.A.2.d',
+        lime: 'Вар 2.A.2',
+        clinker: 'Клинкер 2.A.1',
+        sodaAshProcess: 'Сода аш процес 2.A.4.b',
+        carbonate: 'Карбонати 2.A.4.d',
+        ammonia: 'Амоняк 2.B.1',
+        sodaAsh: 'Сода аш 2.B.7',
+        nitric: 'Азотна киселина 2.B.2',
+        advanced: 'Напреднал',
+        progressing: 'Напредващ',
+        early: 'Начален',
+        manufacturing: 'Производство',
+        transport: 'Транспорт',
+        otherGroup: 'Други',
+        shareIppu: 'Дял от IPPU',
+        sourceNote: 'Всички таблици се генерират директно от in-app dataset и фирмения регистър в app.js.'
+      }
+    };
+  }
+
+  return {
+    stats: {
+      tables: 'Tables',
+      coverage: 'Coverage',
+      companies: 'Companies',
+      fuelRows: 'Fuel rows'
+    },
+    snapshot: {
+      kicker: 'Dataset snapshot',
+      title: 'Current values for 2023',
+      desc: 'National and IPPU cuts of the data already used throughout the dashboard.',
+      nationalTitle: 'National inventory 2023',
+      nationalSub: 'Core emission categories and share of gross positive emissions.',
+      ippuTitle: 'IPPU breakdown 2023',
+      ippuSub: 'Sector 2 Industrial Processes and Product Use.',
+      headers: ['Category', 'Value (Kt CO2eq)', 'Share']
+    },
+    historical: {
+      kicker: 'Historical series',
+      title: 'Time series 2010-2023',
+      desc: 'Full tabular series for industrial emissions and key sub-sectors.',
+      ippuTitle: 'IPPU history',
+      ippuSub: 'Annual totals and sub-sectors from the national inventory.',
+      subsecTitle: 'Industrial sub-sectors',
+      subsecSub: 'Energy and process emissions by major production lines.'
+    },
+    operational: {
+      kicker: 'Operational reference',
+      title: 'Companies and fuel profiles',
+      desc: 'Structured reference for the companies in the app and the 2023 fuel-combustion breakdown.',
+      companyTitle: 'Company registry',
+      companySub: 'Location, sector, maturity, and CRF mapping.',
+      fuelTitle: 'Fuel combustion 2023',
+      fuelSub: 'Sector 1.A rows with fuel-type breakdown.',
+      companyHeaders: ['Company', 'Location', 'Sector', 'Maturity', 'Employees', 'CRF'],
+      fuelHeaders: ['Code', 'Sub-sector', 'Group', 'Total', 'Liquid', 'Solid', 'Gas', 'Waste', 'Biomass']
+    },
+    labels: {
+      energy: 'Energy',
+      ippu: 'IPPU',
+      agri: 'Agriculture',
+      waste: 'Waste',
+      lulucf: 'LULUCF',
+      mineral: 'Mineral industry',
+      chemical: 'Chemical industry',
+      metal: 'Metal industry',
+      nonenergy: 'Non-energy products',
+      ods: 'ODS substitutes',
+      other: 'Other',
+      year: 'Year',
+      total: 'Total',
+      petroleum: 'Petroleum refining 1.A.1.b',
+      chemicals: 'Chemical industry 1.A.2.c',
+      pulp: 'Pulp and paper 1.A.2.d',
+      lime: 'Lime 2.A.2',
+      clinker: 'Clinker 2.A.1',
+      sodaAshProcess: 'Soda ash process 2.A.4.b',
+      carbonate: 'Carbonate use 2.A.4.d',
+      ammonia: 'Ammonia 2.B.1',
+      sodaAsh: 'Soda ash 2.B.7',
+      nitric: 'Nitric acid 2.B.2',
+      advanced: 'Advanced',
+      progressing: 'Progressing',
+      early: 'Early',
+      manufacturing: 'Manufacturing',
+      transport: 'Transport',
+      otherGroup: 'Other',
+      shareIppu: 'Share of IPPU',
+      sourceNote: 'All tables are generated directly from the in-app dataset and company registry in app.js.'
+    }
+  };
+}
+
+function renderDatasetTables() {
+  const statsEl = document.getElementById('datasetStats');
+  const contentEl = document.getElementById('datasetContent');
+  if (!statsEl || !contentEl) return;
+
+  const copy = getDatasetCopy();
+  const grossPositive = Object.values(DB.nat_2023).reduce((sum, value) => sum + (value > 0 ? value : 0), 0);
+  const ippuTotal = Object.values(DB.ippu_2023).reduce((sum, value) => sum + value, 0);
+  const firstYear = DB.ippu_hist[0]?.year;
+  const lastYear = DB.ippu_hist[DB.ippu_hist.length - 1]?.year;
+  const maturityLabels = {
+    advanced: copy.labels.advanced,
+    progressing: copy.labels.progressing,
+    early: copy.labels.early
+  };
+  const groupLabels = {
+    Energy: copy.labels.energy,
+    Manufacturing: copy.labels.manufacturing,
+    Transport: copy.labels.transport,
+    Other: copy.labels.otherGroup
+  };
+
+  statsEl.innerHTML = [
+    { value: '6', label: copy.stats.tables },
+    { value: `${firstYear}-${lastYear}`, label: copy.stats.coverage },
+    { value: String(companies.length), label: copy.stats.companies },
+    { value: String(DB.fuel_combustion_2023.length), label: copy.stats.fuelRows }
+  ].map(item => `
+    <div class="dataset-stat">
+      <strong>${escapeHtml(item.value)}</strong>
+      <span>${escapeHtml(item.label)}</span>
+    </div>
+  `).join('');
+
+  const nationalRows = [
+    [copy.labels.energy, formatDatasetNumber(DB.nat_2023.energy), formatDatasetPercent((DB.nat_2023.energy / grossPositive) * 100)],
+    [copy.labels.ippu, formatDatasetNumber(DB.nat_2023.ippu), formatDatasetPercent((DB.nat_2023.ippu / grossPositive) * 100)],
+    [copy.labels.agri, formatDatasetNumber(DB.nat_2023.agri), formatDatasetPercent((DB.nat_2023.agri / grossPositive) * 100)],
+    [copy.labels.waste, formatDatasetNumber(DB.nat_2023.waste), formatDatasetPercent((DB.nat_2023.waste / grossPositive) * 100)],
+    [copy.labels.lulucf, formatDatasetNumber(DB.nat_2023.lulucf), formatDatasetPercent((DB.nat_2023.lulucf / grossPositive) * 100)]
+  ].map(row => row.map(cell => escapeHtml(cell)));
+
+  const ippuSnapshotRows = [
+    ['2.A', copy.labels.mineral, formatDatasetNumber(DB.ippu_2023['2.A Mineral Industry']), formatDatasetPercent((DB.ippu_2023['2.A Mineral Industry'] / ippuTotal) * 100)],
+    ['2.B', copy.labels.chemical, formatDatasetNumber(DB.ippu_2023['2.B Chemical Industry']), formatDatasetPercent((DB.ippu_2023['2.B Chemical Industry'] / ippuTotal) * 100)],
+    ['2.C', copy.labels.metal, formatDatasetNumber(DB.ippu_2023['2.C Metal Industry']), formatDatasetPercent((DB.ippu_2023['2.C Metal Industry'] / ippuTotal) * 100)],
+    ['2.D', copy.labels.nonenergy, formatDatasetNumber(DB.ippu_2023['2.D Non-energy Products']), formatDatasetPercent((DB.ippu_2023['2.D Non-energy Products'] / ippuTotal) * 100)],
+    ['2.F', copy.labels.ods, formatDatasetNumber(DB.ippu_2023['2.F ODS Substitutes']), formatDatasetPercent((DB.ippu_2023['2.F ODS Substitutes'] / ippuTotal) * 100)],
+    ['2.G', copy.labels.other, formatDatasetNumber(DB.ippu_2023['2.G Other']), formatDatasetPercent((DB.ippu_2023['2.G Other'] / ippuTotal) * 100)]
+  ].map(row => row.map(cell => escapeHtml(cell)));
+
+  const ippuHistoryHeaders = [
+    copy.labels.year,
+    copy.labels.total,
+    copy.labels.mineral,
+    copy.labels.chemical,
+    copy.labels.metal,
+    copy.labels.nonenergy,
+    copy.labels.ods,
+    copy.labels.other
+  ];
+  const ippuHistoryRows = DB.ippu_hist.map(row => [
+    escapeHtml(String(row.year)),
+    escapeHtml(formatDatasetNumber(row.total)),
+    escapeHtml(formatDatasetNumber(row.mineral)),
+    escapeHtml(formatDatasetNumber(row.chemical)),
+    escapeHtml(formatDatasetNumber(row.metal)),
+    escapeHtml(formatDatasetNumber(row.nonenergy)),
+    escapeHtml(formatDatasetNumber(row.ods)),
+    escapeHtml(formatDatasetNumber(row.other))
+  ]);
+
+  const subsectorHeaders = [
+    copy.labels.year,
+    copy.labels.petroleum,
+    copy.labels.chemicals,
+    copy.labels.pulp,
+    copy.labels.lime,
+    copy.labels.clinker,
+    copy.labels.sodaAshProcess,
+    copy.labels.carbonate,
+    copy.labels.ammonia,
+    copy.labels.sodaAsh,
+    copy.labels.nitric
+  ];
+  const subsectorRows = DB.subsec_hist.map(row => [
+    escapeHtml(String(row.year)),
+    escapeHtml(formatDatasetNumber(row.petroleum_refining_1a1b)),
+    escapeHtml(formatDatasetNumber(row.chemicals_1a2c)),
+    escapeHtml(formatDatasetNumber(row.pulp_paper_1a2d)),
+    escapeHtml(formatDatasetNumber(row.lime_2a2)),
+    escapeHtml(formatDatasetNumber(row.clinker_2a1)),
+    escapeHtml(formatDatasetNumber(row.soda_ash_process_2a4b)),
+    escapeHtml(formatDatasetNumber(row.carbonate_desox_2a4d)),
+    escapeHtml(formatDatasetNumber(row.ammonia_2b1)),
+    escapeHtml(formatDatasetNumber(row.soda_ash_2b7)),
+    escapeHtml(formatDatasetNumber(row.nitric_acid_2b2))
+  ]);
+
+  const companyRows = companies.map(company => [
+    escapeHtml(company.name),
+    escapeHtml(company.location),
+    escapeHtml(company.sector),
+    escapeHtml(maturityLabels[company.maturity] || company.maturity),
+    escapeHtml(company.employees),
+    escapeHtml(company.crf)
+  ]);
+
+  const fuelRows = DB.fuel_combustion_2023.map(row => [
+    escapeHtml(row.code),
+    escapeHtml(row.name),
+    escapeHtml(groupLabels[row.group] || row.group),
+    escapeHtml(formatDatasetNumber(row.total)),
+    escapeHtml(formatDatasetNumber(row.liquid)),
+    escapeHtml(formatDatasetNumber(row.solid)),
+    escapeHtml(formatDatasetNumber(row.gas)),
+    escapeHtml(formatDatasetNumber(row.waste)),
+    escapeHtml(formatDatasetNumber(row.biomass))
+  ]);
+
+  contentEl.innerHTML = `
+    <div class="card dataset-block">
+      <div class="card-head">
+        <div>
+          <div class="dataset-kicker">${escapeHtml(copy.snapshot.kicker)}</div>
+          <div class="card-title">${escapeHtml(copy.snapshot.title)}</div>
+          <div class="card-sub">${escapeHtml(copy.snapshot.desc)}</div>
+        </div>
+      </div>
+      <div class="dataset-grid-2">
+        <div class="dataset-panel">
+          <div class="dataset-panel-title">${escapeHtml(copy.snapshot.nationalTitle)}</div>
+          <div class="dataset-panel-sub">${escapeHtml(copy.snapshot.nationalSub)}</div>
+          ${buildDatasetTable(copy.snapshot.headers, nationalRows, 'dataset-table-compact')}
+        </div>
+        <div class="dataset-panel">
+          <div class="dataset-panel-title">${escapeHtml(copy.snapshot.ippuTitle)}</div>
+          <div class="dataset-panel-sub">${escapeHtml(copy.snapshot.ippuSub)}</div>
+          ${buildDatasetTable(['Code', copy.snapshot.headers[0], copy.snapshot.headers[1], copy.labels.shareIppu], ippuSnapshotRows, 'dataset-table-compact')}
+        </div>
+      </div>
+    </div>
+
+    <div class="card dataset-block">
+      <div class="card-head">
+        <div>
+          <div class="dataset-kicker">${escapeHtml(copy.historical.kicker)}</div>
+          <div class="card-title">${escapeHtml(copy.historical.title)}</div>
+          <div class="card-sub">${escapeHtml(copy.historical.desc)}</div>
+        </div>
+      </div>
+      <div class="dataset-panel">
+        <div class="dataset-panel-title">${escapeHtml(copy.historical.ippuTitle)}</div>
+        <div class="dataset-panel-sub">${escapeHtml(copy.historical.ippuSub)}</div>
+        ${buildDatasetTable(ippuHistoryHeaders, ippuHistoryRows, 'dataset-table-wide')}
+      </div>
+      <div class="dataset-panel mt-4">
+        <div class="dataset-panel-title">${escapeHtml(copy.historical.subsecTitle)}</div>
+        <div class="dataset-panel-sub">${escapeHtml(copy.historical.subsecSub)}</div>
+        ${buildDatasetTable(subsectorHeaders, subsectorRows, 'dataset-table-xwide')}
+      </div>
+    </div>
+
+    <div class="card dataset-block">
+      <div class="card-head">
+        <div>
+          <div class="dataset-kicker">${escapeHtml(copy.operational.kicker)}</div>
+          <div class="card-title">${escapeHtml(copy.operational.title)}</div>
+          <div class="card-sub">${escapeHtml(copy.operational.desc)}</div>
+        </div>
+      </div>
+      <div class="dataset-panel">
+        <div class="dataset-panel-title">${escapeHtml(copy.operational.companyTitle)}</div>
+        <div class="dataset-panel-sub">${escapeHtml(copy.operational.companySub)}</div>
+        ${buildDatasetTable(copy.operational.companyHeaders, companyRows, 'dataset-table-wide')}
+      </div>
+      <div class="dataset-panel mt-4">
+        <div class="dataset-panel-title">${escapeHtml(copy.operational.fuelTitle)}</div>
+        <div class="dataset-panel-sub">${escapeHtml(copy.operational.fuelSub)}</div>
+        ${buildDatasetTable(copy.operational.fuelHeaders, fuelRows, 'dataset-table-wide')}
+      </div>
+      <div class="dataset-note">${escapeHtml(copy.labels.sourceNote)}</div>
+    </div>
+  `;
+}
+
 function updateDashboardWithDbData() {
   const c = getChartColors();
 

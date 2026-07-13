@@ -586,6 +586,8 @@ svg { flex-shrink: 0; }
 .rsb-label, .pf-label, .ctc-label, .inv-view-label { color: var(--text-muted); font-size: 0.82rem; font-weight: 850; }
 .roi-kpi-accent { border-color: rgba(122, 0, 94, 0.24); background: linear-gradient(180deg, rgba(220, 180, 204, 0.18), var(--surface)); }
 .rk-icon { margin-bottom: 0.65rem; background: var(--surface-offset); color: var(--primary); }
+.roi-ets-card { margin-bottom: 1rem; }
+.roi-ets-note { margin-top: 0.65rem; color: var(--text-muted); font-size: 0.8rem; font-weight: 750; }
 .cashflow-subtitle { margin-top: 0.35rem; color: var(--primary); font-size: 0.84rem; font-weight: 800; }
 .cashflow-tech-controls, .cashflow-market-controls { display: grid; gap: 0.5rem; margin-top: 0.75rem; }
 .cashflow-market-controls { grid-template-columns: auto minmax(180px, 240px); align-items: end; }
@@ -695,6 +697,78 @@ svg { flex-shrink: 0; }
 .data-table th { background: var(--heatmap-na); color: var(--heatmap-text); font-size: 0.74rem; font-weight: 900; text-transform: uppercase; }
 .data-table td { color: var(--text); }
 .data-table .col-total, .col-total { font-weight: 900; }
+.dataset-stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.dataset-stat {
+  padding: 0.95rem 1rem;
+  border: 1px solid var(--divider);
+  border-radius: 8px;
+  background: var(--surface-2);
+}
+.dataset-stat strong {
+  display: block;
+  color: var(--text);
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+.dataset-stat span {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.dataset-stack {
+  display: grid;
+  gap: 1rem;
+}
+.dataset-block {
+  display: grid;
+  gap: 1rem;
+}
+.dataset-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.dataset-panel {
+  padding: 0.95rem;
+  border: 1px solid var(--divider);
+  border-radius: 8px;
+  background: var(--surface-2);
+}
+.dataset-kicker {
+  margin-bottom: 0.35rem;
+  color: var(--primary);
+  font-size: 0.75rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+.dataset-panel-title {
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 850;
+}
+.dataset-panel-sub,
+.dataset-note {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+.dataset-panel-sub {
+  margin-top: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+.dataset-note {
+  padding-top: 0.25rem;
+}
+.data-table.dataset-table-compact { min-width: 520px; }
+.data-table.dataset-table-wide { min-width: 980px; }
+.data-table.dataset-table-xwide { min-width: 1380px; }
 .tbl-group-row td { background: var(--heatmap-teal); color: var(--heatmap-text-muted); font-weight: 850; }
 .tbl-highlight-green, .irr-high { color: var(--primary); font-weight: 850; }
 .tbl-highlight-red, .irr-low, .irr-neg { color: var(--red); font-weight: 850; }
@@ -815,7 +889,7 @@ svg { flex-shrink: 0; }
 @media (max-width: 1200px) {
   .chart-grid-2, .calc-layout, .policy-grid, .funding-grid, .nzl-pillars { grid-template-columns: 1fr; }
   .nzl-team-grid, .nzl-fact-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .kpi-grid, .roi-kpi-row, .inv-kpi-row, .cbam-kpi-row, .progress-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kpi-grid, .roi-kpi-row, .inv-kpi-row, .cbam-kpi-row, .progress-grid, .dataset-stat-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .company-grid, .source-grid, .rec-grid, .participants-grid, .assumptions-grid, .cbam-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .icc-header, .pw-invest-row { grid-template-columns: 1fr; }
   .icc-total { text-align: left; }
@@ -832,7 +906,7 @@ svg { flex-shrink: 0; }
   .modal-co-header { grid-template-columns: 44px minmax(0, 1fr); }
   .modal-employee-pill { grid-column: 1 / -1; text-align: left; }
   .nzl-team-grid, .nzl-fact-strip { grid-template-columns: 1fr; }
-  .company-grid, .source-grid, .rec-grid, .participants-grid, .assumptions-grid, .cbam-grid, .formula-grid, .kpi-grid, .roi-kpi-row, .inv-kpi-row, .cbam-kpi-row, .progress-grid, .modal-kpi-row, .pw-cols, .pw-stat-row { grid-template-columns: 1fr; }
+  .company-grid, .source-grid, .rec-grid, .participants-grid, .assumptions-grid, .cbam-grid, .formula-grid, .kpi-grid, .roi-kpi-row, .inv-kpi-row, .cbam-kpi-row, .progress-grid, .modal-kpi-row, .pw-cols, .pw-stat-row, .dataset-stat-row, .dataset-grid-2 { grid-template-columns: 1fr; }
   .kpi-card { grid-template-columns: 42px 1fr; }
   .cashflow-market-controls { grid-template-columns: 1fr; }
   .sens-row { grid-template-columns: 1fr; }
