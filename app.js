@@ -381,7 +381,7 @@ const DB = {
       "energy": "1.A.2.c",
       "process": "2.B.7"
     },
-    "Lukoil": {
+    "LUKOIL Neftohim Burgas": {
       "energy": "1.A.1.b",
       "process": null
     },
@@ -1013,6 +1013,10 @@ function normalizeRoiCompanyKey(name = '') {
   return String(name).toLowerCase()
     .replace(/\s/g, '')
     .replace('solvaysodi', 'solvay')
+    .replace('lukoilneftochimburgasad', 'lukoil')
+    .replace('lukoilneftochimburgas', 'lukoil')
+    .replace('lukoilneftohimburgasad', 'lukoil')
+    .replace('lukoilneftohimburgas', 'lukoil')
     .replace('lukoilneftochim', 'lukoil')
     .replace('lukoilneftohim', 'lukoil')
     .replace('heidelbergmaterials', 'heidelberg')
@@ -1140,7 +1144,7 @@ const companies = [
     challenge:'Lime kiln electrification requires large capital and grid upgrades. e.Solvay process still in testing phase. Administrative delays affecting biomass scale-up.'
   },
   {
-    id:'lukoil', name:'Lukoil Neftochim Burgas AD', location:'Burgas',
+    id:'lukoil', name:'LUKOIL Neftohim Burgas', location:'Burgas',
     sector:'Petroleum refining & petrochemicals', maturity:'progressing',
     color:'var(--danger)', colorBg:'var(--danger-light)', initials:'LN',
     description:'Largest integrated petrochemical complex in the Balkans. Refining capacity 9.5 million tonnes crude oil/year. Covers over 50% of Bulgaria\u2019s domestic fuel consumption. Investment decisions for 2026–2031 still pending. Group target: 20% reduction in controlled Scope 1+2 emissions by 2030 vs. 2017.',
@@ -1428,7 +1432,7 @@ const PRODUCTS = [
   { co:'neochim',      name:'HNO₃',  ef:0.23, cbam:true,  volId:'vol-neochim-hno3'  },
   // Solvay Sodi
   { co:'solvay',       name:'Soda',  ef:0.90, cbam:false, volId:'vol-solvay-soda'   },
-  // Lukoil
+  // LUKOIL Neftohim Burgas
   { co:'lukoil',       name:'Petro', ef:0.42, cbam:false, volId:'vol-lukoil-petro'  },
   // Svilosa
   { co:'svilosa',      name:'Pulp',  ef:0.22, cbam:false, volId:'vol-svilosa-pulp'  },
@@ -1444,7 +1448,7 @@ const PRODUCTS = [
 
 // CBAM calculator company keys (9-company model)
 const CO_KEYS = ['agropolychim','neochim','solvay','lukoil','svilosa','heidelberg','holcim','biovet','orgachim'];
-const CBAM_CO_LABELS = ['Agropolychim','Neochim','Solvay Sodi','Lukoil','Svilosa','Heidelberg','Holcim','Biovet','Orgachim'];
+const CBAM_CO_LABELS = ['Agropolychim','Neochim','Solvay Sodi','LUKOIL Neftohim Burgas','Svilosa','Heidelberg','Holcim','Biovet','Orgachim'];
 
 let currentScenario = 'base';
 let cbamChartInstance = null;
@@ -1671,7 +1675,7 @@ function buildInvRangeChart() {
   const c = getChartColors();
 
   // Low and high CAPEX estimates per company (M€)
-  const companies = ['Agropolychim','Biovet','Solvay Sodi','Lukoil','Heidelberg Mat.','Holcim BG','Svilosa','Neochim','Orgachim'];
+  const companies = ['Agropolychim','Biovet','Solvay Sodi','LUKOIL Neftohim Burgas','Heidelberg Mat.','Holcim BG','Svilosa','Neochim','Orgachim'];
   const low  = [250, 257, 365, 1000, 600, 15,  39,  4,  3];
   const high = [300, 300, 865, 2130, 625, 615, 79, 165, 11];
   const colors = getCompanyChartColors(ROI_CO_KEYS);
@@ -1844,27 +1848,27 @@ const ROI_PATHWAYS = [
   },
 
   // ── LUKOIL (investment decisions 2026-2031 still pending) ─────
-  { id:'lk-orc', co:'Lukoil', name:'ORC Turbines — LIVE WATEROIL Project',
+  { id:'lk-orc', co:'LUKOIL Neftohim Burgas', name:'ORC Turbines — LIVE WATEROIL Project',
     capex_M:30, co2_kt:50, starts:2026,
     capex_yr:{2024:0.3,2025:0.4,2026:0.3},
     note:'Organic Rankine Cycle; waste heat → electricity. Already in progress.'
   },
-  { id:'lk-h2', co:'Lukoil', name:'Low-Carbon H₂ for Hydrotreating (pending)',
+  { id:'lk-h2', co:'LUKOIL Neftohim Burgas', name:'Low-Carbon H₂ for Hydrotreating (pending)',
     capex_M:225, co2_kt:355, starts:2030,
     capex_yr:{2027:0.143,2028:0.143,2029:0.143,2030:0.143,2031:0.143,2032:0.143,2033:0.142},
     note:'Investment decision 2026–2031. Replaces grey H₂ in highest-emission processes.'
   },
-  { id:'lk-res', co:'Lukoil', name:'Own RES — PV + Wind (pending)',
+  { id:'lk-res', co:'LUKOIL Neftohim Burgas', name:'Own RES — PV + Wind (pending)',
     capex_M:100, co2_kt:150, starts:2029,
     capex_yr:{2027:0.25,2028:0.35,2029:0.25,2030:0.15},
     note:'Minimize Scope 2. Investment decision 2026–2031.'
   },
-  { id:'lk-modern', co:'Lukoil', name:'Equipment Modernization + Digital Energy Management',
+  { id:'lk-modern', co:'LUKOIL Neftohim Burgas', name:'Equipment Modernization + Digital Energy Management',
     capex_M:35, co2_kt:107, starts:2026,
     capex_yr:{2024:0.25,2025:0.35,2026:0.25,2027:0.15},
     note:'Power plant and distillation unit modernization with digital energy management. Complements LIVE WATEROIL efficiency gains.'
   },
-  { id:'lk-ccus', co:'Lukoil', name:'Refinery CCUS for Residual Process Emissions',
+  { id:'lk-ccus', co:'LUKOIL Neftohim Burgas', name:'Refinery CCUS for Residual Process Emissions',
     capex_M:1100, co2_kt:1470, starts:2036,
     capex_yr:{2032:0.10,2033:0.12,2034:0.14,2035:0.16,2036:0.16,2037:0.14,2038:0.10,2039:0.05,2040:0.03},
     note:'Long-term refinery CCUS option for residual emissions. Uses midpoint of €700M–1.5B pathway range.'
@@ -1960,7 +1964,7 @@ const ROI_PATHWAYS = [
 const ROI_CO_KEYS = ['agropolychim','neochim','solvay','lukoil','svilosa','heidelberg','holcim','biovet','orgachim'];
 const ROI_CO_NAMES = {
   agropolychim:'Agropolychim', neochim:'Neochim', solvay:'Solvay Sodi',
-  lukoil:'Lukoil', svilosa:'Svilosa', heidelberg:'Heidelberg Materials',
+  lukoil:'LUKOIL Neftohim Burgas', svilosa:'Svilosa', heidelberg:'Heidelberg Materials',
   holcim:'Holcim Bulgaria', biovet:'Biovet / Huvepharma', orgachim:'Orgachim'
 };
 
@@ -1999,7 +2003,7 @@ const ROI_NON_CBAM_PAID_SHARE = {
   2036:0.70, 2037:0.75, 2038:0.80, 2039:0.90, 2040:1.0
 };
 
-const ROI_CBAM_COMPANIES = new Set(['Agropolychim','Neochim','Heidelberg','Holcim Bulgaria']);
+const ROI_CBAM_COMPANIES = new Set(['Agropolychim','Neochim','Heidelberg','Holcim Bulgaria','LUKOIL Neftohim Burgas']);
 const CBAM_CERTIFICATE_PRICE_2026_Q1 = 75.36;
 
 const CASHFLOW_TECH_LABELS = {
@@ -2724,19 +2728,19 @@ function buildMacChart() {
   const macItems = [
     { name: 'N₂O (Neochim)',     bep: 4.5e6/277e3,    color:c.companies.neochim },
     { name: 'N₂O (Agropol.)',    bep: 6.5e6/292e3,    color:c.companies.agropolychim },
-    { name: 'Lukoil Eff.',       bep: 35e6/157e3,     color:c.companies.lukoil },
+    { name: 'LUKOIL Neftohim Burgas Eff.',       bep: 35e6/157e3,     color:c.companies.lukoil },
     { name: 'Solvay Coal',       bep: 75e6/165e3,     color:c.companies.solvay },
     { name: 'Neochim Eff.',      bep: 11.5e6/22.5e3,  color:c.companies.neochim },
     { name: 'Svilosa BioTEC',    bep: 21e6/33e3,      color:c.companies.svilosa },
     { name: 'Agropol. Eff.',     bep: 45e6/65e3,      color:c.companies.agropolychim },
     { name: 'Agropol. Plant',    bep: 115e6/130e3,    color:c.companies.agropolychim },
     { name: 'Svilosa Renew.',    bep: 22.5e6/19e3,    color:c.companies.svilosa },
-    { name: 'Lukoil Low-C H₂',  bep: 225e6/355e3,    color:c.companies.lukoil },
+    { name: 'LUKOIL Neftohim Burgas Low-C H₂',  bep: 225e6/355e3,    color:c.companies.lukoil },
     { name: 'Solvay Electrif.',  bep: 90e6/88e3,      color:c.companies.solvay },
     { name: 'Neochim Blue NH₃', bep: 150e6/126e3,    color:c.companies.neochim },
-    { name: 'Lukoil Electrif.', bep: 175e6/210e3,    color:c.companies.lukoil },
+    { name: 'LUKOIL Neftohim Burgas Electrif.', bep: 175e6/210e3,    color:c.companies.lukoil },
     { name: 'Solvay CCUS',      bep: 120e6/200e3,    color:c.companies.solvay },
-    { name: 'Lukoil CCUS',      bep: 1100e6/1470e3,  color:c.companies.lukoil },
+    { name: 'LUKOIL Neftohim Burgas CCUS',      bep: 1100e6/1470e3,  color:c.companies.lukoil },
     { name: 'Green NH₃ (AP)',   bep: 1100e6/416e3,   color:c.companies.agropolychim },
     { name: 'Green NH₃ (NC)',   bep: 625e6/162e3,    color:c.companies.neochim },
   ].sort((a,b) => a.bep - b.bep);
@@ -3003,7 +3007,7 @@ function buildSubsectorCharts() {
       data: {
         labels: years,
         datasets: [
-          { label: '1.A.1.b Petroleum Refining (Lukoil)', data: sh.map(d => d.petroleum_refining_1a1b),
+          { label: '1.A.1.b Petroleum Refining (LUKOIL Neftohim Burgas)', data: sh.map(d => d.petroleum_refining_1a1b),
             borderColor: c.companies.lukoil, backgroundColor: 'transparent', borderWidth:2.5, tension:0.3, pointRadius:3 },
           { label: '1.A.2.c Chemical Industry', data: sh.map(d => d.chemicals_1a2c),
             borderColor: c.semantic.chemical, backgroundColor: 'transparent', borderWidth:2.5, tension:0.3, pointRadius:3 },
@@ -3057,7 +3061,7 @@ function buildSubsectorCharts() {
       type: 'bar',
       data: {
         labels: [
-          'Lukoil\n(1.A.1.b)', 'Soda ash\n(2.B.7)', 'Ammonia\n(2.B.1)',
+          'LUKOIL Neftohim Burgas\n(1.A.1.b)', 'Soda ash\n(2.B.7)', 'Ammonia\n(2.B.1)',
           'Chemical\nIndustry\n(1.A.2.c)', 'Nitric acid\n(2.B.2)', 'Pulp/Paper\n(1.A.2.d)'
         ],
         datasets: [{
