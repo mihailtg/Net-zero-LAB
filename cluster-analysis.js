@@ -9,14 +9,20 @@
       },
       theme: 'pressure',
       carbon_pressure: 0.95,
+      stability: 0.35,
+      permitting: 0.25,
       power_access: 0.35,
+      power_price_visibility: 0.20,
       grid_readiness: 0.30,
       hydrogen: 0.25,
       co2_infra: 0.20,
-      permitting: 0.25,
       finance: 0.30,
+      engineering_capacity: 0.30,
+      cluster_coordination: 0.25,
       market_pull: 0.25,
-      stability: 0.35,
+      market_push: 0.20,
+      offtake_bankability: 0.18,
+      certification_traceability: 0.22,
     },
     {
       name: {
@@ -25,14 +31,20 @@
       },
       theme: 'growth',
       carbon_pressure: 0.85,
+      stability: 0.80,
+      permitting: 0.75,
       power_access: 0.80,
+      power_price_visibility: 0.78,
       grid_readiness: 0.80,
       hydrogen: 0.70,
       co2_infra: 0.70,
-      permitting: 0.75,
       finance: 0.80,
+      engineering_capacity: 0.78,
+      cluster_coordination: 0.82,
       market_pull: 0.75,
-      stability: 0.80,
+      market_push: 0.76,
+      offtake_bankability: 0.74,
+      certification_traceability: 0.72,
     },
     {
       name: {
@@ -41,14 +53,20 @@
       },
       theme: 'defensive',
       carbon_pressure: 0.40,
+      stability: 0.55,
+      permitting: 0.45,
       power_access: 0.45,
+      power_price_visibility: 0.42,
       grid_readiness: 0.45,
       hydrogen: 0.20,
       co2_infra: 0.20,
-      permitting: 0.45,
       finance: 0.40,
+      engineering_capacity: 0.48,
+      cluster_coordination: 0.38,
       market_pull: 0.30,
-      stability: 0.55,
+      market_push: 0.28,
+      offtake_bankability: 0.32,
+      certification_traceability: 0.36,
     },
     {
       name: {
@@ -57,14 +75,20 @@
       },
       theme: 'volatile',
       carbon_pressure: 0.70,
+      stability: 0.20,
+      permitting: 0.25,
       power_access: 0.45,
+      power_price_visibility: 0.22,
       grid_readiness: 0.40,
       hydrogen: 0.25,
       co2_infra: 0.25,
-      permitting: 0.25,
       finance: 0.45,
+      engineering_capacity: 0.35,
+      cluster_coordination: 0.22,
       market_pull: 0.35,
-      stability: 0.20,
+      market_push: 0.26,
+      offtake_bankability: 0.24,
+      certification_traceability: 0.30,
     },
     {
       name: {
@@ -73,36 +97,59 @@
       },
       theme: 'cluster',
       carbon_pressure: 0.80,
+      stability: 0.75,
+      permitting: 0.80,
       power_access: 0.70,
+      power_price_visibility: 0.68,
       grid_readiness: 0.75,
       hydrogen: 0.55,
       co2_infra: 0.75,
-      permitting: 0.80,
       finance: 0.75,
+      engineering_capacity: 0.72,
+      cluster_coordination: 0.90,
       market_pull: 0.65,
-      stability: 0.75,
+      market_push: 0.70,
+      offtake_bankability: 0.68,
+      certification_traceability: 0.74,
     },
   ];
 
-  const CLUSTER_SCENARIO_FOCUS_KEYS = [
-    'carbon_pressure',
-    'power_access',
-    'infra_push',
-    'finance',
-    'stability',
+  const CLUSTER_PARAMETER_GROUPS = [
+    {
+      id: 'carbon_regulatory',
+      title: 'Carbon and Regulatory Pressure',
+      keys: ['carbon_pressure', 'stability', 'permitting'],
+    },
+    {
+      id: 'energy_infrastructure',
+      title: 'Energy and Infrastructure',
+      keys: ['power_access', 'power_price_visibility', 'grid_readiness', 'hydrogen', 'co2_infra'],
+    },
+    {
+      id: 'finance_execution',
+      title: 'Finance and Execution',
+      keys: ['finance', 'engineering_capacity', 'cluster_coordination'],
+    },
+    {
+      id: 'market_formation',
+      title: 'Market Formation',
+      keys: ['market_pull', 'market_push', 'offtake_bankability', 'certification_traceability'],
+    },
   ];
 
-  const CLUSTER_PARAMETER_ROWS = [
-    { key: 'carbon_pressure' },
-    { key: 'power_access' },
-    { key: 'grid_readiness' },
-    { key: 'hydrogen' },
-    { key: 'co2_infra' },
-    { key: 'permitting' },
-    { key: 'finance' },
-    { key: 'market_pull' },
-    { key: 'stability' },
-    { key: 'infra_push' },
+  const CLUSTER_PARAMETER_ROWS = CLUSTER_PARAMETER_GROUPS.flatMap((group) =>
+    group.keys.map((key) => ({ key, groupId: group.id }))
+  );
+  const CLUSTER_PARAMETER_KEYS = CLUSTER_PARAMETER_ROWS.map(({ key }) => key);
+
+  const TRAJECTORY_YEAR_START = 2025;
+  const TRAJECTORY_YEAR_END = 2050;
+  const TRAJECTORY_SCENARIOS = [
+    { theme: 'growth', L: 85.0, k: 0.35, t0: 10.0, color: '#2a78d6', dash: 'solid' },
+    { theme: 'cluster', L: 70.0, k: 0.30, t0: 11.0, color: '#1baf7a', dash: 'dash' },
+    { theme: 'pressure', L: 55.0, k: 0.50, t0: 6.0, color: '#eda100', dash: 'dot' },
+    { theme: 'volatile', L: 40.0, k: 0.25, t0: 14.0, color: '#e34948', dash: 'dashdot' },
+    { theme: 'defensive', L: 25.0, k: 0.20, t0: 15.0, color: '#4a3aa7', dash: 'longdash' },
   ];
 
   const EXPLORER_TABS = ['phaseMap', 'scenarioFrontier', 'morphologyNetwork', 'bottleneckHeatmap', 'dataTable'];
@@ -177,27 +224,37 @@
       },
       labels: {
         carbon_pressure: 'Carbon pressure',
+        stability: 'Policy stability',
+        permitting: 'Permitting quality',
         power_access: 'Power access',
+        power_price_visibility: 'Power price visibility',
         grid_readiness: 'Grid readiness',
         hydrogen: 'Hydrogen availability',
         co2_infra: 'CO2 infrastructure',
-        permitting: 'Permitting quality',
         finance: 'Finance support',
+        engineering_capacity: 'Engineering capacity',
+        cluster_coordination: 'Cluster coordination',
         market_pull: 'Market pull',
-        stability: 'Policy stability',
-        infra_push: 'Infrastructure push',
+        market_push: 'Market push',
+        offtake_bankability: 'Offtake bankability',
+        certification_traceability: 'Certification traceability',
       },
       help: {
         carbon_pressure: 'Strength of carbon-cost pressure in the scenario.',
+        stability: 'Consistency and predictability of policy signals.',
+        permitting: 'Quality and speed of the permitting environment.',
         power_access: 'Availability and quality of power access for electrification.',
+        power_price_visibility: 'Visibility and predictability of future industrial power prices.',
         grid_readiness: 'Readiness of grid infrastructure for industrial transition.',
         hydrogen: 'Availability of hydrogen supply and related systems.',
         co2_infra: 'Readiness of CO2 transport, storage, or shared capture infrastructure.',
-        permitting: 'Quality and speed of the permitting environment.',
         finance: 'Access to public or private transition finance.',
+        engineering_capacity: 'Availability of engineering, EPC, and project delivery capability.',
+        cluster_coordination: 'Capacity for joint planning and coordination across the industrial cluster.',
         market_pull: 'Demand-side support for low-carbon products.',
-        stability: 'Consistency and predictability of policy signals.',
-        infra_push: 'Derived in apply_scenario() from grid, hydrogen, and CO2 infrastructure readiness.',
+        market_push: 'Supply-side policy push for deployment and scale-up of low-carbon solutions.',
+        offtake_bankability: 'Ability to secure bankable offtake contracts for low-carbon output.',
+        certification_traceability: 'Maturity of certification, MRV, and product traceability systems.',
       },
     },
     bg: {
@@ -278,6 +335,8 @@
   Object.assign(CLUSTER_COPY.en, {
     explorerSubtitle: 'Business field vs. technology field sandbox from the Streamlit explorer.',
     plotlyMissing: 'Plotly is not loaded, so the explorer charts cannot be rendered.',
+    trajectoryTitle: 'Scenario trajectories',
+    trajectorySubtitle: 'Normalised sigmoid curves from a common 2025 starting state S₀.',
     tabs: {
       phaseMap: 'Phase Map',
       scenarioFrontier: 'Scenario Frontier',
@@ -321,6 +380,9 @@
     },
   });
 
+  CLUSTER_COPY.bg.trajectoryTitle = 'Scenario trajectories';
+  CLUSTER_COPY.bg.trajectorySubtitle = 'Нормализирани sigmoid криви с общо начално състояние S₀ през 2025.';
+
   function ensureClusterStyles() {
     if (document.getElementById('cluster-analysis-styles')) return;
 
@@ -337,6 +399,7 @@
         grid-template-columns: minmax(0, 1.18fr) minmax(320px, 0.94fr);
         grid-template-areas:
           "roster detail"
+          "trajectory detail"
           "focus detail"
           "explorer explorer";
         gap: 1rem;
@@ -349,6 +412,7 @@
         gap: 1rem;
       }
       .cluster-fm-roster-card { grid-area: roster; }
+      .cluster-fm-trajectory-card { grid-area: trajectory; }
       .cluster-fm-focus-section-card { grid-area: focus; }
       .cluster-fm-scenario-card { grid-area: detail; }
       .cluster-fm-explorer-card { grid-area: explorer; }
@@ -414,6 +478,14 @@
         border-bottom: 0;
         min-height: 100%;
         box-sizing: border-box;
+      }
+      .cluster-fm-trajectory-card .cluster-fm-explorer {
+        border-bottom: 0;
+        padding-bottom: 1rem;
+      }
+      .cluster-fm-trajectory-card .cluster-fm-viz-canvas,
+      .cluster-fm-trajectory-card .cluster-fm-viz-empty {
+        min-height: 320px;
       }
       .cluster-fm-explorer-title {
         color: var(--fm-accent);
@@ -530,14 +602,12 @@
       .cluster-fm-overall small,
       .cluster-fm-row-scenario em,
       .cluster-fm-row-role,
-      .cluster-fm-table-head,
-      .cluster-fm-attribute-head {
+      .cluster-fm-table-head {
         color: var(--fm-muted);
       }
       .cluster-fm-overall span,
       .cluster-fm-overall small,
-      .cluster-fm-table-head,
-      .cluster-fm-attribute-head {
+      .cluster-fm-table-head {
         font-family: 'DM Mono', monospace;
         font-size: 0.5rem;
         letter-spacing: 0.08em;
@@ -561,7 +631,7 @@
       .cluster-fm-table-head,
       .cluster-fm-row {
         display: grid;
-        grid-template-columns: minmax(230px, 2.35fr) repeat(5, minmax(84px, 0.9fr)) minmax(108px, 1.15fr);
+        grid-template-columns: minmax(230px, 2.15fr) repeat(4, minmax(120px, 1fr));
         align-items: center;
         gap: 0.55rem;
       }
@@ -718,31 +788,58 @@
       .cluster-fm-delta.down { color: #ff986b; background: rgba(255, 152, 107, 0.12); }
       .cluster-fm-delta.flat { color: #c6d0d9; background: rgba(198, 208, 217, 0.12); }
       .cluster-fm-attributes { padding-bottom: 0.78rem; }
-      .cluster-fm-attribute-head,
-      .cluster-fm-attribute-row {
+      .cluster-fm-attribute-body {
         display: grid;
-        grid-template-columns: minmax(0, 1.9fr) 64px 64px 92px;
-        gap: 0.55rem;
-        align-items: center;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0.95rem;
+        padding-top: 0.12rem;
       }
-      .cluster-fm-attribute-head {
-        padding: 0 0 0.45rem;
-        border-bottom: 1px solid var(--fm-line);
+      .cluster-fm-attribute-group {
+        display: grid;
+        align-content: start;
       }
-      .cluster-fm-attribute-body { display: grid; }
+      .cluster-fm-attribute-group-head {
+        display: block;
+        padding: 0 0 0.34rem;
+        margin-bottom: 0.18rem;
+        border-bottom: 1px solid rgba(119, 196, 220, 0.18);
+      }
+      .cluster-fm-attribute-group-title {
+        color: var(--fm-accent);
+        font-family: 'Barlow Condensed', 'DM Sans', sans-serif;
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+      }
       .cluster-fm-attribute-row {
-        padding: 0.55rem 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        padding: 0.26rem 0;
         border-bottom: 1px solid rgba(119, 196, 220, 0.1);
       }
       .cluster-fm-attribute-row:last-child { border-bottom: 0; }
-      .cluster-fm-attribute-main { display: grid; gap: 0.18rem; }
+      .cluster-fm-attribute-main {
+        display: grid;
+        gap: 0.18rem;
+        min-width: 0;
+        flex: 1 1 auto;
+      }
       .cluster-fm-attribute-label-wrap {
-        display: inline-flex;
+        display: flex;
         align-items: center;
         gap: 0.35rem;
         min-width: 0;
       }
-      .cluster-fm-attribute-label { color: var(--fm-text); font-size: 0.53rem; font-weight: 700; }
+      .cluster-fm-attribute-label {
+        color: var(--fm-text);
+        font-size: 0.53rem;
+        font-weight: 700;
+        line-height: 1.25;
+        min-width: 0;
+      }
       .cluster-fm-info {
         position: relative;
         display: inline-flex;
@@ -792,9 +889,11 @@
       .cluster-fm-attribute-raw {
         font-size: 0.52rem;
         font-weight: 700;
-        text-align: center;
+        text-align: right;
+        flex: 0 0 auto;
       }
-      .cluster-fm-attribute-delta { display: flex; justify-content: flex-end; }
+      .cluster-fm-attribute-raw,
+      .cluster-fm-attribute-delta { display: none; }
       .cluster-fm-row-stat.cluster-score-high,
       .cluster-fm-focus-head strong.cluster-score-high,
       .cluster-fm-overall strong.cluster-score-high,
@@ -820,11 +919,13 @@
           grid-template-columns: 1fr;
           grid-template-areas:
             "roster"
+            "trajectory"
             "focus"
             "detail"
             "explorer";
         }
         .cluster-fm-focus-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .cluster-fm-attribute-body { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         .cluster-fm-viz-canvas,
         .cluster-fm-viz-empty { min-height: 380px; }
       }
@@ -835,13 +936,12 @@
         .cluster-fm-table,
         .cluster-fm-attributes { overflow-x: auto; }
         .cluster-fm-table-head,
-        .cluster-fm-row { min-width: 980px; }
-        .cluster-fm-attribute-head,
-        .cluster-fm-attribute-row { min-width: 640px; }
+        .cluster-fm-row { min-width: 760px; }
         .cluster-fm-info-tip { width: min(200px, 56vw); }
       }
       @media (max-width: 560px) {
         .cluster-fm-focus-grid { grid-template-columns: 1fr; }
+        .cluster-fm-attribute-body { grid-template-columns: 1fr; }
         .cluster-fm-detail-copy h3 { font-size: 0.97rem; }
         .cluster-fm-info-tip { width: min(180px, 68vw); }
       }
@@ -884,10 +984,16 @@
     return scenario[key];
   }
 
+  function getGroupAverage(scenario, groupId) {
+    const group = CLUSTER_PARAMETER_GROUPS.find((entry) => entry.id === groupId);
+    if (!group) return 0;
+    const total = group.keys.reduce((sum, key) => sum + getScenarioValue(scenario, key), 0);
+    return total / group.keys.length;
+  }
+
   function getScenarioAverage(scenario) {
-    const keys = ['power_access', 'grid_readiness', 'hydrogen', 'co2_infra', 'permitting', 'finance', 'market_pull', 'stability'];
-    const total = keys.reduce((sum, key) => sum + scenario[key], 0);
-    return total / keys.length;
+    const total = CLUSTER_PARAMETER_KEYS.reduce((sum, key) => sum + getScenarioValue(scenario, key), 0);
+    return total / CLUSTER_PARAMETER_KEYS.length;
   }
 
   function getAverageValue(key) {
@@ -936,26 +1042,35 @@
     return EXPLORER_COMPANIES.map((company) => {
       const B_eff = clampValue(
         company.B_i
-        + 0.8 * scenario.market_pull
-        + 0.6 * scenario.stability
-        + 0.5 * scenario.finance
+        + 0.55 * scenario.market_pull
+        + 0.45 * scenario.market_push
+        + 0.50 * scenario.offtake_bankability
+        + 0.35 * scenario.certification_traceability
+        + 0.35 * scenario.stability
+        + 0.25 * scenario.finance
         - 0.9 * scenario.carbon_pressure * (company.carbon_sensitivity / 5)
       );
 
       const T_eff = clampValue(
         company.T_i
-        + 0.8 * scenario.power_access
-        + 0.7 * infraPush * (company.infra_dependency / 5)
-        + 0.4 * scenario.finance
-        + 0.3 * scenario.permitting
+        + 0.65 * scenario.power_access
+        + 0.50 * scenario.power_price_visibility
+        + 0.60 * infraPush * (company.infra_dependency / 5)
+        + 0.45 * scenario.engineering_capacity
+        + 0.35 * scenario.finance
+        + 0.25 * scenario.cluster_coordination
+        + 0.20 * scenario.permitting
       );
 
       const M_eff = clampValue(
         company.M_i
-        + 0.9 * scenario.finance
-        + 0.9 * scenario.permitting
-        + 0.7 * infraPush
-        + 0.5 * scenario.stability
+        + 0.65 * scenario.finance
+        + 0.60 * scenario.engineering_capacity
+        + 0.65 * scenario.cluster_coordination
+        + 0.45 * scenario.permitting
+        + 0.35 * scenario.stability
+        + 0.25 * scenario.market_push
+        + 0.25 * infraPush
         - 0.4 * (1 - scenario.stability)
       );
 
@@ -976,10 +1091,10 @@
         decarbonisation_depth,
         competitiveness_retention,
         bicontinuous_score: 5 - Math.abs(phi) * 1.3,
-        bottleneck_finance: 5 - clampValue(company.M_i + scenario.finance),
-        bottleneck_permitting: 5 - clampValue(company.M_i + scenario.permitting),
-        bottleneck_infrastructure: 5 - clampValue(company.T_i + infraPush),
-        bottleneck_market: 5 - clampValue(company.B_i + scenario.market_pull),
+        bottleneck_finance: 5 - clampValue(company.M_i + ((scenario.finance + scenario.offtake_bankability) / 2)),
+        bottleneck_permitting: 5 - clampValue(company.M_i + ((scenario.permitting + scenario.certification_traceability) / 2)),
+        bottleneck_infrastructure: 5 - clampValue(company.T_i + ((scenario.power_access + scenario.power_price_visibility + infraPush) / 3)),
+        bottleneck_market: 5 - clampValue(company.B_i + ((scenario.market_pull + scenario.market_push + scenario.offtake_bankability) / 3)),
       };
     });
   }
@@ -1079,6 +1194,119 @@
   function getScenarioSummary(scenario) {
     const copy = getCopy();
     return copy.summaries?.[scenario.theme] || '';
+  }
+
+  function renderTrajectoryChart() {
+    const copy = getCopy();
+    const mount = document.getElementById('clusterTrajectoryCanvas');
+    if (!mount) return;
+
+    if (!root.Plotly) {
+      mount.innerHTML = `<div class="cluster-fm-viz-empty">${escape(copy.plotlyMissing)}</div>`;
+      return;
+    }
+
+    const years = Array.from(
+      { length: (TRAJECTORY_YEAR_END - TRAJECTORY_YEAR_START) * 10 + 1 },
+      (_, index) => TRAJECTORY_YEAR_START + index / 10
+    );
+    const sigma = (z) => 1 / (1 + Math.exp(-z));
+    const trajectory = (t, L, k, t0) => {
+      const s0 = sigma(-k * t0);
+      return L * (sigma(k * (t - t0)) - s0) / (1 - s0);
+    };
+    const stateLabels = ['S<sub>1</sub>', 'S<sub>2</sub>', 'S<sub>3</sub>', 'S<sub>4</sub>', 'S<sub>5</sub>'];
+
+    const traces = TRAJECTORY_SCENARIOS.map((entry, index) => {
+      const scenario = CLUSTER_SCENARIOS.find((item) => item.theme === entry.theme);
+      const label = scenario ? getScenarioName(scenario) : entry.theme;
+      const values = years.map((year) => trajectory(year - TRAJECTORY_YEAR_START, entry.L, entry.k, entry.t0));
+      return {
+        type: 'scatter',
+        mode: 'lines',
+        name: label,
+        x: years,
+        y: values,
+        line: {
+          color: entry.color,
+          width: 2.2,
+          dash: entry.dash,
+        },
+        hovertemplate: '%{y:.1f}%<extra></extra>',
+      };
+    });
+
+    traces.push({
+      type: 'scatter',
+      mode: 'markers+text',
+      name: 'S<sub>0</sub>',
+      x: [TRAJECTORY_YEAR_START],
+      y: [0],
+      text: ['S<sub>0</sub>'],
+      textposition: 'top right',
+      marker: {
+        size: 8,
+        color: '#8b8f97',
+        line: { color: '#081723', width: 1 },
+      },
+      hovertemplate: '0.0%<extra></extra>',
+      showlegend: false,
+    });
+
+    const trajectoryAnnotations = TRAJECTORY_SCENARIOS.map((entry, index) => ({
+      x: TRAJECTORY_YEAR_END,
+      y: trajectory(TRAJECTORY_YEAR_END - TRAJECTORY_YEAR_START, entry.L, entry.k, entry.t0),
+      text: stateLabels[index],
+      xanchor: 'left',
+      yanchor: 'middle',
+      showarrow: false,
+      font: { size: 10, color: entry.color },
+      xshift: 8,
+    }));
+
+    root.Plotly.newPlot(mount, traces, {
+      paper_bgcolor: 'rgba(0,0,0,0)',
+      plot_bgcolor: 'rgba(7, 18, 28, 0.34)',
+      font: { color: '#e8f3f7', family: 'DM Sans, sans-serif', size: 10 },
+      margin: { l: 52, r: 32, t: 24, b: 42 },
+      height: 320,
+      xaxis: {
+        title: 'Year',
+        range: [TRAJECTORY_YEAR_START, TRAJECTORY_YEAR_END + 1],
+        gridcolor: 'rgba(137, 169, 186, 0.08)',
+        tickfont: { color: '#c8d9e2', size: 10 },
+        titlefont: { color: '#e8f3f7', size: 11 },
+      },
+      yaxis: {
+        title: 'Decarbonisation depth (%)',
+        range: [0, 100],
+        gridcolor: 'rgba(137, 169, 186, 0.14)',
+        tickfont: { color: '#c8d9e2', size: 10 },
+        titlefont: { color: '#e8f3f7', size: 11 },
+      },
+      legend: {
+        orientation: 'h',
+        x: 0,
+        y: 1.16,
+        font: { size: 9, color: '#dce9ef' },
+      },
+      showlegend: true,
+      hovermode: 'closest',
+      annotations: [{
+        x: TRAJECTORY_YEAR_START,
+        y: 0,
+        text: 'S<sub>0</sub>',
+        xanchor: 'left',
+        yanchor: 'bottom',
+        showarrow: false,
+        font: { size: 10, color: '#8b8f97' },
+        yshift: 8,
+        xshift: 10,
+      }, ...trajectoryAnnotations],
+    }, {
+      displayModeBar: false,
+      responsive: true,
+    });
   }
 
   function renderExplorerTab(selectedScenario) {
@@ -1296,14 +1524,16 @@
       .map((scenario, index) => ({
         scenario,
         index,
-        support: getScenarioAverage(scenario),
-        infra: getScenarioValue(scenario, 'infra_push'),
+        nzScore: getScenarioAverage(scenario),
+        groupScores: Object.fromEntries(
+          CLUSTER_PARAMETER_GROUPS.map((group) => [group.id, getGroupAverage(scenario, group.id)])
+        ),
       }))
-      .sort((a, b) => b.support - a.support);
+      .sort((a, b) => b.nzScore - a.nzScore);
 
-    const focusCards = CLUSTER_SCENARIO_FOCUS_KEYS.map((key) => {
-      const value = getScenarioValue(selectedScenario, key);
-      const avg = getAverageValue(key);
+    const focusCards = CLUSTER_PARAMETER_GROUPS.map((group) => {
+      const value = getGroupAverage(selectedScenario, group.id);
+      const avg = CLUSTER_SCENARIOS.reduce((sum, scenario) => sum + getGroupAverage(scenario, group.id), 0) / CLUSTER_SCENARIOS.length;
       const delta = value - avg;
       const deltaTone = getDeltaTone(delta);
       const scoreTone = getScoreTone(value);
@@ -1311,7 +1541,7 @@
       return `
         <article class="cluster-fm-focus-card ${deltaTone}">
           <div class="cluster-fm-focus-head">
-            <span>${escape(copy.labels[key] || key)}</span>
+            <span>${escape(group.title)}</span>
             <strong class="${scoreTone}">${getScore(value)}</strong>
           </div>
           <div class="cluster-fm-focus-sub">
@@ -1322,28 +1552,35 @@
       `;
     }).join('');
 
-  const attributeRows = CLUSTER_PARAMETER_ROWS.map(({ key }) => {
-    const value = getScenarioValue(selectedScenario, key);
-    const delta = value - getAverageValue(key);
-    const deltaTone = getDeltaTone(delta);
-    const tone = getScoreTone(value);
+    const attributeRows = CLUSTER_PARAMETER_GROUPS.map((group) => {
+      const rows = group.keys.map((key) => {
+        const value = getScenarioValue(selectedScenario, key);
+        const tone = getScoreTone(value);
+        const label = copy.labels[key] || CLUSTER_COPY.en.labels[key] || key;
+        const help = copy.help[key] || CLUSTER_COPY.en.help[key] || '';
+
+        return `
+          <div class="cluster-fm-attribute-row">
+            <div class="cluster-fm-attribute-main">
+              <div class="cluster-fm-attribute-label-wrap">
+                <div class="cluster-fm-attribute-label">${escape(label)}</div>
+                <span class="cluster-fm-info" tabindex="0" aria-label="${escape(help)}">
+                  i
+                  <span class="cluster-fm-info-tip">${escape(help)}</span>
+                </span>
+              </div>
+            </div>
+            <div class="cluster-fm-attribute-score ${tone}">${getScore(value)}</div>
+          </div>
+        `;
+      }).join('');
 
       return `
-      <div class="cluster-fm-attribute-row">
-        <div class="cluster-fm-attribute-main">
-          <div class="cluster-fm-attribute-label-wrap">
-            <div class="cluster-fm-attribute-label">${escape(copy.labels[key] || key)}</div>
-            <span class="cluster-fm-info" tabindex="0" aria-label="${escape(copy.help[key] || '')}">
-              i
-              <span class="cluster-fm-info-tip">${escape(copy.help[key] || '')}</span>
-            </span>
+        <div class="cluster-fm-attribute-group">
+          <div class="cluster-fm-attribute-group-head">
+            <span class="cluster-fm-attribute-group-title">${escape(group.title)}</span>
           </div>
-        </div>
-        <div class="cluster-fm-attribute-score ${tone}">${getScore(value)}</div>
-        <div class="cluster-fm-attribute-raw ${tone}">${value.toFixed(2)}</div>
-        <div class="cluster-fm-attribute-delta">
-          <span class="cluster-fm-delta ${deltaTone}">${formatDelta(delta)}</span>
-        </div>
+          ${rows}
         </div>
       `;
     }).join('');
@@ -1363,12 +1600,7 @@
             <div class="cluster-fm-table">
               <div class="cluster-fm-table-head">
                 <span>${escape(copy.headers.scenario)}</span>
-                <span>Carbon pressure</span>
-                <span>Power access</span>
-                <span>Finance support</span>
-                <span>Permitting quality</span>
-                <span>Infrastructure readiness</span>
-                <span>Market pull</span>
+                ${CLUSTER_PARAMETER_GROUPS.map((group) => `<span>${escape(group.title)}</span>`).join('')}
               </div>
               <div class="cluster-fm-table-body">
                 ${rankedScenarios.map((entry) => {
@@ -1379,17 +1611,22 @@
                         <strong>${escape(getScenarioName(entry.scenario))}</strong>
                         <em>${escape(copy.scenarioMeta)}</em>
                       </span>
-                      <span class="cluster-fm-row-stat ${getScoreTone(entry.scenario.carbon_pressure)}">${formatRosterValue(entry.scenario.carbon_pressure)}</span>
-                      <span class="cluster-fm-row-stat ${getScoreTone(entry.scenario.power_access)}">${formatRosterValue(entry.scenario.power_access)}</span>
-                      <span class="cluster-fm-row-stat ${getScoreTone(entry.scenario.finance)}">${formatRosterValue(entry.scenario.finance)}</span>
-                      <span class="cluster-fm-row-stat ${getScoreTone(entry.scenario.permitting)}">${formatRosterValue(entry.scenario.permitting)}</span>
-                      <span class="cluster-fm-row-stat ${getScoreTone(entry.infra)}">${formatRosterValue(entry.infra)}</span>
-                      <span class="cluster-fm-row-stat ${getScoreTone(entry.scenario.market_pull)}">${formatRosterValue(entry.scenario.market_pull)}</span>
+                      ${CLUSTER_PARAMETER_GROUPS.map((group) => `
+                        <span class="cluster-fm-row-stat ${getScoreTone(entry.groupScores[group.id])}">${formatRosterValue(entry.groupScores[group.id])}</span>
+                      `).join('')}
                     </button>
                   `;
                 }).join('')}
               </div>
             </div>
+          </div>
+        </section>
+
+        <section class="cluster-fm-detail cluster-fm-trajectory-card theme-${escape(selectedScenario.theme || 'cluster')}">
+          <div class="cluster-fm-explorer">
+            <div class="cluster-fm-explorer-title">${escape(copy.trajectoryTitle || 'Scenario trajectories')}</div>
+            <div class="cluster-fm-explorer-sub">${escape(copy.trajectorySubtitle || '')}</div>
+            <div class="cluster-fm-viz-canvas" id="clusterTrajectoryCanvas"></div>
           </div>
         </section>
 
@@ -1423,12 +1660,6 @@
             </div>
           </div>
           <div class="cluster-fm-attributes">
-            <div class="cluster-fm-attribute-head">
-              <span>${escape(copy.attributeLabel)}</span>
-              <span>${escape(copy.scoreScaleLabel)}</span>
-              <span>${escape(copy.rawLabel)}</span>
-              <span>${escape(copy.compareLabel)}</span>
-            </div>
             <div class="cluster-fm-attribute-body">${attributeRows}</div>
           </div>
         </section>
@@ -1450,6 +1681,7 @@
       </div>
     `;
 
+    renderTrajectoryChart();
     renderExplorerTab(selectedScenario);
   }
 
