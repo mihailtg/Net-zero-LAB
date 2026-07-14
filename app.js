@@ -759,6 +759,7 @@ function setLanguage(lang) {
     // Language persistence is optional; the switch still works when storage is blocked.
   }
 
+  // Cluster Analysis now lives in cluster-analysis.js and keeps the same global render hook.
   renderClusterAnalysis();
   renderDatasetTables();
   updateThemeIcons(document.documentElement.getAttribute('data-theme') || 'light');
@@ -862,6 +863,7 @@ function showSection(id) {
   // Lazy-init section charts
   if (id === 'emissions') { setTimeout(() => { buildIppuCharts(); updateDashboardWithDbData(); }, 50); }
   if (id === 'dataset') { setTimeout(renderDatasetTables, 50); }
+  if (id === 'cluster') { setTimeout(renderClusterAnalysis, 50); }
   if (id === 'cbam')      { if (cbamChartInstance) { cbamChartInstance.destroy(); cbamChartInstance = null; } setTimeout(() => { renderPriceChips(); calcCBAM(); }, 50); }
   if (id === 'investments') { if (invRangeChartInstance) { invRangeChartInstance.destroy(); invRangeChartInstance = null; } setTimeout(buildInvRangeChart, 50); }
   if (id === 'roi') {
