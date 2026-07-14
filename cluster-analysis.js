@@ -136,12 +136,12 @@
     en: {
       matrixTitle: 'Scenario squad',
       matrixDesc: 'Select a scenario from the roster to inspect its profile and how its attributes differ from the scenario average.',
-      matrixNote: 'FM-style scores are shown on a 0-20 scale, while the raw model values stay on the original 0-1 scale.',
+      matrixNote: 'NZ scores are shown on a 0-20 scale, while the raw model values stay on the original 0-1 scale.',
       scenarioMeta: 'policy scenario',
-      supportLabel: 'Support',
+      supportLabel: 'NZ score',
       compareLabel: 'vs avg',
       rawLabel: 'raw',
-      scoreScaleLabel: 'FM score',
+      scoreScaleLabel: 'NZ score',
       rosterTitle: 'Scenario roster',
       rosterDesc: 'Ordered like a squad list, with the strongest combined enablement at the top.',
       explorerTitle: 'Net-Zero Lab Scenario Explorer',
@@ -156,7 +156,7 @@
       headers: {
         scenario: 'Scenario',
         role: 'Role',
-        support: 'SUP',
+        support: 'NZ',
         infra: 'INF',
         finance: 'FIN',
         stability: 'STA',
@@ -203,12 +203,12 @@
     bg: {
       matrixTitle: 'Сценарен състав',
       matrixDesc: 'Избери сценарий от списъка, за да видиш профила му и как се различават показателите му спрямо средното за всички сценарии.',
-      matrixNote: 'FM-стил оценките са показани по скала 0-20, а суровите стойности остават в оригиналната скала 0-1.',
+      matrixNote: 'NZ оценките са показани по скала 0-20, а суровите стойности остават в оригиналната скала 0-1.',
       scenarioMeta: 'политически сценарий',
-      supportLabel: 'Подкрепа',
+      supportLabel: 'NZ score',
       compareLabel: 'спрямо ср.',
       rawLabel: 'сурово',
-      scoreScaleLabel: 'FM оценка',
+      scoreScaleLabel: 'NZ score',
       rosterTitle: 'Списък със сценарии',
       rosterDesc: 'Подредени са като състав, с най-силните общи условия за преход най-отгоре.',
       explorerTitle: 'Net-Zero Lab Scenario Explorer',
@@ -223,7 +223,7 @@
       headers: {
         scenario: 'Сценарий',
         role: 'Роля',
-        support: 'SUP',
+        support: 'NZ',
         infra: 'INF',
         finance: 'FIN',
         stability: 'STA',
@@ -334,7 +334,11 @@
         --fm-muted: #89a9ba;
         --fm-accent: #7ad8f7;
         display: grid;
-        grid-template-columns: minmax(320px, 0.95fr) minmax(0, 1.45fr);
+        grid-template-columns: minmax(0, 1.18fr) minmax(320px, 0.94fr);
+        grid-template-areas:
+          "roster detail"
+          "focus detail"
+          "explorer explorer";
         gap: 1rem;
         align-items: start;
         color: var(--fm-text);
@@ -344,6 +348,10 @@
         align-content: start;
         gap: 1rem;
       }
+      .cluster-fm-roster-card { grid-area: roster; }
+      .cluster-fm-focus-section-card { grid-area: focus; }
+      .cluster-fm-scenario-card { grid-area: detail; }
+      .cluster-fm-explorer-card { grid-area: explorer; }
       .cluster-fm-roster,
       .cluster-fm-detail {
         position: relative;
@@ -553,13 +561,17 @@
       .cluster-fm-table-head,
       .cluster-fm-row {
         display: grid;
-        grid-template-columns: 44px minmax(0, 2.3fr) minmax(88px, 0.9fr) repeat(4, 56px);
+        grid-template-columns: minmax(230px, 2.35fr) repeat(5, minmax(84px, 0.9fr)) minmax(108px, 1.15fr);
         align-items: center;
-        gap: 0.7rem;
+        gap: 0.55rem;
       }
       .cluster-fm-table-head {
         padding: 0 0.9rem 0.7rem;
         border-bottom: 1px solid var(--fm-line);
+      }
+      .cluster-fm-table-head span {
+        white-space: normal;
+        line-height: 1.25;
       }
       .cluster-fm-table-body { display: grid; }
       .cluster-fm-row {
@@ -619,7 +631,7 @@
         text-transform: uppercase;
       }
       .cluster-fm-row-stat {
-        font-size: 0.62rem;
+        font-size: 0.58rem;
         font-weight: 700;
         text-align: center;
       }
@@ -628,7 +640,7 @@
         align-items: center;
         justify-content: space-between;
         gap: 1rem;
-        margin-top: 1rem;
+        margin-top: 0.7rem;
         padding-top: 0.2rem;
       }
       .cluster-fm-section-title {
@@ -650,13 +662,20 @@
       .cluster-fm-focus-grid {
         display: grid;
         grid-template-columns: repeat(5, minmax(0, 1fr));
-        gap: 0.8rem;
-        padding: 0.9rem 1.1rem 0;
+        gap: 0.55rem;
+        padding: 0.62rem 1.1rem 0;
+      }
+      .cluster-fm-focus-section-card .cluster-fm-section-head {
+        margin-top: 0;
+        padding-top: 1.1rem;
+      }
+      .cluster-fm-focus-section-card .cluster-fm-focus-grid {
+        padding-bottom: 0.9rem;
       }
       .cluster-fm-focus-card {
-        padding: 0.85rem 0.9rem;
+        padding: 0.6rem 0.64rem;
         border: 1px solid var(--fm-line);
-        border-radius: 14px;
+        border-radius: 12px;
         background: linear-gradient(180deg, rgba(18, 44, 63, 0.94), rgba(9, 24, 36, 0.9));
       }
       .cluster-fm-focus-card.up { border-color: rgba(126, 227, 165, 0.34); }
@@ -671,19 +690,19 @@
       }
       .cluster-fm-focus-head span {
         color: var(--fm-text);
-        font-size: 0.59rem;
+        font-size: 0.54rem;
         font-weight: 700;
-        line-height: 1.35;
+        line-height: 1.25;
       }
       .cluster-fm-focus-head strong {
         font-family: 'Barlow Condensed', 'DM Sans', sans-serif;
-        font-size: 1.16rem;
+        font-size: 0.92rem;
         line-height: 1;
       }
       .cluster-fm-focus-sub {
-        margin-top: 0.35rem;
+        margin-top: 0.24rem;
         color: var(--fm-muted);
-        font-size: 0.51rem;
+        font-size: 0.46rem;
       }
       .cluster-fm-delta {
         display: inline-flex;
@@ -698,21 +717,21 @@
       .cluster-fm-delta.up { color: #7ee3a5; background: rgba(126, 227, 165, 0.12); }
       .cluster-fm-delta.down { color: #ff986b; background: rgba(255, 152, 107, 0.12); }
       .cluster-fm-delta.flat { color: #c6d0d9; background: rgba(198, 208, 217, 0.12); }
-      .cluster-fm-attributes { padding-bottom: 1.1rem; }
+      .cluster-fm-attributes { padding-bottom: 0.78rem; }
       .cluster-fm-attribute-head,
       .cluster-fm-attribute-row {
         display: grid;
         grid-template-columns: minmax(0, 1.9fr) 64px 64px 92px;
-        gap: 0.8rem;
+        gap: 0.55rem;
         align-items: center;
       }
       .cluster-fm-attribute-head {
-        padding: 0 0 0.65rem;
+        padding: 0 0 0.45rem;
         border-bottom: 1px solid var(--fm-line);
       }
       .cluster-fm-attribute-body { display: grid; }
       .cluster-fm-attribute-row {
-        padding: 0.78rem 0;
+        padding: 0.55rem 0;
         border-bottom: 1px solid rgba(119, 196, 220, 0.1);
       }
       .cluster-fm-attribute-row:last-child { border-bottom: 0; }
@@ -723,19 +742,19 @@
         gap: 0.35rem;
         min-width: 0;
       }
-      .cluster-fm-attribute-label { color: var(--fm-text); font-size: 0.57rem; font-weight: 700; }
+      .cluster-fm-attribute-label { color: var(--fm-text); font-size: 0.53rem; font-weight: 700; }
       .cluster-fm-info {
         position: relative;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 0.9rem;
-        height: 0.9rem;
+        width: 0.78rem;
+        height: 0.78rem;
         border: 1px solid rgba(122, 216, 247, 0.28);
         border-radius: 999px;
         color: var(--fm-accent);
         font-family: 'DM Mono', monospace;
-        font-size: 0.47rem;
+        font-size: 0.42rem;
         font-weight: 700;
         line-height: 1;
         cursor: help;
@@ -771,7 +790,7 @@
       }
       .cluster-fm-attribute-score,
       .cluster-fm-attribute-raw {
-        font-size: 0.57rem;
+        font-size: 0.52rem;
         font-weight: 700;
         text-align: center;
       }
@@ -797,7 +816,14 @@
       .cluster-fm-attribute-score.cluster-score-weak,
       .cluster-fm-attribute-raw.cluster-score-weak { color: #ff986b; }
       @media (max-width: 1200px) {
-        .cluster-fm-shell { grid-template-columns: 1fr; }
+        .cluster-fm-shell {
+          grid-template-columns: 1fr;
+          grid-template-areas:
+            "roster"
+            "focus"
+            "detail"
+            "explorer";
+        }
         .cluster-fm-focus-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
         .cluster-fm-viz-canvas,
         .cluster-fm-viz-empty { min-height: 380px; }
@@ -809,7 +835,7 @@
         .cluster-fm-table,
         .cluster-fm-attributes { overflow-x: auto; }
         .cluster-fm-table-head,
-        .cluster-fm-row { min-width: 760px; }
+        .cluster-fm-row { min-width: 980px; }
         .cluster-fm-attribute-head,
         .cluster-fm-attribute-row { min-width: 640px; }
         .cluster-fm-info-tip { width: min(200px, 56vw); }
@@ -890,6 +916,10 @@
     const points = Math.round(delta * 20 * 10) / 10;
     const sign = points > 0 ? '+' : '';
     return `${sign}${points.toFixed(1)}`;
+  }
+
+  function formatRosterValue(value) {
+    return Number(value.toFixed(2)).toString();
   }
 
   function clampValue(value, lower = 1, upper = 5) {
@@ -1320,89 +1350,88 @@
 
     scenarioGrid.innerHTML = `
       <div class="cluster-fm-shell">
-        <div class="cluster-fm-main">
-          <section class="cluster-fm-roster">
-            <div class="cluster-fm-panel-head">
-              <div class="cluster-fm-roster-top">
-                <div>
-                  <div class="cluster-fm-kicker">${escape(copy.rosterTitle)}</div>
-                  <div class="cluster-fm-panel-title">${escape(copy.rosterDesc)}</div>
-                </div>
+        <section class="cluster-fm-roster cluster-fm-roster-card">
+          <div class="cluster-fm-panel-head">
+            <div class="cluster-fm-roster-top">
+              <div>
+                <div class="cluster-fm-kicker">${escape(copy.rosterTitle)}</div>
+                <div class="cluster-fm-panel-title">${escape(copy.rosterDesc)}</div>
               </div>
-            </div>
-            <div class="cluster-fm-roster-field">
-              <div class="cluster-fm-table">
-                <div class="cluster-fm-table-head">
-                  <span>#</span>
-                  <span>${escape(copy.headers.scenario)}</span>
-                  <span>${escape(copy.headers.role)}</span>
-                  <span>${escape(copy.headers.support)}</span>
-                  <span>${escape(copy.headers.infra)}</span>
-                  <span>${escape(copy.headers.finance)}</span>
-                  <span>${escape(copy.headers.stability)}</span>
-                </div>
-                <div class="cluster-fm-table-body">
-                  ${rankedScenarios.map((entry, rank) => {
-                    const isActive = entry.index === activeClusterScenarioIndex;
-                    return `
-                      <button type="button" class="cluster-fm-row theme-${escape(entry.scenario.theme || 'cluster')} ${isActive ? 'active' : ''}" onclick="setActiveClusterScenario(${entry.index})">
-                        <span class="cluster-fm-row-rank">${String(rank + 1).padStart(2, '0')}</span>
-                        <span class="cluster-fm-row-scenario">
-                          <strong>${escape(getScenarioName(entry.scenario))}</strong>
-                          <em>${escape(copy.scenarioMeta)}</em>
-                        </span>
-                        <span class="cluster-fm-row-role">${escape(copy.themes?.[entry.scenario.theme] || entry.scenario.theme || '')}</span>
-                        <span class="cluster-fm-row-stat ${getScoreTone(entry.support)}">${getScore(entry.support)}</span>
-                        <span class="cluster-fm-row-stat ${getScoreTone(entry.infra)}">${getScore(entry.infra)}</span>
-                        <span class="cluster-fm-row-stat ${getScoreTone(entry.scenario.finance)}">${getScore(entry.scenario.finance)}</span>
-                        <span class="cluster-fm-row-stat ${getScoreTone(entry.scenario.stability)}">${getScore(entry.scenario.stability)}</span>
-                      </button>
-                    `;
-                  }).join('')}
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section class="cluster-fm-detail theme-${escape(selectedScenario.theme || 'cluster')}">
-            <div class="cluster-fm-detail-hero">
-              <div class="cluster-fm-detail-copy">
-                <div class="cluster-fm-kicker">${escape(copy.detailKicker)}</div>
-                <h3>${escape(getScenarioName(selectedScenario))}</h3>
-                <p>${escape(getScenarioSummary(selectedScenario))}</p>
-              </div>
-            <div class="cluster-fm-overall">
-              <span>${escape(copy.supportLabel)}</span>
-              <strong class="${getScoreTone(getScenarioAverage(selectedScenario))}">${getScore(getScenarioAverage(selectedScenario))}</strong>
-              <small>${escape(copy.scoreScaleLabel)}</small>
             </div>
           </div>
+          <div class="cluster-fm-roster-field">
+            <div class="cluster-fm-table">
+              <div class="cluster-fm-table-head">
+                <span>${escape(copy.headers.scenario)}</span>
+                <span>Carbon pressure</span>
+                <span>Power access</span>
+                <span>Finance support</span>
+                <span>Permitting quality</span>
+                <span>Infrastructure readiness</span>
+                <span>Market pull</span>
+              </div>
+              <div class="cluster-fm-table-body">
+                ${rankedScenarios.map((entry) => {
+                  const isActive = entry.index === activeClusterScenarioIndex;
+                  return `
+                    <button type="button" class="cluster-fm-row theme-${escape(entry.scenario.theme || 'cluster')} ${isActive ? 'active' : ''}" onclick="setActiveClusterScenario(${entry.index})">
+                      <span class="cluster-fm-row-scenario">
+                        <strong>${escape(getScenarioName(entry.scenario))}</strong>
+                        <em>${escape(copy.scenarioMeta)}</em>
+                      </span>
+                      <span class="cluster-fm-row-stat ${getScoreTone(entry.scenario.carbon_pressure)}">${formatRosterValue(entry.scenario.carbon_pressure)}</span>
+                      <span class="cluster-fm-row-stat ${getScoreTone(entry.scenario.power_access)}">${formatRosterValue(entry.scenario.power_access)}</span>
+                      <span class="cluster-fm-row-stat ${getScoreTone(entry.scenario.finance)}">${formatRosterValue(entry.scenario.finance)}</span>
+                      <span class="cluster-fm-row-stat ${getScoreTone(entry.scenario.permitting)}">${formatRosterValue(entry.scenario.permitting)}</span>
+                      <span class="cluster-fm-row-stat ${getScoreTone(entry.infra)}">${formatRosterValue(entry.infra)}</span>
+                      <span class="cluster-fm-row-stat ${getScoreTone(entry.scenario.market_pull)}">${formatRosterValue(entry.scenario.market_pull)}</span>
+                    </button>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          </div>
+        </section>
 
-            <div class="cluster-fm-section-head">
-              <div>
-                <div class="cluster-fm-section-title">${escape(copy.focusTitle)}</div>
-                <div class="cluster-fm-section-sub">${escape(copy.avgNote)}</div>
-              </div>
+        <section class="cluster-fm-detail cluster-fm-focus-section-card theme-${escape(selectedScenario.theme || 'cluster')}">
+          <div class="cluster-fm-section-head">
+            <div>
+              <div class="cluster-fm-section-title">${escape(copy.focusTitle)}</div>
+              <div class="cluster-fm-section-sub">${escape(copy.avgNote)}</div>
             </div>
-            <div class="cluster-fm-focus-grid">${focusCards}</div>
+          </div>
+          <div class="cluster-fm-focus-grid">${focusCards}</div>
+        </section>
 
-            <div class="cluster-fm-section-head">
-              <div>
-                <div class="cluster-fm-section-title">${escape(copy.fullTitle)}</div>
-                <div class="cluster-fm-section-sub">${escape(copy.detailDesc)}</div>
-              </div>
+        <section class="cluster-fm-detail cluster-fm-scenario-card theme-${escape(selectedScenario.theme || 'cluster')}">
+          <div class="cluster-fm-detail-hero">
+            <div class="cluster-fm-detail-copy">
+              <div class="cluster-fm-kicker">${escape(copy.detailKicker)}</div>
+              <h3>${escape(getScenarioName(selectedScenario))}</h3>
+              <p>${escape(getScenarioSummary(selectedScenario))}</p>
             </div>
-            <div class="cluster-fm-attributes">
-              <div class="cluster-fm-attribute-head">
-                <span>${escape(copy.attributeLabel)}</span>
-                <span>${escape(copy.scoreScaleLabel)}</span>
-                <span>${escape(copy.rawLabel)}</span>
-                <span>${escape(copy.compareLabel)}</span>
-              </div>
-              <div class="cluster-fm-attribute-body">${attributeRows}</div>
-            </div>
-          </section>
+          <div class="cluster-fm-overall">
+            <span>${escape(copy.supportLabel)}</span>
+            <strong class="${getScoreTone(getScenarioAverage(selectedScenario))}">${getScore(getScenarioAverage(selectedScenario))}</strong>
+          </div>
         </div>
+
+          <div class="cluster-fm-section-head">
+            <div>
+              <div class="cluster-fm-section-title">${escape(copy.fullTitle)}</div>
+              <div class="cluster-fm-section-sub">${escape(copy.detailDesc)}</div>
+            </div>
+          </div>
+          <div class="cluster-fm-attributes">
+            <div class="cluster-fm-attribute-head">
+              <span>${escape(copy.attributeLabel)}</span>
+              <span>${escape(copy.scoreScaleLabel)}</span>
+              <span>${escape(copy.rawLabel)}</span>
+              <span>${escape(copy.compareLabel)}</span>
+            </div>
+            <div class="cluster-fm-attribute-body">${attributeRows}</div>
+          </div>
+        </section>
 
         <section class="cluster-fm-detail cluster-fm-explorer-card theme-${escape(selectedScenario.theme || 'cluster')}">
           <div class="cluster-fm-explorer">
