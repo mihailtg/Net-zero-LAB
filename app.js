@@ -862,6 +862,7 @@ function showSection(id) {
   // Lazy-init section charts
   if (id === 'emissions') { setTimeout(() => { buildIppuCharts(); updateDashboardWithDbData(); }, 50); }
   if (id === 'dataset') { setTimeout(renderDatasetTables, 50); }
+  if (id === 'cluster') { setTimeout(renderClusterAnalysis, 50); }
   if (id === 'cbam')      { if (cbamChartInstance) { cbamChartInstance.destroy(); cbamChartInstance = null; } setTimeout(() => { renderPriceChips(); calcCBAM(); }, 50); }
   if (id === 'investments') { if (invRangeChartInstance) { invRangeChartInstance.destroy(); invRangeChartInstance = null; } setTimeout(buildInvRangeChart, 50); }
   if (id === 'roi') {
@@ -1486,6 +1487,8 @@ const CLUSTER_SCENARIOS = [
   },
 ];
 
+let activeClusterScenarioIndex = Math.max(0, CLUSTER_SCENARIOS.findIndex(scenario => scenario.theme === 'cluster'));
+
 const CLUSTER_SCENARIO_FOCUS_KEYS = [
   'carbon_pressure',
   'power_access',
@@ -1727,6 +1730,305 @@ function renderClusterAnalysis() {
 }
 
 // ── INIT ─────────────────────────────────────
+Object.assign(CLUSTER_COPY.en, {
+  matrixTitle: 'Scenario squad',
+  matrixDesc: 'Select a scenario from the roster to inspect its profile and how its attributes differ from the scenario average.',
+  matrixNote: 'FM-style scores are shown on a 0-20 scale, while the raw model values stay on the original 0-1 scale.',
+  scenarioMeta: 'policy scenario',
+  supportLabel: 'Support',
+  compareLabel: 'vs avg',
+  rawLabel: 'raw',
+  scoreScaleLabel: 'FM score',
+  rosterTitle: 'Scenario roster',
+  rosterDesc: 'Ordered like a squad list, with the strongest combined enablement at the top.',
+  detailKicker: 'Selected scenario',
+  detailDesc: 'Key conditions and full input attributes used inside apply_scenario().',
+  focusTitle: 'Key match attributes',
+  fullTitle: 'Full attribute report',
+  attributeHelpTitle: 'Model meaning',
+  avgNote: 'Difference versus scenario average',
+});
+
+CLUSTER_COPY.en.headers = {
+  scenario: 'Scenario',
+  role: 'Role',
+  support: 'SUP',
+  infra: 'INF',
+  finance: 'FIN',
+  stability: 'STA',
+};
+
+CLUSTER_COPY.en.themes = {
+  pressure: 'Pressure',
+  growth: 'Growth',
+  defensive: 'Defence',
+  volatile: 'Volatile',
+  cluster: 'Cluster',
+};
+
+CLUSTER_COPY.en.summaries = {
+  pressure: 'High carbon-cost pressure with weak infrastructure and financing support.',
+  growth: 'Strongly coordinated industrial policy with broad access to finance and infrastructure.',
+  defensive: 'Industrial continuity first, but with limited transition acceleration.',
+  volatile: 'Stop-go policymaking that keeps companies cautious and infrastructure delayed.',
+  cluster: 'Shared infrastructure and coordinated delivery built around an industrial cluster model.',
+};
+
+Object.assign(CLUSTER_COPY.bg, {
+  matrixTitle: 'Сценарен състав',
+  matrixDesc: 'Избери сценарий от списъка, за да видиш профила му и как се различават показателите му спрямо средното за всички сценарии.',
+  matrixNote: 'FM-стил оценките са показани по скала 0-20, а суровите стойности остават в оригиналната скала 0-1.',
+  scenarioMeta: 'политически сценарий',
+  supportLabel: 'Подкрепа',
+  compareLabel: 'спрямо ср.',
+  rawLabel: 'сурово',
+  scoreScaleLabel: 'FM оценка',
+  rosterTitle: 'Списък със сценарии',
+  rosterDesc: 'Подредени са като състав, с най-силните общи условия за преход най-отгоре.',
+  detailKicker: 'Избран сценарий',
+  detailDesc: 'Ключовите условия и пълните входни атрибути, които се използват в apply_scenario().',
+  focusTitle: 'Ключови атрибути',
+  fullTitle: 'Пълен атрибутен отчет',
+  attributeHelpTitle: 'Значение в модела',
+  avgNote: 'Разлика спрямо средното за сценариите',
+  labels: {
+    carbon_pressure: 'Въглероден натиск',
+    power_access: 'Достъп до електроенергия',
+    grid_readiness: 'Готовност на мрежата',
+    hydrogen: 'Наличност на водород',
+    co2_infra: 'CO2 инфраструктура',
+    permitting: 'Качество на разрешителния режим',
+    finance: 'Финансова подкрепа',
+    market_pull: 'Пазарно търсене',
+    stability: 'Стабилност на политиката',
+    infra_push: 'Инфраструктурен импулс',
+  },
+  help: {
+    carbon_pressure: 'Силата на въглеродния ценови натиск в сценария.',
+    power_access: 'Наличност и качество на електрозахранването за електрификация.',
+    grid_readiness: 'Готовност на мрежовата инфраструктура за индустриалния преход.',
+    hydrogen: 'Наличност на водород и свързаните системи.',
+    co2_infra: 'Готовност на CO2 транспорт, съхранение или споделена capture инфраструктура.',
+    permitting: 'Качество и скорост на разрешителната среда.',
+    finance: 'Достъп до публично или частно финансиране за прехода.',
+    market_pull: 'Подкрепа от страна на търсенето за нисковъглеродни продукти.',
+    stability: 'Последователност и предвидимост на policy сигналите.',
+    infra_push: 'Производен термин в apply_scenario(), изчислен от готовността на мрежата, водорода и CO2 инфраструктурата.',
+  },
+});
+
+CLUSTER_COPY.bg.headers = {
+  scenario: 'Сценарий',
+  role: 'Роля',
+  support: 'SUP',
+  infra: 'INF',
+  finance: 'FIN',
+  stability: 'STA',
+};
+
+CLUSTER_COPY.bg.themes = {
+  pressure: 'Натиск',
+  growth: 'Растеж',
+  defensive: 'Защита',
+  volatile: 'Волатилен',
+  cluster: 'Клъстер',
+};
+
+CLUSTER_COPY.bg.summaries = {
+  pressure: 'Силен въглероден натиск, но слаба инфраструктурна и финансова подкрепа.',
+  growth: 'Силно координирана индустриална политика с широк достъп до финансиране и инфраструктура.',
+  defensive: 'Приоритет е индустриалната непрекъснатост, но ускорението на прехода е ограничено.',
+  volatile: 'Непоследователна политика тип stop-go, която задържа компаниите и инфраструктурата.',
+  cluster: 'Споделена инфраструктура и координирана реализация, изградени около индустриален клъстер.',
+};
+
+function getClusterScenarioScore(value) {
+  return Math.round(value * 20);
+}
+
+function getClusterAverageValue(key) {
+  const total = CLUSTER_SCENARIOS.reduce((sum, scenario) => sum + getClusterScenarioValue(scenario, key), 0);
+  return total / CLUSTER_SCENARIOS.length;
+}
+
+function getClusterDeltaTone(delta) {
+  if (delta > 0.04) return 'up';
+  if (delta < -0.04) return 'down';
+  return 'flat';
+}
+
+function formatClusterDelta(delta) {
+  const points = Math.round(delta * 20 * 10) / 10;
+  const sign = points > 0 ? '+' : '';
+  return `${sign}${points.toFixed(1)}`;
+}
+
+function getClusterScenarioSummary(scenario) {
+  const copy = getClusterCopy();
+  return copy.summaries?.[scenario.theme] || '';
+}
+
+function setActiveClusterScenario(index) {
+  const next = Number(index);
+  if (!Number.isInteger(next) || next < 0 || next >= CLUSTER_SCENARIOS.length) return;
+  activeClusterScenarioIndex = next;
+  renderClusterAnalysis();
+}
+
+function renderClusterAnalysis() {
+  const scenarioGrid = document.getElementById('clusterScenarioGrid');
+  if (!scenarioGrid) return;
+
+  const copy = getClusterCopy();
+  const matrixTitle = document.getElementById('clusterMatrixTitle');
+  const matrixDesc = document.getElementById('clusterMatrixDesc');
+  const matrixNote = document.getElementById('clusterScenarioNote');
+  if (matrixTitle) matrixTitle.textContent = copy.matrixTitle;
+  if (matrixDesc) matrixDesc.textContent = copy.matrixDesc;
+  if (matrixNote) matrixNote.textContent = copy.matrixNote;
+
+  if (!CLUSTER_SCENARIOS[activeClusterScenarioIndex]) {
+    activeClusterScenarioIndex = 0;
+  }
+
+  const selectedScenario = CLUSTER_SCENARIOS[activeClusterScenarioIndex];
+  const rankedScenarios = CLUSTER_SCENARIOS
+    .map((scenario, index) => ({
+      scenario,
+      index,
+      support: getClusterScenarioAverage(scenario),
+      infra: getClusterScenarioValue(scenario, 'infra_push'),
+    }))
+    .sort((a, b) => b.support - a.support);
+
+  const focusCards = CLUSTER_SCENARIO_FOCUS_KEYS.map(key => {
+    const value = getClusterScenarioValue(selectedScenario, key);
+    const avg = getClusterAverageValue(key);
+    const delta = value - avg;
+    const deltaTone = getClusterDeltaTone(delta);
+    return `
+      <article class="cluster-fm-focus-card ${deltaTone}">
+        <div class="cluster-fm-focus-head">
+          <span>${escapeHtml(copy.labels[key] || key)}</span>
+          <strong>${getClusterScenarioScore(value)}</strong>
+        </div>
+        <div class="cluster-fm-focus-sub">
+          <span>${escapeHtml(copy.rawLabel)} ${value.toFixed(2)}</span>
+          <span class="cluster-fm-delta ${deltaTone}">${escapeHtml(copy.compareLabel)} ${formatClusterDelta(delta)}</span>
+        </div>
+      </article>
+    `;
+  }).join('');
+
+  const attributeRows = CLUSTER_PARAMETER_ROWS.map(({ key }) => {
+    const value = getClusterScenarioValue(selectedScenario, key);
+    const delta = value - getClusterAverageValue(key);
+    const deltaTone = getClusterDeltaTone(delta);
+    const width = Math.max(8, Math.round(value * 100));
+    const tone = getClusterScoreTone(value);
+
+    return `
+      <div class="cluster-fm-attribute-row">
+        <div class="cluster-fm-attribute-main">
+          <div class="cluster-fm-attribute-label">${escapeHtml(copy.labels[key] || key)}</div>
+          <div class="cluster-fm-attribute-help">${escapeHtml(copy.help[key] || '')}</div>
+        </div>
+        <div class="cluster-fm-attribute-bar">
+          <div class="cluster-score-track ${tone}">
+            <div class="cluster-score-fill" style="width:${width}%"></div>
+          </div>
+        </div>
+        <div class="cluster-fm-attribute-score">${getClusterScenarioScore(value)}</div>
+        <div class="cluster-fm-attribute-raw">${value.toFixed(2)}</div>
+        <div class="cluster-fm-attribute-delta">
+          <span class="cluster-fm-delta ${deltaTone}">${formatClusterDelta(delta)}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  scenarioGrid.innerHTML = `
+    <div class="cluster-fm-shell">
+      <section class="cluster-fm-roster">
+        <div class="cluster-fm-panel-head">
+          <div class="cluster-fm-kicker">${escapeHtml(copy.rosterTitle)}</div>
+          <div class="cluster-fm-panel-title">${escapeHtml(copy.rosterDesc)}</div>
+        </div>
+        <div class="cluster-fm-table">
+          <div class="cluster-fm-table-head">
+            <span>#</span>
+            <span>${escapeHtml(copy.headers.scenario)}</span>
+            <span>${escapeHtml(copy.headers.role)}</span>
+            <span>${escapeHtml(copy.headers.support)}</span>
+            <span>${escapeHtml(copy.headers.infra)}</span>
+            <span>${escapeHtml(copy.headers.finance)}</span>
+            <span>${escapeHtml(copy.headers.stability)}</span>
+          </div>
+          <div class="cluster-fm-table-body">
+            ${rankedScenarios.map((entry, rank) => {
+              const isActive = entry.index === activeClusterScenarioIndex;
+              return `
+                <button type="button" class="cluster-fm-row theme-${escapeHtml(entry.scenario.theme || 'cluster')} ${isActive ? 'active' : ''}" onclick="setActiveClusterScenario(${entry.index})">
+                  <span class="cluster-fm-row-rank">${String(rank + 1).padStart(2, '0')}</span>
+                  <span class="cluster-fm-row-scenario">
+                    <strong>${escapeHtml(getClusterScenarioName(entry.scenario))}</strong>
+                    <em>${escapeHtml(copy.scenarioMeta)}</em>
+                  </span>
+                  <span class="cluster-fm-row-role">${escapeHtml(copy.themes?.[entry.scenario.theme] || entry.scenario.theme || '')}</span>
+                  <span class="cluster-fm-row-stat">${getClusterScenarioScore(entry.support)}</span>
+                  <span class="cluster-fm-row-stat">${getClusterScenarioScore(entry.infra)}</span>
+                  <span class="cluster-fm-row-stat">${getClusterScenarioScore(entry.scenario.finance)}</span>
+                  <span class="cluster-fm-row-stat">${getClusterScenarioScore(entry.scenario.stability)}</span>
+                </button>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      </section>
+
+      <section class="cluster-fm-detail theme-${escapeHtml(selectedScenario.theme || 'cluster')}">
+        <div class="cluster-fm-detail-hero">
+          <div class="cluster-fm-detail-copy">
+            <div class="cluster-fm-kicker">${escapeHtml(copy.detailKicker)}</div>
+            <h3>${escapeHtml(getClusterScenarioName(selectedScenario))}</h3>
+            <p>${escapeHtml(getClusterScenarioSummary(selectedScenario))}</p>
+          </div>
+          <div class="cluster-fm-overall">
+            <span>${escapeHtml(copy.supportLabel)}</span>
+            <strong>${getClusterScenarioScore(getClusterScenarioAverage(selectedScenario))}</strong>
+            <small>${escapeHtml(copy.scoreScaleLabel)}</small>
+          </div>
+        </div>
+
+        <div class="cluster-fm-section-head">
+          <div>
+            <div class="cluster-fm-section-title">${escapeHtml(copy.focusTitle)}</div>
+            <div class="cluster-fm-section-sub">${escapeHtml(copy.avgNote)}</div>
+          </div>
+        </div>
+        <div class="cluster-fm-focus-grid">${focusCards}</div>
+
+        <div class="cluster-fm-section-head">
+          <div>
+            <div class="cluster-fm-section-title">${escapeHtml(copy.fullTitle)}</div>
+            <div class="cluster-fm-section-sub">${escapeHtml(copy.detailDesc)}</div>
+          </div>
+        </div>
+        <div class="cluster-fm-attributes">
+          <div class="cluster-fm-attribute-head">
+            <span>${escapeHtml(copy.headers.scenario)}</span>
+            <span>${escapeHtml(copy.attributeHelpTitle)}</span>
+            <span>${escapeHtml(copy.scoreScaleLabel)}</span>
+            <span>${escapeHtml(copy.rawLabel)}</span>
+            <span>${escapeHtml(copy.compareLabel)}</span>
+          </div>
+          <div class="cluster-fm-attribute-body">${attributeRows}</div>
+        </div>
+      </section>
+    </div>
+  `;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initLanguageControl();
   initFontSizeControl();
