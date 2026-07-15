@@ -171,20 +171,186 @@
     certification_traceability: [2, 1, 1, 3, 0, 1],
   };
 
+  const STRUCTURE_METRICS = [
+    {
+      code: 'B_i',
+      title: 'Business strength / business sustainability',
+      formula: 'B_i = (CF_i + CAP_i + MP_i + GOV_i + CL_i) / 5',
+      note: 'Closest to the business-resilience logic already used in the model.',
+      factors: [
+        'CF_i = cashflow resilience',
+        'CAP_i = capex absorptive capacity',
+        'MP_i = market power / premium potential',
+        'GOV_i = governance / ownership stability',
+        'CL_i = cluster leverage',
+      ],
+    },
+    {
+      code: 'T_i',
+      title: 'Technological adequacy and applicability',
+      formula: 'T_i = (SF_i + AB_i + MAT_i + MOD_i + ID_i^(+) + LT_i^(+)) / 6',
+      note: 'For 0-20 scoring, use ID_i^(+) = 20 - ID_i and LT_i^(+) = 20 - LT_i.',
+      factors: [
+        'SF_i = site fit',
+        'AB_i = abatement potential',
+        'MAT_i = maturity / TRL / commercial maturity',
+        'MOD_i = modularity / ease of integration',
+        'ID_i = infrastructure dependence',
+        'LT_i = lead time to deployment',
+      ],
+    },
+    {
+      code: 'M_i',
+      title: 'Execution capacity / mobility for transition',
+      formula: 'M_i = (EX_i + FIN_i + ENG_i + PRJ_i + PERM_i + COORD_i) / 6',
+      note: 'This is the baseline pre-scenario mobility before it changes into M_eff.',
+      factors: [
+        'EX_i = execution capability',
+        'FIN_i = financing access',
+        'ENG_i = engineering access',
+        'PRJ_i = project development readiness',
+        'PERM_i = permitting responsiveness',
+        'COORD_i = cluster coordination access',
+      ],
+    },
+    {
+      code: 'E_i',
+      title: 'Emissions pressure',
+      formula: 'E_i = (AE_i + EI_i + PE_i + FE_i + RD_i) / 5',
+      note: 'Higher values mean a heavier emissions problem.',
+      factors: [
+        'AE_i = absolute emissions scale',
+        'EI_i = emissions intensity',
+        'PE_i = process-emissions share',
+        'FE_i = fossil energy / feedstock dependence',
+        'RD_i = residual abatement difficulty',
+      ],
+    },
+    {
+      code: 'C_i',
+      title: 'Competitive vulnerability',
+      formula: 'C_i = (TE_i + CPS_i + PPS_i + PT_i^(+) + COM_i) / 5',
+      note: 'For 0-20 scoring, use PT_i^(+) = 20 - PT_i so weaker pass-through raises vulnerability.',
+      factors: [
+        'TE_i = trade exposure',
+        'CPS_i = carbon-price sensitivity',
+        'PPS_i = power-price sensitivity',
+        'PT_i = pass-through ability',
+        'COM_i = commodity exposure / commoditization pressure',
+      ],
+    },
+    {
+      code: 'K_i',
+      title: 'Industrial continuity importance',
+      formula: 'K_i = (IW_i + SC_i + CA_i + EMP_i + SUB_i^(+)) / 5',
+      note: 'For 0-20 scoring, use SUB_i^(+) = 20 - SUB_i so lower substitutability raises K_i.',
+      factors: [
+        'IW_i = industrial weight',
+        'SC_i = supply-chain criticality',
+        'CA_i = cluster anchor role',
+        'EMP_i = employment / regional significance',
+        'SUB_i = substitutability of output',
+      ],
+    },
+  ];
+
+  const STRUCTURAL_SENSITIVITY_METRICS = [
+    {
+      key: 'industrial_weight',
+      title: 'Системна тежест на компанията',
+      compactFormula: '(OUT + SC + ANC + REG + EM) / 5',
+      formula: 'industrial_weight_i = (OUT_i + SC_i + ANC_i + REG_i + EM_i) / 5',
+      factors: [
+        'OUT_i = производствен и пазарен мащаб',
+        'SC_i = supply-chain criticality',
+        'ANC_i = anchor role в клъстер / индустриална мрежа',
+        'REG_i = регионална и трудова значимост',
+        'EM_i = значимост в националния емисионен и индустриален профил',
+      ],
+      interpretation: [
+        '1-5 = периферна фирма',
+        '6-10 = ограничена системна роля',
+        '11-15 = важна фирма',
+        '16-20 = системообразуващ anchor',
+      ],
+    },
+    {
+      key: 'infra_dependency',
+      title: 'Зависимост от външна инфраструктура',
+      compactFormula: '(GRID + PWR + H2 + CO2 + UTIL) / 5',
+      formula: 'infra_dependency_i = (GRID_i + PWR_i + H2_i + CO2_i + UTIL_i) / 5',
+      factors: [
+        'GRID_i = зависимост от мрежови присъединявания и усилване',
+        'PWR_i = зависимост от големи обеми нисковъглероден ток',
+        'H2_i = зависимост от водород',
+        'CO2_i = зависимост от CO2 transport/storage',
+        'UTIL_i = зависимост от shared utilities / external industrial services',
+      ],
+      interpretation: [
+        '1-5 = може да върви почти самостоятелно',
+        '6-10 = умерена външна зависимост',
+        '11-15 = висока зависимост',
+        '16-20 = без външна инфраструктура преходът не е реалистичен',
+      ],
+    },
+    {
+      key: 'carbon_sensitivity',
+      title: 'Чувствителност към въглероден натиск',
+      compactFormula: '(DIR + PROC + PASS^(+) + TRADE + ALT^(+)) / 5',
+      formula: 'carbon_sensitivity_i = (DIR_i + PROC_i + PASS_i^(+) + TRADE_i + ALT_i^(+)) / 5',
+      factors: [
+        'DIR_i = директна емисионна експозиция',
+        'PROC_i = дял на process emissions',
+        'PASS_i = ability to pass through carbon cost',
+        'TRADE_i = trade / leakage / CBAM exposure',
+        'ALT_i = наличие на краткосрочни abatement alternatives',
+        'PASS_i^(+) = 21 - PASS_i',
+        'ALT_i^(+) = 21 - ALT_i',
+      ],
+      interpretation: [
+        'По-слабо прехвърляне на разхода повишава индекса.',
+        'По-малко краткосрочни алтернативи също повишават индекса.',
+      ],
+    },
+    {
+      key: 'power_price_sensitivity',
+      title: 'Чувствителност към цена и видимост на електроенергията',
+      compactFormula: '(COST + ELEC + FLEX^(+) + HEDGE^(+) + VOL) / 5',
+      formula: 'power_price_sensitivity_i = (COST_i + ELEC_i + FLEX_i^(+) + HEDGE_i^(+) + VOL_i) / 5',
+      factors: [
+        'COST_i = дял на електроенергията в cost structure',
+        'ELEC_i = зависимост на бъдещия преход от електрификация',
+        'FLEX_i = load flexibility',
+        'HEDGE_i = достъп до PPA / hedging / long-term electricity contracting',
+        'VOL_i = експозиция към ценова волатилност',
+        'FLEX_i^(+) = 21 - FLEX_i',
+        'HEDGE_i^(+) = 21 - HEDGE_i',
+      ],
+      interpretation: [
+        'Ниска гъвкавост повишава чувствителността.',
+        'Слаб достъп до дългосрочно ценово обезпечаване повишава чувствителността.',
+        'Висока електроинтензивност води до висока power_price_sensitivity.',
+      ],
+    },
+  ];
+
   const EXPLORER_TABS = ['phaseMap', 'scenarioFrontier', 'morphologyNetwork', 'bottleneckHeatmap', 'dataTable'];
 
   const EXPLORER_COMPANIES = [
-    { company: 'Agropolychim AD', cluster: 'Devnya', sector: 'Fertilizers', B_i: 4.0, T_i: 3.8, M_i: 3.5, E_i: 4.5, C_i: 3.5, K_i: 4.2, industrial_weight: 4.3, infra_dependency: 4.2, carbon_sensitivity: 4.3 },
-    { company: 'Neochim AD', cluster: 'Dimitrovgrad', sector: 'Ammonia & nitric acid', B_i: 3.0, T_i: 2.8, M_i: 2.7, E_i: 4.7, C_i: 4.3, K_i: 4.0, industrial_weight: 4.1, infra_dependency: 4.0, carbon_sensitivity: 4.6 },
-    { company: 'Solvay Sodi Bulgaria AD', cluster: 'Devnya', sector: 'Soda ash', B_i: 4.2, T_i: 3.2, M_i: 3.0, E_i: 5.0, C_i: 3.8, K_i: 4.5, industrial_weight: 4.8, infra_dependency: 4.8, carbon_sensitivity: 4.7 },
-    { company: 'Heidelberg Materials Bulgaria', cluster: 'Devnya', sector: 'Cement', B_i: 4.3, T_i: 4.0, M_i: 3.7, E_i: 4.8, C_i: 3.4, K_i: 4.1, industrial_weight: 4.6, infra_dependency: 4.6, carbon_sensitivity: 4.5 },
-    { company: 'Holcim Bulgaria AD', cluster: 'Vratsa', sector: 'Cement', B_i: 4.1, T_i: 3.9, M_i: 3.8, E_i: 4.4, C_i: 3.2, K_i: 3.8, industrial_weight: 3.9, infra_dependency: 4.0, carbon_sensitivity: 4.2 },
-    { company: 'Lukoil Neftochim Burgas AD', cluster: 'Burgas', sector: 'Refining', B_i: 3.5, T_i: 2.3, M_i: 2.2, E_i: 5.0, C_i: 4.5, K_i: 4.7, industrial_weight: 5.0, infra_dependency: 4.9, carbon_sensitivity: 4.9 },
-    { company: 'Orgachim AD', cluster: 'Ruse', sector: 'Coatings', B_i: 3.1, T_i: 3.4, M_i: 3.1, E_i: 2.7, C_i: 3.7, K_i: 2.8, industrial_weight: 2.8, infra_dependency: 2.9, carbon_sensitivity: 2.8 },
-    { company: 'Biovet AD', cluster: 'Razgrad/Peshtera', sector: 'Vet pharma', B_i: 4.0, T_i: 4.1, M_i: 3.9, E_i: 2.8, C_i: 3.0, K_i: 3.6, industrial_weight: 3.6, infra_dependency: 3.8, carbon_sensitivity: 2.6 },
-    { company: 'Svilosa AD', cluster: 'Svishtov', sector: 'Pulp', B_i: 3.6, T_i: 4.0, M_i: 3.4, E_i: 2.5, C_i: 3.1, K_i: 3.5, industrial_weight: 3.3, infra_dependency: 2.7, carbon_sensitivity: 2.4 },
-    { company: 'Agria AD', cluster: 'Plovdiv', sector: 'Agrochemicals', B_i: 2.8, T_i: 3.2, M_i: 2.9, E_i: 2.2, C_i: 3.4, K_i: 2.6, industrial_weight: 2.2, infra_dependency: 2.3, carbon_sensitivity: 2.1 },
+    { company: 'Agropolychim AD', cluster: 'Devnya', sector: 'Fertilizers', B_i: 4.0, T_i: 3.8, M_i: 3.5, E_i: 4.5, C_i: 3.5, K_i: 4.2, industrial_weight: 4.3, infra_dependency: 4.2, carbon_sensitivity: 4.3, power_price_sensitivity: 4.2 },
+    { company: 'Neochim AD', cluster: 'Dimitrovgrad', sector: 'Ammonia & nitric acid', B_i: 3.0, T_i: 2.8, M_i: 2.7, E_i: 4.7, C_i: 4.3, K_i: 4.0, industrial_weight: 4.1, infra_dependency: 4.0, carbon_sensitivity: 4.6, power_price_sensitivity: 4.5 },
+    { company: 'Solvay Sodi Bulgaria AD', cluster: 'Devnya', sector: 'Soda ash', B_i: 4.2, T_i: 3.2, M_i: 3.0, E_i: 5.0, C_i: 3.8, K_i: 4.5, industrial_weight: 4.8, infra_dependency: 4.8, carbon_sensitivity: 4.7, power_price_sensitivity: 4.7 },
+    { company: 'Heidelberg Materials Bulgaria', cluster: 'Devnya', sector: 'Cement', B_i: 4.3, T_i: 4.0, M_i: 3.7, E_i: 4.8, C_i: 3.4, K_i: 4.1, industrial_weight: 4.6, infra_dependency: 4.6, carbon_sensitivity: 4.5, power_price_sensitivity: 4.2 },
+    { company: 'Holcim Bulgaria AD', cluster: 'Vratsa', sector: 'Cement', B_i: 4.1, T_i: 3.9, M_i: 3.8, E_i: 4.4, C_i: 3.2, K_i: 3.8, industrial_weight: 3.9, infra_dependency: 4.0, carbon_sensitivity: 4.2, power_price_sensitivity: 4.0 },
+    { company: 'Lukoil Neftochim Burgas AD', cluster: 'Burgas', sector: 'Refining', B_i: 3.5, T_i: 2.3, M_i: 2.2, E_i: 5.0, C_i: 4.5, K_i: 4.7, industrial_weight: 5.0, infra_dependency: 4.9, carbon_sensitivity: 4.9, power_price_sensitivity: 4.8 },
+    { company: 'Orgachim AD', cluster: 'Ruse', sector: 'Coatings', B_i: 3.1, T_i: 3.4, M_i: 3.1, E_i: 2.7, C_i: 3.7, K_i: 2.8, industrial_weight: 2.8, infra_dependency: 2.9, carbon_sensitivity: 2.8, power_price_sensitivity: 3.1 },
+    { company: 'Biovet AD', cluster: 'Razgrad/Peshtera', sector: 'Vet pharma', B_i: 4.0, T_i: 4.1, M_i: 3.9, E_i: 2.8, C_i: 3.0, K_i: 3.6, industrial_weight: 3.6, infra_dependency: 3.8, carbon_sensitivity: 2.6, power_price_sensitivity: 3.8 },
+    { company: 'Svilosa AD', cluster: 'Svishtov', sector: 'Pulp', B_i: 3.6, T_i: 4.0, M_i: 3.4, E_i: 2.5, C_i: 3.1, K_i: 3.5, industrial_weight: 3.3, infra_dependency: 2.7, carbon_sensitivity: 2.4, power_price_sensitivity: 2.9 },
+    { company: 'Agria AD', cluster: 'Plovdiv', sector: 'Agrochemicals', B_i: 2.8, T_i: 3.2, M_i: 2.9, E_i: 2.2, C_i: 3.4, K_i: 2.6, industrial_weight: 2.2, infra_dependency: 2.3, carbon_sensitivity: 2.1, power_price_sensitivity: 2.7 },
   ];
+
+  const CLUSTER_SIMULATION_STORAGE_KEY = 'nzlClusterSimulationDataV1';
+  const COMPANY_SIMULATION_KEYS = ['B_i', 'T_i', 'M_i', 'E_i', 'C_i', 'K_i', 'industrial_weight', 'infra_dependency', 'carbon_sensitivity', 'power_price_sensitivity'];
 
   const EXPLORER_EDGES = [
     { source: 'Agropolychim AD', target: 'Solvay Sodi Bulgaria AD', weight: 3, edge_type: 'cluster' },
@@ -200,7 +366,7 @@
 
   const CLUSTER_COPY = {
     en: {
-      matrixTitle: 'Scenario squad',
+      matrixTitle: 'Scenarios',
       matrixDesc: 'Select a scenario from the roster to inspect its profile and how its attributes differ from the scenario average.',
       matrixNote: 'NZ scores are shown on a 0-20 scale, while the raw model values stay on the original 0-1 scale.',
       scenarioMeta: 'policy scenario',
@@ -350,12 +516,20 @@
     CLUSTER_SCENARIOS.findIndex((scenario) => scenario.theme === 'cluster')
   );
   let activeClusterVizTab = 'phaseMap';
+  let activeClusterMainTab = 'scenario-squad';
 
   Object.assign(CLUSTER_COPY.en, {
     explorerSubtitle: 'Business field vs. technology field sandbox from the Streamlit explorer.',
     plotlyMissing: 'Plotly is not loaded, so the explorer charts cannot be rendered.',
     trajectoryTitle: 'Scenario trajectories',
     trajectorySubtitle: 'Normalised sigmoid curves from a common 2025 starting state S₀.',
+    mainTabs: {
+      scenarioSquad: 'Scenarios',
+      companies: 'Companies',
+      tab3: 'Structure',
+      tab4: 'Metrics',
+      tab5: 'Simulation',
+    },
     tabs: {
       phaseMap: 'Phase Map',
       scenarioFrontier: 'Scenario Frontier',
@@ -401,6 +575,13 @@
 
   CLUSTER_COPY.bg.trajectoryTitle = 'Scenario trajectories';
   CLUSTER_COPY.bg.trajectorySubtitle = 'Нормализирани sigmoid криви с общо начално състояние S₀ през 2025.';
+  CLUSTER_COPY.bg.mainTabs = {
+    scenarioSquad: 'Scenarios',
+    companies: 'Companies',
+    tab3: 'Structure',
+    tab4: 'Metrics',
+    tab5: 'Simulation',
+  };
   CLUSTER_COPY.en.systemMatrixTitle = 'System effect matrix';
   CLUSTER_COPY.en.systemMatrixSubtitle = '3 = strong effect, 2 = medium, 1 = weak, 0 = almost none.';
   CLUSTER_COPY.bg.systemMatrixTitle = 'Матричен изглед по ефект върху системата';
@@ -413,6 +594,125 @@
     style.id = 'cluster-analysis-styles';
     style.textContent = `
       .cluster-scenario-grid { display: block; }
+      .cluster-access-shell {
+        display: grid;
+        gap: 1rem;
+      }
+      .cluster-access-card {
+        padding: 1.4rem 1.5rem;
+        border: 1px solid rgba(119, 196, 220, 0.12);
+        background:
+          radial-gradient(circle at top left, rgba(122, 216, 247, 0.14), transparent 34%),
+          linear-gradient(180deg, rgba(12, 28, 40, 0.96), rgba(6, 15, 24, 0.98));
+      }
+      .cluster-access-kicker {
+        color: #7ad8f7;
+        font-family: 'DM Mono', monospace;
+        font-size: 0.58rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .cluster-access-title {
+        margin-top: 0.42rem;
+        color: #e8f3f7;
+        font-family: 'Barlow Condensed', 'DM Sans', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 800;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+      }
+      .cluster-access-desc {
+        margin-top: 0.38rem;
+        max-width: 48ch;
+        color: #9db8c6;
+        font-size: 0.82rem;
+        line-height: 1.55;
+      }
+      .cluster-access-form {
+        display: flex;
+        gap: 0.7rem;
+        align-items: center;
+        margin-top: 1rem;
+      }
+      .cluster-access-input {
+        flex: 1 1 260px;
+        min-width: 0;
+        padding: 0.78rem 0.95rem;
+        border-radius: 12px;
+        border: 1px solid rgba(119, 196, 220, 0.18);
+        background: rgba(7, 18, 28, 0.92);
+        color: #e8f3f7;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 0.82rem;
+        outline: none;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+      }
+      .cluster-access-input::placeholder {
+        color: rgba(157, 184, 198, 0.72);
+      }
+      .cluster-access-input:focus {
+        border-color: rgba(122, 216, 247, 0.44);
+        box-shadow: 0 0 0 3px rgba(122, 216, 247, 0.12);
+      }
+      .cluster-access-button {
+        flex: 0 0 auto;
+        padding: 0.78rem 1.05rem;
+        border: 1px solid rgba(122, 216, 247, 0.18);
+        border-radius: 12px;
+        background: linear-gradient(180deg, rgba(28, 72, 101, 0.98), rgba(14, 37, 54, 0.98));
+        color: #e8f3f7;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        cursor: pointer;
+      }
+      .cluster-access-button:hover,
+      .cluster-access-button:focus-visible {
+        background: linear-gradient(180deg, rgba(35, 86, 118, 0.98), rgba(17, 44, 63, 0.98));
+        outline: none;
+      }
+      .cluster-access-error {
+        margin-top: 0.7rem;
+        color: #ff986b;
+        font-size: 0.74rem;
+        font-weight: 600;
+      }
+      .cluster-main-tabs {
+        display: flex;
+        align-items: flex-end;
+        gap: 0.18rem;
+        margin-top: 0.85rem;
+        overflow-x: auto;
+        padding-bottom: 0.1rem;
+      }
+      .cluster-main-tab {
+        position: relative;
+        flex: 0 0 auto;
+        padding: 0.56rem 1rem 0.52rem;
+        border: 1px solid rgba(119, 196, 220, 0.18);
+        border-bottom: 0;
+        border-radius: 12px 12px 0 0;
+        background: linear-gradient(180deg, rgba(17, 46, 66, 0.72), rgba(10, 27, 40, 0.9));
+        color: #9db8c6;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 0.78rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.16s ease, color 0.16s ease, transform 0.16s ease;
+      }
+      .cluster-main-tab:hover,
+      .cluster-main-tab:focus-visible {
+        color: #e8f3f7;
+        background: linear-gradient(180deg, rgba(22, 58, 82, 0.82), rgba(12, 31, 46, 0.95));
+        outline: none;
+      }
+      .cluster-main-tab.active {
+        color: #e8f3f7;
+        background: linear-gradient(180deg, rgba(28, 72, 101, 0.96), rgba(15, 39, 58, 0.98));
+        box-shadow: inset 0 2px 0 rgba(122, 216, 247, 0.48);
+        transform: translateY(1px);
+      }
       .cluster-fm-shell {
         --fm-line: rgba(119, 196, 220, 0.22);
         --fm-text: #e8f3f7;
@@ -440,6 +740,251 @@
       .cluster-fm-scenario-card { grid-area: detail; }
       .cluster-fm-system-matrix-card { grid-area: matrix; }
       .cluster-fm-explorer-card { grid-area: explorer; }
+      .cluster-companies-shell {
+        display: grid;
+        gap: 1rem;
+      }
+      .cluster-structure-shell {
+        display: grid;
+        gap: 1rem;
+      }
+      .cluster-structure-intro {
+        padding: 1rem 1.1rem 0;
+      }
+      .cluster-structure-note {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.28rem 0.6rem;
+        border-radius: 999px;
+        background: rgba(122, 216, 247, 0.12);
+        color: #d7f7ff;
+        font-family: 'DM Mono', monospace;
+        font-size: 0.5rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+      .cluster-structure-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.9rem;
+        padding: 0 1.1rem 1.1rem;
+      }
+      .cluster-structure-card {
+        padding: 0.9rem 0.95rem;
+        border: 1px solid rgba(119, 196, 220, 0.14);
+        border-radius: 14px;
+        background: linear-gradient(180deg, rgba(18, 44, 63, 0.94), rgba(9, 24, 36, 0.9));
+      }
+      .cluster-structure-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 0.7rem;
+      }
+      .cluster-structure-code {
+        color: var(--fm-accent);
+        font-family: 'Barlow Condensed', 'DM Sans', sans-serif;
+        font-size: 1rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+      }
+      .cluster-structure-title {
+        margin-top: 0.25rem;
+        color: var(--fm-text);
+        font-size: 0.62rem;
+        font-weight: 700;
+        line-height: 1.35;
+      }
+      .cluster-structure-formula {
+        margin-top: 0.65rem;
+        padding: 0.55rem 0.65rem;
+        border-radius: 10px;
+        background: rgba(122, 216, 247, 0.06);
+        color: #d8edf4;
+        font-family: 'DM Mono', monospace;
+        font-size: 0.54rem;
+        line-height: 1.45;
+        overflow-x: auto;
+      }
+      .cluster-structure-sub {
+        margin-top: 0.55rem;
+        color: var(--fm-muted);
+        font-size: 0.54rem;
+        line-height: 1.45;
+      }
+      .cluster-structure-list {
+        margin: 0.6rem 0 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: 0.28rem;
+      }
+      .cluster-structure-list > div {
+        color: var(--fm-text);
+        font-size: 0.54rem;
+        line-height: 1.4;
+      }
+      .cluster-structure-list > div span {
+        color: var(--fm-muted);
+      }
+      .cluster-sensitivity-note {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.28rem 0.6rem;
+        border-radius: 999px;
+        background: rgba(244, 197, 99, 0.12);
+        color: #f4d28c;
+        font-family: 'DM Mono', monospace;
+        font-size: 0.5rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+      .cluster-sensitivity-mini {
+        padding: 0 1.1rem 1rem;
+      }
+      .cluster-sensitivity-mini .cluster-fm-data-table th:first-child,
+      .cluster-sensitivity-mini .cluster-fm-data-table td:first-child {
+        width: 34%;
+      }
+      .cluster-sensitivity-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+        gap: 0.9rem;
+        padding: 0 1.1rem 1rem;
+        align-items: start;
+      }
+      .cluster-sensitivity-stack {
+        display: grid;
+        gap: 0.9rem;
+      }
+      .cluster-sensitivity-side {
+        display: grid;
+        gap: 0.9rem;
+      }
+      .cluster-sensitivity-layout .cluster-sensitivity-mini {
+        padding: 0;
+      }
+      .cluster-sim-shell {
+        display: grid;
+        gap: 1rem;
+      }
+      .cluster-sim-card {
+        padding: 1rem 1.1rem 1.1rem;
+        border-top: 1px solid rgba(119, 196, 220, 0.1);
+      }
+      .cluster-sim-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 0.85rem;
+      }
+      .cluster-sim-status {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+      }
+      .cluster-sim-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.28rem 0.55rem;
+        border-radius: 999px;
+        background: rgba(122, 216, 247, 0.1);
+        color: #d7f7ff;
+        font-family: 'DM Mono', monospace;
+        font-size: 0.52rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      .cluster-sim-badge.locked {
+        background: rgba(255, 152, 107, 0.12);
+        color: #ffd5c1;
+      }
+      .cluster-sim-grid {
+        display: grid;
+        gap: 1rem;
+      }
+      .cluster-sim-table-wrap {
+        overflow: auto;
+      }
+      .cluster-sim-input {
+        width: 4.8rem;
+        padding: 0.3rem 0.38rem;
+        border: 1px solid rgba(119, 196, 220, 0.18);
+        border-radius: 8px;
+        background: rgba(7, 18, 28, 0.82);
+        color: #e8f3f7;
+        font: inherit;
+        font-size: 0.7rem;
+      }
+      .cluster-sim-input:disabled {
+        opacity: 0.62;
+        cursor: not-allowed;
+      }
+      .cluster-sim-note {
+        color: var(--fm-muted);
+        font-size: 0.64rem;
+        line-height: 1.45;
+      }
+      .cluster-sim-locked-wrap {
+        position: relative;
+      }
+      .cluster-sim-overlay {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: 1.2rem;
+        border-radius: 18px;
+        background: rgba(5, 13, 20, 0.72);
+        backdrop-filter: blur(6px);
+        z-index: 3;
+      }
+      .cluster-sim-overlay-card {
+        max-width: 34rem;
+        padding: 1rem 1.1rem;
+        border: 1px solid rgba(255, 152, 107, 0.18);
+        border-radius: 14px;
+        background: linear-gradient(180deg, rgba(17, 44, 62, 0.96), rgba(8, 20, 30, 0.98));
+        color: #e8f3f7;
+        text-align: center;
+      }
+      .cluster-sim-overlay-card strong {
+        display: block;
+        font-family: 'Barlow Condensed', 'DM Sans', sans-serif;
+        font-size: 1.05rem;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+      }
+      .cluster-sim-overlay-card span {
+        display: block;
+        margin-top: 0.42rem;
+        color: #a8c2cf;
+        font-size: 0.72rem;
+        line-height: 1.45;
+      }
+      .cluster-tab-placeholder {
+        display: grid;
+        place-items: center;
+        min-height: 280px;
+        padding: 1.6rem;
+        text-align: center;
+        color: var(--fm-muted);
+      }
+      .cluster-tab-placeholder strong {
+        display: block;
+        color: var(--fm-text);
+        font-family: 'Barlow Condensed', 'DM Sans', sans-serif;
+        font-size: 1.1rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      .cluster-tab-placeholder p {
+        margin: 0.55rem 0 0;
+        max-width: 52ch;
+        font-size: 0.68rem;
+        line-height: 1.5;
+      }
       .cluster-fm-roster,
       .cluster-fm-detail {
         position: relative;
@@ -989,20 +1534,20 @@
         font-weight: 700;
       }
       .cluster-fm-matrix-pill.level-0 {
-        color: #8fa8b8;
-        background: rgba(143, 168, 184, 0.12);
+        color: #7f96a4;
+        background: rgba(127, 150, 164, 0.12);
       }
       .cluster-fm-matrix-pill.level-1 {
-        color: #7ad8f7;
-        background: rgba(122, 216, 247, 0.12);
+        color: #8eb7c8;
+        background: rgba(142, 183, 200, 0.14);
       }
       .cluster-fm-matrix-pill.level-2 {
-        color: #f4c563;
-        background: rgba(244, 197, 99, 0.14);
+        color: #73c2da;
+        background: rgba(115, 194, 218, 0.16);
       }
       .cluster-fm-matrix-pill.level-3 {
-        color: #7ee3a5;
-        background: rgba(126, 227, 165, 0.14);
+        color: #d7f7ff;
+        background: rgba(122, 216, 247, 0.22);
       }
       .cluster-fm-row-stat.cluster-score-high,
       .cluster-fm-focus-head strong.cluster-score-high,
@@ -1037,6 +1582,10 @@
         }
         .cluster-fm-focus-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
         .cluster-fm-attribute-body { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .cluster-structure-grid { grid-template-columns: 1fr; }
+        .cluster-sensitivity-layout { grid-template-columns: 1fr; }
+        .cluster-access-form { flex-direction: column; align-items: stretch; }
+        .cluster-access-button { width: 100%; }
         .cluster-fm-viz-canvas,
         .cluster-fm-viz-empty { min-height: 380px; }
       }
@@ -1142,6 +1691,83 @@
 
   function clampValue(value, lower = 1, upper = 5) {
     return Math.max(lower, Math.min(upper, value));
+  }
+
+  function clampScenarioSimulationValue(value) {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) return 0;
+    return Math.max(0, Math.min(1, numeric));
+  }
+
+  function clampCompanySimulationValue(value) {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) return 0;
+    return Math.max(0, Math.min(5, numeric));
+  }
+
+  function persistClusterSimulationData() {
+    try {
+      root.localStorage.setItem(CLUSTER_SIMULATION_STORAGE_KEY, JSON.stringify({
+        scenarios: CLUSTER_SCENARIOS.map((scenario) => ({
+          theme: scenario.theme,
+          values: Object.fromEntries(CLUSTER_PARAMETER_KEYS.map((key) => [key, scenario[key]])),
+        })),
+        companies: EXPLORER_COMPANIES.map((company) => ({
+          company: company.company,
+          values: Object.fromEntries(COMPANY_SIMULATION_KEYS.map((key) => [key, company[key]])),
+        })),
+      }));
+    } catch (error) {
+      // Persisting browser-side simulation state is optional.
+    }
+  }
+
+  function loadClusterSimulationData() {
+    try {
+      const raw = root.localStorage.getItem(CLUSTER_SIMULATION_STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+
+      (parsed?.scenarios || []).forEach((entry) => {
+        const target = CLUSTER_SCENARIOS.find((scenario) => scenario.theme === entry.theme);
+        if (!target || !entry.values) return;
+        CLUSTER_PARAMETER_KEYS.forEach((key) => {
+          if (entry.values[key] === undefined) return;
+          target[key] = clampScenarioSimulationValue(entry.values[key]);
+        });
+      });
+
+      (parsed?.companies || []).forEach((entry) => {
+        const target = EXPLORER_COMPANIES.find((company) => company.company === entry.company);
+        if (!target || !entry.values) return;
+        COMPANY_SIMULATION_KEYS.forEach((key) => {
+          if (entry.values[key] === undefined) return;
+          target[key] = clampCompanySimulationValue(entry.values[key]);
+        });
+      });
+    } catch (error) {
+      // Ignore malformed persisted data and continue with defaults.
+    }
+  }
+
+  function updateClusterScenarioSimulationValue(index, key, nextValue) {
+    if (typeof root.isClusterEditorUnlocked === 'function' && !root.isClusterEditorUnlocked()) return;
+    if (!CLUSTER_PARAMETER_KEYS.includes(key)) return;
+    const scenario = CLUSTER_SCENARIOS[index];
+    if (!scenario) return;
+    scenario[key] = clampScenarioSimulationValue(nextValue);
+    persistClusterSimulationData();
+    renderClusterAnalysis();
+  }
+
+  function updateClusterCompanySimulationValue(index, key, nextValue) {
+    if (typeof root.isClusterEditorUnlocked === 'function' && !root.isClusterEditorUnlocked()) return;
+    if (!COMPANY_SIMULATION_KEYS.includes(key)) return;
+    const company = EXPLORER_COMPANIES[index];
+    if (!company) return;
+    company[key] = clampCompanySimulationValue(nextValue);
+    persistClusterSimulationData();
+    renderClusterAnalysis();
   }
 
   function toPlotLabel(scenario) {
@@ -1612,6 +2238,450 @@
     renderClusterAnalysis();
   }
 
+  function setActiveClusterMainTab(tabId) {
+    const allowed = ['scenario-squad', 'companies', 'tab-3', 'tab-4', 'tab-5'];
+    if (!allowed.includes(tabId)) return;
+    activeClusterMainTab = tabId;
+    renderClusterAnalysis();
+  }
+
+  function ensureClusterMainTabs(copy) {
+    const sectionDesc = document.querySelector('#section-cluster .section-desc');
+    if (!sectionDesc || !sectionDesc.parentElement) return;
+
+    let tabsHost = document.getElementById('clusterMainTabs');
+    if (!tabsHost) {
+      tabsHost = document.createElement('div');
+      tabsHost.id = 'clusterMainTabs';
+      tabsHost.className = 'cluster-main-tabs';
+      sectionDesc.insertAdjacentElement('afterend', tabsHost);
+    }
+
+    const labels = copy.mainTabs || CLUSTER_COPY.en.mainTabs;
+    const tabs = [
+      ['scenario-squad', labels.scenarioSquad || 'Scenarios'],
+      ['companies', labels.companies || 'Companies'],
+      ['tab-3', labels.tab3 || 'tab-3'],
+      ['tab-4', labels.tab4 || 'tab-4'],
+      ['tab-5', labels.tab5 || 'tab-5'],
+    ];
+
+    tabsHost.innerHTML = tabs.map(([id, label]) => `
+      <button type="button" class="cluster-main-tab ${activeClusterMainTab === id ? 'active' : ''}" onclick="setActiveClusterMainTab('${id}')">
+        ${escape(label)}
+      </button>
+    `).join('');
+  }
+
+  function renderCompaniesClusterTab(copy) {
+    const companies = EXPLORER_COMPANIES.slice().sort((a, b) => b.industrial_weight - a.industrial_weight);
+    return `
+      <div class="cluster-companies-shell">
+        <section class="cluster-fm-detail theme-cluster">
+          <div class="cluster-fm-section-head">
+            <div>
+              <div class="cluster-fm-section-title">Companies</div>
+              <div class="cluster-fm-section-sub">Industrial actors in the cluster model with baseline business, technology, and mobility fields.</div>
+            </div>
+          </div>
+          <div class="cluster-fm-system-matrix">
+            <div class="cluster-fm-data-table-wrap">
+              <table class="cluster-fm-data-table">
+                <thead>
+                  <tr>
+                    <th>Company</th>
+                    <th>Cluster</th>
+                    <th>Sector</th>
+                    <th>Business</th>
+                    <th>Technology</th>
+                    <th>Mobility</th>
+                    <th>Weight</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${companies.map((company) => `
+                    <tr>
+                      <td>${escape(company.company)}</td>
+                      <td>${escape(company.cluster)}</td>
+                      <td>${escape(company.sector)}</td>
+                      <td>${company.B_i.toFixed(1)}</td>
+                      <td>${company.T_i.toFixed(1)}</td>
+                      <td>${company.M_i.toFixed(1)}</td>
+                      <td>${company.industrial_weight.toFixed(1)}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
+  function renderStructureClusterTab() {
+    const formatMetricMarkup = (text) => escape(text)
+      .replaceAll('_i', '<sub>i</sub>')
+      .replaceAll('^(+)', '<sup>(+)</sup>');
+
+    return `
+      <div class="cluster-structure-shell">
+        <section class="cluster-fm-detail theme-cluster">
+          <div class="cluster-structure-intro">
+            <div class="cluster-fm-section-head">
+              <div>
+                <div class="cluster-fm-section-title">Core company parameters</div>
+                <div class="cluster-fm-section-sub">Structural indices for business strength, technology fit, transition mobility, emissions pressure, competitive vulnerability, and industrial continuity.</div>
+              </div>
+            </div>
+            <div class="cluster-structure-note">All component scores and final indices are normalized on a 0-20 scale.</div>
+          </div>
+          <div class="cluster-structure-grid">
+            ${STRUCTURE_METRICS.map((metric) => `
+              <article class="cluster-structure-card">
+                <div class="cluster-structure-head">
+                  <div class="cluster-structure-code">${formatMetricMarkup(metric.code)}</div>
+                  <div class="cluster-structure-title">${escape(metric.title)}</div>
+                </div>
+                <div class="cluster-structure-formula">${formatMetricMarkup(metric.formula)}</div>
+                <div class="cluster-structure-sub">${escape(metric.note)}</div>
+                <div class="cluster-structure-list">
+                  ${metric.factors.map((factor) => `<div><span>${formatMetricMarkup(factor)}</span></div>`).join('')}
+                </div>
+              </article>
+            `).join('')}
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
+  function renderStructuralSensitivityTab() {
+    const formatMetricMarkup = (text) => escape(text)
+      .replaceAll('_i', '<sub>i</sub>')
+      .replaceAll('^(+)', '<sup>(+)</sup>');
+
+    return `
+      <div class="cluster-structure-shell">
+        <section class="cluster-fm-detail theme-cluster">
+          <div class="cluster-structure-intro">
+            <div class="cluster-fm-section-head">
+              <div>
+                <div class="cluster-fm-section-title">Structural and sensitivity parameters</div>
+                <div class="cluster-fm-section-sub">Core company exposure fields used to read structural weight, infrastructure dependence, and carbon and power-price sensitivity.</div>
+              </div>
+            </div>
+            <div class="cluster-sensitivity-note">Method definitions below use a 1-20 assessment scale. The company table keeps the current working model inputs.</div>
+          </div>
+          <div class="cluster-sensitivity-mini">
+            <div class="cluster-fm-data-table-wrap">
+              <table class="cluster-fm-data-table">
+                <thead>
+                  <tr>
+                    <th>Параметър</th>
+                    <th>Формула</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${STRUCTURAL_SENSITIVITY_METRICS.map((metric) => `
+                    <tr>
+                      <td>${escape(metric.key)}</td>
+                      <td>${formatMetricMarkup(metric.compactFormula)}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="cluster-structure-grid">
+            ${STRUCTURAL_SENSITIVITY_METRICS.map((metric) => `
+              <article class="cluster-structure-card">
+                <div class="cluster-structure-head">
+                  <div class="cluster-structure-code">${escape(metric.key)}</div>
+                  <div class="cluster-structure-title">${escape(metric.title)}</div>
+                </div>
+                <div class="cluster-structure-formula">${formatMetricMarkup(metric.formula)}</div>
+                <div class="cluster-structure-list">
+                  ${metric.factors.map((factor) => `<div><span>${formatMetricMarkup(factor)}</span></div>`).join('')}
+                </div>
+                <div class="cluster-structure-sub">
+                  ${metric.interpretation.map((line) => escape(line)).join('<br>')}
+                </div>
+              </article>
+            `).join('')}
+          </div>
+          <div class="cluster-fm-system-matrix">
+            <div class="cluster-fm-data-table-wrap">
+              <table class="cluster-fm-data-table">
+                <thead>
+                  <tr>
+                    <th>Company</th>
+                    <th>industrial_weight</th>
+                    <th>infra_dependency</th>
+                    <th>carbon_sensitivity</th>
+                    <th>power_price_sensitivity</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${EXPLORER_COMPANIES.map((company) => `
+                    <tr>
+                      <td>${escape(company.company)}</td>
+                      <td>${company.industrial_weight.toFixed(1)}</td>
+                      <td>${company.infra_dependency.toFixed(1)}</td>
+                      <td>${company.carbon_sensitivity.toFixed(1)}</td>
+                      <td>${company.power_price_sensitivity.toFixed(1)}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
+  function renderStructuralSensitivityTabCompact() {
+    const formatMetricMarkup = (text) => escape(text)
+      .replaceAll('_i', '<sub>i</sub>')
+      .replaceAll('^(+)', '<sup>(+)</sup>');
+    const sensitivityCardOrder = ['industrial_weight', 'carbon_sensitivity', 'infra_dependency', 'power_price_sensitivity'];
+    const orderedMetrics = sensitivityCardOrder
+      .map((key) => STRUCTURAL_SENSITIVITY_METRICS.find((metric) => metric.key === key))
+      .filter(Boolean);
+
+    return `
+      <div class="cluster-structure-shell">
+        <section class="cluster-fm-detail theme-cluster">
+          <div class="cluster-structure-intro">
+            <div class="cluster-fm-section-head">
+              <div>
+                <div class="cluster-fm-section-title">Structural and sensitivity parameters</div>
+                <div class="cluster-fm-section-sub">Core company exposure fields used to read structural weight, infrastructure dependence, and carbon and power-price sensitivity.</div>
+              </div>
+            </div>
+            <div class="cluster-sensitivity-note">Method definitions below use a 1-20 assessment scale. The company table keeps the current working model inputs.</div>
+          </div>
+          <div class="cluster-sensitivity-layout">
+            <div class="cluster-sensitivity-stack">
+              ${orderedMetrics.map((metric) => {
+                const showInterpretation = metric.key !== 'infra_dependency' && Array.isArray(metric.interpretation) && metric.interpretation.length > 0;
+                return `
+                  <article class="cluster-structure-card">
+                    <div class="cluster-structure-head">
+                      <div class="cluster-structure-code">${escape(metric.key)}</div>
+                      <div class="cluster-structure-title">${escape(metric.title)}</div>
+                    </div>
+                    <div class="cluster-structure-formula">${formatMetricMarkup(metric.formula)}</div>
+                    <div class="cluster-structure-list">
+                      ${metric.factors.map((factor) => `<div><span>${formatMetricMarkup(factor)}</span></div>`).join('')}
+                    </div>
+                    ${showInterpretation ? `
+                      <div class="cluster-structure-sub">
+                        ${metric.interpretation.map((line) => escape(line)).join('<br>')}
+                      </div>
+                    ` : ''}
+                  </article>
+                `;
+              }).join('')}
+            </div>
+            <div class="cluster-sensitivity-side">
+              <div class="cluster-sensitivity-mini">
+                <div class="cluster-fm-data-table-wrap">
+                  <table class="cluster-fm-data-table">
+                    <thead>
+                      <tr>
+                        <th>Parameter</th>
+                        <th>Formula</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${orderedMetrics.map((metric) => `
+                        <tr>
+                          <td>${escape(metric.key)}</td>
+                          <td>${formatMetricMarkup(metric.compactFormula)}</td>
+                        </tr>
+                      `).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="cluster-fm-system-matrix">
+            <div class="cluster-fm-data-table-wrap">
+              <table class="cluster-fm-data-table">
+                <thead>
+                  <tr>
+                    <th>Company</th>
+                    <th>industrial_weight</th>
+                    <th>infra_dependency</th>
+                    <th>carbon_sensitivity</th>
+                    <th>power_price_sensitivity</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${EXPLORER_COMPANIES.map((company) => `
+                    <tr>
+                      <td>${escape(company.company)}</td>
+                      <td>${company.industrial_weight.toFixed(1)}</td>
+                      <td>${company.infra_dependency.toFixed(1)}</td>
+                      <td>${company.carbon_sensitivity.toFixed(1)}</td>
+                      <td>${company.power_price_sensitivity.toFixed(1)}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
+  function renderSimulationClusterTab(copy) {
+    const simulationUnlocked = typeof root.isClusterSimulationUnlocked === 'function' && root.isClusterSimulationUnlocked();
+    const editorUnlocked = typeof root.isClusterEditorUnlocked === 'function' && root.isClusterEditorUnlocked();
+    const disabledAttr = editorUnlocked ? '' : 'disabled';
+
+    const scenarioTable = `
+      <div class="cluster-sim-card">
+        <div class="cluster-sim-head">
+          <div>
+            <div class="cluster-fm-section-title">Scenario inputs</div>
+            <div class="cluster-fm-section-sub">Editable scenario values on the working 0-1 model scale.</div>
+          </div>
+        </div>
+        <div class="cluster-sim-table-wrap">
+          <table class="cluster-fm-data-table">
+            <thead>
+              <tr>
+                <th>Scenario</th>
+                ${CLUSTER_PARAMETER_KEYS.map((key) => `<th>${escape(copy.labels[key] || CLUSTER_COPY.en.labels[key] || key)}</th>`).join('')}
+              </tr>
+            </thead>
+            <tbody>
+              ${CLUSTER_SCENARIOS.map((scenario, index) => `
+                <tr>
+                  <td>${escape(getScenarioName(scenario))}</td>
+                  ${CLUSTER_PARAMETER_KEYS.map((key) => `
+                    <td>
+                      <input
+                        class="cluster-sim-input"
+                        type="number"
+                        min="0"
+                        max="1"
+                        step="0.01"
+                        value="${Number(scenario[key]).toFixed(2)}"
+                        ${disabledAttr}
+                        onchange="updateClusterScenarioSimulationValue(${index}, '${key}', this.value)"
+                      >
+                    </td>
+                  `).join('')}
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    const companyTable = `
+      <div class="cluster-sim-card">
+        <div class="cluster-sim-head">
+          <div>
+            <div class="cluster-fm-section-title">Company inputs</div>
+            <div class="cluster-fm-section-sub">Editable company fields on the working 0-5 model scale.</div>
+          </div>
+        </div>
+        <div class="cluster-sim-table-wrap">
+          <table class="cluster-fm-data-table">
+            <thead>
+              <tr>
+                <th>Company</th>
+                ${COMPANY_SIMULATION_KEYS.map((key) => `<th>${escape(key)}</th>`).join('')}
+              </tr>
+            </thead>
+            <tbody>
+              ${EXPLORER_COMPANIES.map((company, index) => `
+                <tr>
+                  <td>${escape(company.company)}</td>
+                  ${COMPANY_SIMULATION_KEYS.map((key) => `
+                    <td>
+                      <input
+                        class="cluster-sim-input"
+                        type="number"
+                        min="0"
+                        max="5"
+                        step="0.1"
+                        value="${Number(company[key]).toFixed(1)}"
+                        ${disabledAttr}
+                        onchange="updateClusterCompanySimulationValue(${index}, '${key}', this.value)"
+                      >
+                    </td>
+                  `).join('')}
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    return `
+      <div class="cluster-sim-shell">
+        <section class="cluster-fm-detail theme-cluster">
+          <div class="cluster-structure-intro">
+            <div class="cluster-sim-head">
+              <div>
+                <div class="cluster-fm-section-title">Simulation workspace</div>
+                <div class="cluster-fm-section-sub">Use this tab to inspect or edit the working scenario and company inputs used across Cluster Analysis.</div>
+              </div>
+              <div class="cluster-sim-status">
+                <span class="cluster-sim-badge ${simulationUnlocked ? '' : 'locked'}">Simulation ${simulationUnlocked ? 'unlocked' : 'locked'}</span>
+                <span class="cluster-sim-badge ${editorUnlocked ? '' : 'locked'}">Editor ${editorUnlocked ? 'enabled' : 'view only'}</span>
+              </div>
+            </div>
+            <div class="cluster-sim-note">
+              ${editorUnlocked
+                ? 'Changes are saved immediately in this browser and will be reused after reload.'
+                : 'Unlock Editor Password to change values. Without editor access, the tables remain read-only.'}
+            </div>
+          </div>
+          <div class="cluster-sim-locked-wrap">
+            <div class="cluster-sim-grid">
+              ${scenarioTable}
+              ${companyTable}
+            </div>
+            ${simulationUnlocked ? '' : `
+              <div class="cluster-sim-overlay">
+                <div class="cluster-sim-overlay-card">
+                  <strong>Simulation locked</strong>
+                  <span>Enter the Simulation password section above to activate this tab. Until then, all controls stay blocked.</span>
+                </div>
+              </div>
+            `}
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
+  function renderClusterPlaceholderTab(title) {
+    return `
+      <div class="cluster-companies-shell">
+        <section class="cluster-fm-detail theme-cluster">
+          <div class="cluster-tab-placeholder">
+            <div>
+              <strong>${escape(title)}</strong>
+              <p>This tab is reserved for the next part of the Cluster Analysis module.</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
   function renderClusterAnalysis() {
     ensureClusterStyles();
 
@@ -1622,10 +2692,41 @@
     const matrixTitle = document.getElementById('clusterMatrixTitle');
     const matrixDesc = document.getElementById('clusterMatrixDesc');
     const matrixNote = document.getElementById('clusterScenarioNote');
+    ensureClusterMainTabs(copy);
 
-    if (matrixTitle) matrixTitle.textContent = copy.matrixTitle;
-    if (matrixDesc) matrixDesc.textContent = copy.matrixDesc;
-    if (matrixNote) matrixNote.textContent = copy.matrixNote;
+    const labels = copy.mainTabs || CLUSTER_COPY.en.mainTabs;
+    const tabMeta = {
+      'scenario-squad': {
+        title: copy.matrixTitle,
+        desc: copy.matrixDesc,
+        note: copy.matrixNote,
+      },
+      companies: {
+        title: labels.companies || 'Companies',
+        desc: 'Company roster and baseline fields for the cluster industrial landscape.',
+        note: 'Tab for company-level views inside Cluster Analysis.',
+      },
+      'tab-3': {
+        title: labels.tab3 || 'Structure',
+        desc: 'Core company parameters, formulas, and factor definitions for the cluster model.',
+        note: 'All scores in this structure layer are normalized on a 0-20 scale.',
+      },
+      'tab-4': {
+        title: labels.tab4 || 'Metrics',
+        desc: 'Structural and sensitivity parameters across the core company set.',
+        note: 'Company-level structural weight and exposure fields.',
+      },
+      'tab-5': {
+        title: labels.tab5 || 'Simulation',
+        desc: 'Simulation workspace for scenario and company inputs.',
+        note: 'Simulation access allows viewing. Editor access allows editing and saving browser-side changes.',
+      },
+    };
+    const activeTabMeta = tabMeta[activeClusterMainTab] || tabMeta['scenario-squad'];
+
+    if (matrixTitle) matrixTitle.textContent = activeTabMeta.title;
+    if (matrixDesc) matrixDesc.textContent = activeTabMeta.desc;
+    if (matrixNote) matrixNote.textContent = activeTabMeta.note;
 
     if (!CLUSTER_SCENARIOS[activeClusterScenarioIndex]) {
       activeClusterScenarioIndex = 0;
@@ -1725,6 +2826,23 @@
         </div>
       </div>
     `;
+
+    if (activeClusterMainTab === 'companies') {
+      scenarioGrid.innerHTML = renderCompaniesClusterTab(copy);
+      return;
+    }
+    if (activeClusterMainTab === 'tab-3') {
+      scenarioGrid.innerHTML = renderStructureClusterTab(copy);
+      return;
+    }
+    if (activeClusterMainTab === 'tab-4') {
+      scenarioGrid.innerHTML = renderStructuralSensitivityTabCompact(copy);
+      return;
+    }
+    if (activeClusterMainTab === 'tab-5') {
+      scenarioGrid.innerHTML = renderSimulationClusterTab(copy);
+      return;
+    }
 
     scenarioGrid.innerHTML = `
       <div class="cluster-fm-shell">
@@ -1836,12 +2954,20 @@
     renderExplorerTab(selectedScenario);
   }
 
+  loadClusterSimulationData();
+
   root.ClusterAnalysis = {
     render: renderClusterAnalysis,
     setActiveScenario: setActiveClusterScenario,
     setActiveTab: setActiveClusterVizTab,
+    setActiveMainTab: setActiveClusterMainTab,
+    updateScenarioValue: updateClusterScenarioSimulationValue,
+    updateCompanyValue: updateClusterCompanySimulationValue,
   };
   root.renderClusterAnalysis = renderClusterAnalysis;
   root.setActiveClusterScenario = setActiveClusterScenario;
   root.setActiveClusterVizTab = setActiveClusterVizTab;
+  root.setActiveClusterMainTab = setActiveClusterMainTab;
+  root.updateClusterScenarioSimulationValue = updateClusterScenarioSimulationValue;
+  root.updateClusterCompanySimulationValue = updateClusterCompanySimulationValue;
 })();

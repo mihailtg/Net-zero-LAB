@@ -675,7 +675,27 @@ const I18N = {
     'section.cluster.cardTitle': 'Cluster analysis module',
     'section.cluster.kicker': 'Module in progress',
     'section.cluster.placeholderTitle': 'Cluster analysis is coming soon.',
-    'section.cluster.placeholderDesc': 'This section is reserved for the next phase of the dashboard, where you will add cluster mapping, inter-company linkages, shared infrastructure, and industrial ecosystem insights.'
+    'section.cluster.placeholderDesc': 'This section is reserved for the next phase of the dashboard, where you will add cluster mapping, inter-company linkages, shared infrastructure, and industrial ecosystem insights.',
+    'section.cluster.lock.kicker': 'Protected access',
+    'section.cluster.lock.title': 'Protected section',
+    'section.cluster.lock.desc': 'Enter the password to view Cluster Analysis.',
+    'section.cluster.lock.placeholder': 'Password',
+    'section.cluster.lock.button': 'Unlock',
+    'section.cluster.lock.error': 'Incorrect password. Try again.',
+    'section.cluster.security.simulation': 'Simulation password section',
+    'section.cluster.security.editor': 'Editor Password',
+    'section.cluster.security.simPlaceholder': 'Simulation password',
+    'section.cluster.security.editorPlaceholder': 'Editor password',
+    'section.cluster.security.unlock': 'Unlock',
+    'section.cluster.security.enable': 'Enable',
+    'section.cluster.security.locked': 'Locked',
+    'section.cluster.security.unlocked': 'Unlocked',
+    'section.cluster.security.viewOnly': 'View only',
+    'section.cluster.security.editMode': 'Edit mode',
+    'section.cluster.security.mainFirst': 'Unlock Cluster Analysis first',
+    'section.cluster.security.saved': 'Saved in this browser',
+    'section.cluster.security.simError': 'Incorrect simulation password.',
+    'section.cluster.security.editorError': 'Incorrect editor password.'
   },
   bg: {
     'page.title': 'Net-Zero Lab - декарбонизация на българската химическа индустрия',
@@ -723,9 +743,41 @@ const I18N = {
     'section.cluster.cardTitle': 'Модул за клъстерен анализ',
     'section.cluster.kicker': 'Модулът се подготвя',
     'section.cluster.placeholderTitle': 'Клъстерният анализ ще бъде добавен скоро.',
-    'section.cluster.placeholderDesc': 'Тази секция е запазена за следващата фаза на таблото, където ще добавиш картиране на клъстери, връзки между компаниите, споделена инфраструктура и изводи за индустриалната екосистема.'
+    'section.cluster.placeholderDesc': 'Тази секция е запазена за следващата фаза на таблото, където ще добавиш картиране на клъстери, връзки между компаниите, споделена инфраструктура и изводи за индустриалната екосистема.',
+    'section.cluster.lock.kicker': 'Защитен достъп',
+    'section.cluster.lock.title': 'Защитена секция',
+    'section.cluster.lock.desc': 'Въведи паролата, за да видиш Cluster Analysis.',
+    'section.cluster.lock.placeholder': 'Парола',
+    'section.cluster.lock.button': 'Отключи',
+    'section.cluster.lock.error': 'Грешна парола. Опитай отново.',
+    'section.cluster.security.simulation': 'Simulation password section',
+    'section.cluster.security.editor': 'Editor Password',
+    'section.cluster.security.simPlaceholder': 'Simulation password',
+    'section.cluster.security.editorPlaceholder': 'Editor password',
+    'section.cluster.security.unlock': 'Отключи',
+    'section.cluster.security.enable': 'Enable',
+    'section.cluster.security.locked': 'Заключен',
+    'section.cluster.security.unlocked': 'Отключен',
+    'section.cluster.security.viewOnly': 'Само преглед',
+    'section.cluster.security.editMode': 'Редакция',
+    'section.cluster.security.mainFirst': 'Първо отключи Cluster Analysis',
+    'section.cluster.security.saved': 'Запазено в този браузър',
+    'section.cluster.security.simError': 'Грешна simulation парола.',
+    'section.cluster.security.editorError': 'Грешна editor парола.'
   }
 };
+
+const CLUSTER_ACCESS_PASSWORD_BASE = 'Netzero';
+const CLUSTER_SIMULATION_PASSWORD_BASE = 'Simulation';
+const CLUSTER_EDITOR_PASSWORD_BASE = 'Editor';
+const CLUSTER_ACCESS_STORAGE_KEY = 'nzlClusterAccessUnlocked';
+const CLUSTER_SIMULATION_ACCESS_STORAGE_KEY = 'nzlClusterSimulationUnlocked';
+const CLUSTER_EDITOR_ACCESS_STORAGE_KEY = 'nzlClusterEditorUnlocked';
+let clusterAccessUnlocked = false;
+let clusterSimulationUnlocked = false;
+let clusterEditorUnlocked = false;
+let clusterSimulationErrorVisible = false;
+let clusterEditorErrorVisible = false;
 
 function getLanguage() {
   return document.documentElement.getAttribute('data-lang') || 'en';
@@ -734,6 +786,330 @@ function getLanguage() {
 function translate(key) {
   const lang = getLanguage();
   return I18N[lang]?.[key] || I18N.en[key] || key;
+}
+
+function getClusterAccessDayToken() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function getCurrentClusterAccessPassword() {
+  return `${CLUSTER_ACCESS_PASSWORD_BASE}${new Date().getDate()}`;
+}
+
+function getCurrentClusterSimulationPassword() {
+  return `${CLUSTER_SIMULATION_PASSWORD_BASE}${new Date().getDate()}`;
+}
+
+function getCurrentClusterEditorPassword() {
+  return `${CLUSTER_EDITOR_PASSWORD_BASE}${new Date().getDate()}`;
+}
+
+function readClusterAccessState() {
+  try {
+    clusterAccessUnlocked = localStorage.getItem(CLUSTER_ACCESS_STORAGE_KEY) === getClusterAccessDayToken();
+  } catch (error) {
+    clusterAccessUnlocked = false;
+  }
+}
+
+function readClusterSecondaryAccessState() {
+  try {
+    clusterSimulationUnlocked = localStorage.getItem(CLUSTER_SIMULATION_ACCESS_STORAGE_KEY) === getClusterAccessDayToken();
+    clusterEditorUnlocked = localStorage.getItem(CLUSTER_EDITOR_ACCESS_STORAGE_KEY) === getClusterAccessDayToken();
+    if (clusterEditorUnlocked) clusterSimulationUnlocked = true;
+  } catch (error) {
+    clusterSimulationUnlocked = false;
+    clusterEditorUnlocked = false;
+  }
+}
+
+function persistClusterAccessState(value) {
+  try {
+    if (value) {
+      localStorage.setItem(CLUSTER_ACCESS_STORAGE_KEY, getClusterAccessDayToken());
+    } else {
+      localStorage.removeItem(CLUSTER_ACCESS_STORAGE_KEY);
+    }
+  } catch (error) {
+    // Password persistence is optional.
+  }
+}
+
+function persistDailyClusterFlag(storageKey, value) {
+  try {
+    if (value) {
+      localStorage.setItem(storageKey, getClusterAccessDayToken());
+    } else {
+      localStorage.removeItem(storageKey);
+    }
+  } catch (error) {
+    // Access persistence is optional.
+  }
+}
+
+function isClusterAccessUnlocked() {
+  return clusterAccessUnlocked;
+}
+
+function isClusterSimulationUnlocked() {
+  return clusterSimulationUnlocked;
+}
+
+function isClusterEditorUnlocked() {
+  return clusterEditorUnlocked;
+}
+
+function ensureClusterSecurityStyles() {
+  if (document.getElementById('cluster-security-panel-styles')) return;
+  const style = document.createElement('style');
+  style.id = 'cluster-security-panel-styles';
+  style.textContent = `
+    .cluster-security-panel {
+      min-width: min(420px, 44vw);
+      display: grid;
+      gap: 0.42rem;
+      align-items: stretch;
+      text-align: left;
+      white-space: normal;
+      padding: 0.7rem 0.85rem;
+    }
+    .cluster-security-heading {
+      font-size: 0.72rem;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+    .cluster-security-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      gap: 0.42rem;
+      align-items: center;
+    }
+    .cluster-security-input {
+      min-width: 0;
+      padding: 0.38rem 0.48rem;
+      border: 1px solid rgba(255,255,255,0.22);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.14);
+      color: currentColor;
+      font: inherit;
+      font-size: 0.72rem;
+    }
+    .cluster-security-input::placeholder {
+      color: rgba(255,255,255,0.78);
+    }
+    .cluster-security-input:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+    .cluster-security-button {
+      padding: 0.36rem 0.62rem;
+      border: 1px solid rgba(255,255,255,0.22);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.15);
+      color: currentColor;
+      font: inherit;
+      font-size: 0.7rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .cluster-security-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .cluster-security-state {
+      padding: 0.22rem 0.44rem;
+      border-radius: 999px;
+      font-size: 0.64rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+    }
+    .cluster-security-state.locked {
+      background: rgba(255,255,255,0.14);
+    }
+    .cluster-security-state.unlocked {
+      background: rgba(7, 124, 50, 0.22);
+    }
+    .cluster-security-note,
+    .cluster-security-error {
+      font-size: 0.64rem;
+      line-height: 1.3;
+    }
+    .cluster-security-error {
+      color: #ffe0d0;
+      font-weight: 700;
+    }
+    @media (max-width: 900px) {
+      .cluster-security-panel {
+        min-width: 100%;
+      }
+      .cluster-security-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+function renderClusterSecurityPanel() {
+  const panel = document.getElementById('clusterSecurityPanel');
+  if (!panel) return;
+  ensureClusterSecurityStyles();
+
+  const controlsEnabled = clusterAccessUnlocked;
+  const simulationStateLabel = clusterSimulationUnlocked ? translate('section.cluster.security.unlocked') : translate('section.cluster.security.locked');
+  const editorStateLabel = clusterEditorUnlocked ? translate('section.cluster.security.editMode') : translate('section.cluster.security.viewOnly');
+  const simError = clusterSimulationErrorVisible ? `<div class="cluster-security-error">${escapeHtml(translate('section.cluster.security.simError'))}</div>` : '';
+  const editorError = clusterEditorErrorVisible ? `<div class="cluster-security-error">${escapeHtml(translate('section.cluster.security.editorError'))}</div>` : '';
+  const note = controlsEnabled
+    ? translate('section.cluster.security.saved')
+    : translate('section.cluster.security.mainFirst');
+
+  panel.innerHTML = `
+    <div class="cluster-security-heading">${escapeHtml(translate('section.cluster.security.simulation'))}</div>
+    <form class="cluster-security-row" onsubmit="unlockClusterSimulation(); return false;">
+      <input
+        class="cluster-security-input"
+        id="clusterSimulationPasswordInput"
+        type="password"
+        autocomplete="current-password"
+        placeholder="${escapeHtml(translate('section.cluster.security.simPlaceholder'))}"
+        ${controlsEnabled ? '' : 'disabled'}
+      >
+      <button class="cluster-security-button" type="submit" ${controlsEnabled ? '' : 'disabled'}>${escapeHtml(translate('section.cluster.security.unlock'))}</button>
+      <span class="cluster-security-state ${clusterSimulationUnlocked ? 'unlocked' : 'locked'}">${escapeHtml(simulationStateLabel)}</span>
+    </form>
+    ${simError}
+    <div class="cluster-security-heading">${escapeHtml(translate('section.cluster.security.editor'))}</div>
+    <form class="cluster-security-row" onsubmit="unlockClusterEditor(); return false;">
+      <input
+        class="cluster-security-input"
+        id="clusterEditorPasswordInput"
+        type="password"
+        autocomplete="current-password"
+        placeholder="${escapeHtml(translate('section.cluster.security.editorPlaceholder'))}"
+        ${controlsEnabled ? '' : 'disabled'}
+      >
+      <button class="cluster-security-button" type="submit" ${controlsEnabled ? '' : 'disabled'}>${escapeHtml(translate('section.cluster.security.enable'))}</button>
+      <span class="cluster-security-state ${clusterEditorUnlocked ? 'unlocked' : 'locked'}">${escapeHtml(editorStateLabel)}</span>
+    </form>
+    ${editorError}
+    <div class="cluster-security-note">${escapeHtml(note)}</div>
+  `;
+}
+
+function renderClusterAccessState() {
+  const gate = document.getElementById('clusterAccessGate');
+  const content = document.getElementById('clusterProtectedContent');
+  const kicker = document.querySelector('.cluster-access-kicker');
+  const title = document.getElementById('clusterAccessTitle');
+  const desc = document.getElementById('clusterAccessDesc');
+  const input = document.getElementById('clusterAccessInput');
+  const button = document.getElementById('clusterAccessButton');
+  const error = document.getElementById('clusterAccessError');
+  if (!gate || !content) return;
+
+  if (kicker) kicker.textContent = translate('section.cluster.lock.kicker');
+  if (title) title.textContent = translate('section.cluster.lock.title');
+  if (desc) desc.textContent = translate('section.cluster.lock.desc');
+  if (input) {
+    input.placeholder = translate('section.cluster.lock.placeholder');
+    input.setAttribute('aria-label', translate('section.cluster.lock.placeholder'));
+  }
+  if (button) button.textContent = translate('section.cluster.lock.button');
+  if (error && error.dataset.visible === 'true') {
+    error.textContent = translate('section.cluster.lock.error');
+  }
+
+  gate.hidden = clusterAccessUnlocked;
+  content.hidden = !clusterAccessUnlocked;
+
+  if (clusterAccessUnlocked) {
+    if (input) input.value = '';
+    if (error) {
+      error.hidden = true;
+      error.dataset.visible = 'false';
+      error.textContent = '';
+    }
+  }
+
+  renderClusterSecurityPanel();
+}
+
+function unlockClusterAnalysis() {
+  const input = document.getElementById('clusterAccessInput');
+  const error = document.getElementById('clusterAccessError');
+  const value = input ? input.value.trim() : '';
+
+  if (value === getCurrentClusterAccessPassword()) {
+    clusterAccessUnlocked = true;
+    persistClusterAccessState(true);
+    renderClusterAccessState();
+    renderClusterAnalysis();
+    return;
+  }
+
+  if (error) {
+    error.hidden = false;
+    error.dataset.visible = 'true';
+    error.textContent = translate('section.cluster.lock.error');
+  }
+  if (input) {
+    input.focus();
+    input.select();
+  }
+}
+
+function unlockClusterSimulation() {
+  if (!clusterAccessUnlocked) {
+    renderClusterSecurityPanel();
+    return;
+  }
+
+  const input = document.getElementById('clusterSimulationPasswordInput');
+  const value = input ? input.value.trim() : '';
+
+  if (value === getCurrentClusterSimulationPassword()) {
+    clusterSimulationUnlocked = true;
+    clusterSimulationErrorVisible = false;
+    persistDailyClusterFlag(CLUSTER_SIMULATION_ACCESS_STORAGE_KEY, true);
+    renderClusterSecurityPanel();
+    renderClusterAnalysis();
+    return;
+  }
+
+  clusterSimulationErrorVisible = true;
+  renderClusterSecurityPanel();
+  document.getElementById('clusterSimulationPasswordInput')?.focus();
+}
+
+function unlockClusterEditor() {
+  if (!clusterAccessUnlocked) {
+    renderClusterSecurityPanel();
+    return;
+  }
+
+  const input = document.getElementById('clusterEditorPasswordInput');
+  const value = input ? input.value.trim() : '';
+
+  if (value === getCurrentClusterEditorPassword()) {
+    clusterEditorUnlocked = true;
+    clusterSimulationUnlocked = true;
+    clusterEditorErrorVisible = false;
+    clusterSimulationErrorVisible = false;
+    persistDailyClusterFlag(CLUSTER_EDITOR_ACCESS_STORAGE_KEY, true);
+    persistDailyClusterFlag(CLUSTER_SIMULATION_ACCESS_STORAGE_KEY, true);
+    renderClusterSecurityPanel();
+    renderClusterAnalysis();
+    return;
+  }
+
+  clusterEditorErrorVisible = true;
+  renderClusterSecurityPanel();
+  document.getElementById('clusterEditorPasswordInput')?.focus();
 }
 
 function setLanguage(lang) {
@@ -759,10 +1135,12 @@ function setLanguage(lang) {
     // Language persistence is optional; the switch still works when storage is blocked.
   }
 
-  // Cluster Analysis now lives in cluster-analysis.js and keeps the same global render hook.
-  renderClusterAnalysis();
+  renderClusterAccessState();
+  if (isClusterAccessUnlocked()) {
+    renderClusterAnalysis();
+  }
   renderDatasetTables();
-  updateThemeIcons(document.documentElement.getAttribute('data-theme') || 'light');
+  updateThemeIcons(document.documentElement.getAttribute('data-theme') || 'dark');
 }
 
 function initLanguageControl() {
@@ -782,8 +1160,9 @@ function initLanguageControl() {
 // ── THEME ────────────────────────────────────
 (function() {
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
-  updateThemeIcons(prefersDark ? 'dark' : 'light');
+  const initialTheme = prefersDark ? 'dark' : 'dark';
+  document.documentElement.setAttribute('data-theme', initialTheme);
+  updateThemeIcons(initialTheme);
 })();
 
 function toggleTheme() {
@@ -863,7 +1242,16 @@ function showSection(id) {
   // Lazy-init section charts
   if (id === 'emissions') { setTimeout(() => { buildIppuCharts(); updateDashboardWithDbData(); }, 50); }
   if (id === 'dataset') { setTimeout(renderDatasetTables, 50); }
-  if (id === 'cluster') { setTimeout(renderClusterAnalysis, 50); }
+  if (id === 'cluster') {
+    setTimeout(() => {
+      renderClusterAccessState();
+      if (isClusterAccessUnlocked()) {
+        renderClusterAnalysis();
+      } else {
+        document.getElementById('clusterAccessInput')?.focus();
+      }
+    }, 50);
+  }
   if (id === 'cbam')      { if (cbamChartInstance) { cbamChartInstance.destroy(); cbamChartInstance = null; } setTimeout(() => { renderPriceChips(); calcCBAM(); }, 50); }
   if (id === 'investments') { if (invRangeChartInstance) { invRangeChartInstance.destroy(); invRangeChartInstance = null; } setTimeout(buildInvRangeChart, 50); }
   if (id === 'roi') {
@@ -906,6 +1294,10 @@ function refreshChartsForTheme() {
     }
     if (activeSection === 'section-investments') buildInvRangeChart();
     if (activeSection === 'section-roi') initRoi();
+    if (activeSection === 'section-cluster') {
+      renderClusterAccessState();
+      if (isClusterAccessUnlocked()) renderClusterAnalysis();
+    }
     if (activeSection === 'section-emissions') {
       if (document.getElementById('emsp-ippu')?.classList.contains('active')) buildIppuCharts();
       if (document.getElementById('emsp-subsector')?.classList.contains('active')) buildSubsectorCharts();
@@ -1730,14 +2122,23 @@ function renderClusterAnalysis() {
 
 // ── INIT ─────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  readClusterAccessState();
+  readClusterSecondaryAccessState();
   initLanguageControl();
   initFontSizeControl();
+  renderClusterAccessState();
   renderCompanyGrid();
   renderDatasetTables();
   animateKPIs();
   setTimeout(buildCharts, 100);
   setTimeout(updateDashboardWithDbData, 250);
 });
+
+window.unlockClusterAnalysis = unlockClusterAnalysis;
+window.unlockClusterSimulation = unlockClusterSimulation;
+window.unlockClusterEditor = unlockClusterEditor;
+window.isClusterSimulationUnlocked = isClusterSimulationUnlocked;
+window.isClusterEditorUnlocked = isClusterEditorUnlocked;
 
 /* ═══════════════════════════════════════════════
    CBAM CALCULATOR LOGIC

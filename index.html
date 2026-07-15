@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en" data-lang="en" data-theme="light">
+<html lang="en" data-lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -2634,18 +2634,39 @@
         <h1 class="section-title" data-i18n="section.cluster.title">Cluster Analysis</h1>
         <p class="section-desc" data-i18n="section.cluster.desc">Scenario matrix showing how each policy scenario changes the model inputs.</p>
       </div>
-      <div class="pill pill-green" data-i18n="section.cluster.pill">5 scenarios · apply_scenario()</div>
+      <div class="pill pill-green cluster-security-panel" id="clusterSecurityPanel"></div>
     </div>
 
-    <div class="card mt-4">
-      <div class="card-head">
-        <div>
-          <div class="card-title" id="clusterMatrixTitle">Scenario profiles</div>
-          <div class="card-sub" id="clusterMatrixDesc">Five policy scenarios presented as compact profiles on a 0-1 scale.</div>
+    <div class="cluster-access-shell">
+      <div class="card mt-4 cluster-access-card" id="clusterAccessGate">
+        <div class="cluster-access-kicker">Protected access</div>
+        <div class="cluster-access-title" id="clusterAccessTitle">Protected section</div>
+        <div class="cluster-access-desc" id="clusterAccessDesc">Enter the password to view Cluster Analysis.</div>
+        <form class="cluster-access-form" onsubmit="unlockClusterAnalysis(); return false;">
+          <input
+            class="cluster-access-input"
+            id="clusterAccessInput"
+            type="password"
+            autocomplete="current-password"
+            placeholder="Password"
+          >
+          <button class="cluster-access-button" id="clusterAccessButton" type="submit">Unlock</button>
+        </form>
+        <div class="cluster-access-error" id="clusterAccessError" hidden></div>
+      </div>
+
+      <div id="clusterProtectedContent" hidden>
+        <div class="card mt-4">
+          <div class="card-head">
+            <div>
+              <div class="card-title" id="clusterMatrixTitle">Scenario profiles</div>
+              <div class="card-sub" id="clusterMatrixDesc">Five policy scenarios presented as compact profiles on a 0-1 scale.</div>
+            </div>
+          </div>
+          <div class="cluster-scenario-grid" id="clusterScenarioGrid"></div>
+          <div class="cluster-table-note" id="clusterScenarioNote"></div>
         </div>
       </div>
-      <div class="cluster-scenario-grid" id="clusterScenarioGrid"></div>
-      <div class="cluster-table-note" id="clusterScenarioNote"></div>
     </div>
   </section>
 
