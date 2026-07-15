@@ -152,6 +152,25 @@
     { theme: 'defensive', L: 25.0, k: 0.20, t0: 15.0, color: '#4a3aa7', dash: 'longdash' },
   ];
 
+  const SYSTEM_EFFECT_AXES = ['Business', 'Technology', 'Mobility', 'Market', 'Infra', 'Governance'];
+  const SYSTEM_EFFECT_MATRIX = {
+    carbon_pressure: [3, 1, 1, 1, 0, 1],
+    stability: [3, 1, 3, 1, 0, 3],
+    permitting: [0, 2, 3, 0, 1, 3],
+    power_access: [1, 3, 1, 0, 3, 0],
+    power_price_visibility: [2, 2, 1, 1, 2, 1],
+    grid_readiness: [0, 3, 2, 0, 3, 1],
+    hydrogen: [0, 3, 1, 0, 3, 0],
+    co2_infra: [0, 3, 1, 0, 3, 0],
+    finance: [2, 2, 3, 1, 1, 1],
+    engineering_capacity: [0, 2, 3, 0, 1, 0],
+    cluster_coordination: [1, 2, 3, 2, 2, 2],
+    market_pull: [3, 0, 1, 3, 0, 0],
+    market_push: [2, 2, 1, 3, 0, 0],
+    offtake_bankability: [3, 1, 2, 3, 0, 1],
+    certification_traceability: [2, 1, 1, 3, 0, 1],
+  };
+
   const EXPLORER_TABS = ['phaseMap', 'scenarioFrontier', 'morphologyNetwork', 'bottleneckHeatmap', 'dataTable'];
 
   const EXPLORER_COMPANIES = [
@@ -382,6 +401,10 @@
 
   CLUSTER_COPY.bg.trajectoryTitle = 'Scenario trajectories';
   CLUSTER_COPY.bg.trajectorySubtitle = 'Нормализирани sigmoid криви с общо начално състояние S₀ през 2025.';
+  CLUSTER_COPY.en.systemMatrixTitle = 'System effect matrix';
+  CLUSTER_COPY.en.systemMatrixSubtitle = '3 = strong effect, 2 = medium, 1 = weak, 0 = almost none.';
+  CLUSTER_COPY.bg.systemMatrixTitle = 'Матричен изглед по ефект върху системата';
+  CLUSTER_COPY.bg.systemMatrixSubtitle = '3 = силен ефект, 2 = среден, 1 = слаб, 0 = почти няма.';
 
   function ensureClusterStyles() {
     if (document.getElementById('cluster-analysis-styles')) return;
@@ -399,8 +422,8 @@
         grid-template-columns: minmax(0, 1.18fr) minmax(320px, 0.94fr);
         grid-template-areas:
           "roster detail"
-          "trajectory detail"
           "focus detail"
+          "trajectory matrix"
           "explorer explorer";
         gap: 1rem;
         align-items: start;
@@ -415,6 +438,7 @@
       .cluster-fm-trajectory-card { grid-area: trajectory; }
       .cluster-fm-focus-section-card { grid-area: focus; }
       .cluster-fm-scenario-card { grid-area: detail; }
+      .cluster-fm-system-matrix-card { grid-area: matrix; }
       .cluster-fm-explorer-card { grid-area: explorer; }
       .cluster-fm-roster,
       .cluster-fm-detail {
@@ -742,6 +766,10 @@
       .cluster-fm-focus-section-card .cluster-fm-focus-grid {
         padding-bottom: 0.9rem;
       }
+      .cluster-fm-system-matrix-card .cluster-fm-section-head {
+        margin-top: 0;
+        padding-top: 1.1rem;
+      }
       .cluster-fm-focus-card {
         padding: 0.6rem 0.64rem;
         border: 1px solid var(--fm-line);
@@ -894,6 +922,88 @@
       }
       .cluster-fm-attribute-raw,
       .cluster-fm-attribute-delta { display: none; }
+      .cluster-fm-system-matrix {
+        padding: 0 0.9rem 0.9rem;
+      }
+      .cluster-fm-system-matrix-wrap {
+        overflow-x: auto;
+        border: 1px solid rgba(122, 216, 247, 0.16);
+        border-radius: 12px;
+        background: linear-gradient(180deg, rgba(122, 216, 247, 0.04), rgba(7, 18, 28, 0.3));
+      }
+      .cluster-fm-system-matrix-table {
+        width: 100%;
+        min-width: 0;
+        table-layout: fixed;
+        border-collapse: collapse;
+      }
+      .cluster-fm-system-matrix-table th,
+      .cluster-fm-system-matrix-table td {
+        padding: 0.3rem 0.24rem;
+        border-bottom: 1px solid rgba(119, 196, 220, 0.1);
+        text-align: center;
+        vertical-align: middle;
+      }
+      .cluster-fm-system-matrix-table thead th {
+        color: var(--fm-muted);
+        font-family: 'DM Mono', monospace;
+        font-size: 0.42rem;
+        line-height: 1.15;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        background: rgba(122, 216, 247, 0.05);
+        white-space: normal;
+      }
+      .cluster-fm-system-matrix-table thead th:first-child,
+      .cluster-fm-system-matrix-table tbody td:first-child {
+        text-align: left;
+        background: linear-gradient(180deg, rgba(15, 39, 58, 0.98), rgba(8, 23, 35, 0.98));
+      }
+      .cluster-fm-system-matrix-table thead th:first-child {
+        width: 38%;
+      }
+      .cluster-fm-system-matrix-table tbody td:first-child {
+        color: var(--fm-text);
+        font-size: 0.46rem;
+        font-weight: 700;
+        line-height: 1.15;
+        white-space: normal;
+        word-break: break-word;
+      }
+      .cluster-fm-system-matrix-table tbody tr:hover td {
+        background: rgba(122, 216, 247, 0.03);
+      }
+      .cluster-fm-system-matrix-table tbody tr:hover td:first-child {
+        background: linear-gradient(180deg, rgba(18, 44, 63, 0.98), rgba(10, 28, 41, 0.98));
+      }
+      .cluster-fm-matrix-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 1.15rem;
+        height: 1.05rem;
+        padding: 0 0.1rem;
+        border-radius: 999px;
+        font-family: 'DM Mono', monospace;
+        font-size: 0.47rem;
+        font-weight: 700;
+      }
+      .cluster-fm-matrix-pill.level-0 {
+        color: #8fa8b8;
+        background: rgba(143, 168, 184, 0.12);
+      }
+      .cluster-fm-matrix-pill.level-1 {
+        color: #7ad8f7;
+        background: rgba(122, 216, 247, 0.12);
+      }
+      .cluster-fm-matrix-pill.level-2 {
+        color: #f4c563;
+        background: rgba(244, 197, 99, 0.14);
+      }
+      .cluster-fm-matrix-pill.level-3 {
+        color: #7ee3a5;
+        background: rgba(126, 227, 165, 0.14);
+      }
       .cluster-fm-row-stat.cluster-score-high,
       .cluster-fm-focus-head strong.cluster-score-high,
       .cluster-fm-overall strong.cluster-score-high,
@@ -919,9 +1029,10 @@
           grid-template-columns: 1fr;
           grid-template-areas:
             "roster"
-            "trajectory"
             "focus"
             "detail"
+            "trajectory"
+            "matrix"
             "explorer";
         }
         .cluster-fm-focus-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -944,6 +1055,7 @@
         .cluster-fm-attribute-body { grid-template-columns: 1fr; }
         .cluster-fm-detail-copy h3 { font-size: 0.97rem; }
         .cluster-fm-info-tip { width: min(180px, 68vw); }
+        .cluster-fm-system-matrix { padding-left: 0.7rem; padding-right: 0.7rem; }
       }
     `;
 
@@ -1585,6 +1697,35 @@
       `;
     }).join('');
 
+    const systemMatrixRows = CLUSTER_PARAMETER_KEYS.map((key) => {
+      const label = copy.labels[key] || CLUSTER_COPY.en.labels[key] || key;
+      const values = SYSTEM_EFFECT_MATRIX[key] || [];
+      return `
+        <tr>
+          <td>${escape(label)}</td>
+          ${values.map((value) => `
+            <td><span class="cluster-fm-matrix-pill level-${value}">${value}</span></td>
+          `).join('')}
+        </tr>
+      `;
+    }).join('');
+
+    const systemMatrix = `
+      <div class="cluster-fm-system-matrix">
+        <div class="cluster-fm-system-matrix-wrap">
+          <table class="cluster-fm-system-matrix-table">
+            <thead>
+              <tr>
+                <th>${escape(copy.attributeLabel)}</th>
+                ${SYSTEM_EFFECT_AXES.map((axis) => `<th>${escape(axis)}</th>`).join('')}
+              </tr>
+            </thead>
+            <tbody>${systemMatrixRows}</tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
     scenarioGrid.innerHTML = `
       <div class="cluster-fm-shell">
         <section class="cluster-fm-roster cluster-fm-roster-card">
@@ -1662,6 +1803,16 @@
           <div class="cluster-fm-attributes">
             <div class="cluster-fm-attribute-body">${attributeRows}</div>
           </div>
+        </section>
+
+        <section class="cluster-fm-detail cluster-fm-system-matrix-card theme-${escape(selectedScenario.theme || 'cluster')}">
+          <div class="cluster-fm-section-head">
+            <div>
+              <div class="cluster-fm-section-title">${escape(copy.systemMatrixTitle || 'System effect matrix')}</div>
+              <div class="cluster-fm-section-sub">${escape(copy.systemMatrixSubtitle || '')}</div>
+            </div>
+          </div>
+          ${systemMatrix}
         </section>
 
         <section class="cluster-fm-detail cluster-fm-explorer-card theme-${escape(selectedScenario.theme || 'cluster')}">
