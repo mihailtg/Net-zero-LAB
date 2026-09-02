@@ -230,7 +230,7 @@ const DB = {
       "chemicals_1a2c": 248.73,
       "pulp_paper_1a2d": 136.3,
       "lime_2a2": 213.45,
-      "clinker_2a1": 89163.0,
+      "clinker_2a1": 891.63,
       "soda_ash_process_2a4b": 94.4,
       "carbonate_desox_2a4d": 610.83,
       "ammonia_2b1": 802.18,
@@ -626,7 +626,7 @@ const DB = {
 // ── LANGUAGE SWITCH ─────────────────────────
 const I18N = {
   en: {
-    'page.title': 'Net-Zero Lab - Bulgarian Chemical Industry Decarbonization',
+    'page.title': 'Net-Zero Lab - Bulgarian Chemical & Industrial Decarbonization',
     'brand.subtitle': 'BG Chemical Industry',
     'nav.overview': 'Overview',
     'nav.companies': 'Companies',
@@ -639,8 +639,19 @@ const I18N = {
     'nav.cbam': 'CBAM & ETS Cost Calculator',
     'nav.netzerolab': 'Net-Zero Lab',
     'nav.cluster': 'Cluster Analysis',
+    'nav.geography': 'Industrial Geography',
     'controls.text': 'Text',
-    'sidebar.sources': 'Data sources: European Commission · Bulgaria MREW · CEFIC · EBRD',
+    'controls.langGroup': 'Language switch',
+    'controls.switchToEn': 'Switch to English',
+    'controls.switchToBg': 'Switch to Bulgarian',
+    'controls.fontGroup': 'Font size controls',
+    'controls.fontDecrease': 'Decrease font size',
+    'controls.fontIncrease': 'Increase font size',
+    'controls.fontScale': 'Font size scale',
+    'controls.toggleTheme': 'Toggle theme',
+    'controls.toggleMenu': 'Toggle menu',
+    'alert.cdnFailure': 'Some charts could not load a required script from an external CDN. Charts on this page may not render. Try reloading, or check your network/ad-blocker.',
+    'sidebar.sources': 'Data sources: European Commission · Bulgaria MoEW · CEFIC · EBRD',
     'theme.light': 'Light mode',
     'theme.dark': 'Dark mode',
     'section.dashboard.title': 'Overview Dashboard',
@@ -668,22 +679,31 @@ const I18N = {
     'section.investments.pill': 'Estimates · 2026',
     'section.cbam.title': 'CBAM & ETS Cost Calculator',
     'section.cbam.desc': 'Estimate 2026–2034 carbon cost exposure from CBAM-linked free allocation phaseout and EU ETS assumptions, by company and product',
-    'section.cbam.pill': 'Live Formula · Apr 2026',
+    'section.cbam.pill': 'Live Formula · 2026',
     'section.cluster.title': 'Cluster Analysis',
-    'section.cluster.desc': 'Scenario matrix showing how each policy scenario changes the model inputs.',
-    'section.cluster.pill': '5 scenarios · apply_scenario()',
+    'section.cluster.desc': 'Integrated scenario, company, network, and decision analysis on a consistent 0-20 scale.',
+    'section.cluster.pill': '7 scenarios · apply_scenario()',
     'section.cluster.cardTitle': 'Cluster analysis module',
     'section.cluster.kicker': 'Module in progress',
     'section.cluster.placeholderTitle': 'Cluster analysis is coming soon.',
     'section.cluster.placeholderDesc': 'This section is reserved for the next phase of the dashboard, where you will add cluster mapping, inter-company linkages, shared infrastructure, and industrial ecosystem insights.',
-    'section.cluster.lock.kicker': 'Protected access',
-    'section.cluster.lock.title': 'Protected section',
-    'section.cluster.lock.desc': 'Enter the password to view Cluster Analysis.',
-    'section.cluster.lock.placeholder': 'Password',
+    'section.cluster.lock.kicker': 'Preview access',
+    'section.cluster.lock.title': 'Preview section',
+    'section.cluster.lock.desc': 'This module is in preview. Enter today\'s access code to view it - it is not a security control, just a soft gate while the module is finished. Contact the Net-Zero Lab team for the current code.',
+    'section.cluster.lock.placeholder': 'Access code',
     'section.cluster.lock.button': 'Unlock',
-    'section.cluster.lock.error': 'Incorrect password. Try again.',
-    'section.cluster.security.simulation': 'Simulation password section',
-    'section.cluster.security.editor': 'Editor Password',
+    'section.cluster.lock.error': 'Incorrect access code. Try again.',
+    'section.geography.title': 'Industrial Geography',
+    'section.geography.desc': "Territorial distribution of Bulgaria's industrial ETS Top 20, with a separate power, heat, and district-heating context layer.",
+    'section.geography.pill': '20 analysed + 28 context · EU ETS 2024',
+    'section.geography.lock.kicker': 'Preview access',
+    'section.geography.lock.title': 'Preview section',
+    'section.geography.lock.desc': 'This module is in preview. Enter today\'s access code to view it - it is not a security control, just a soft gate while the module is finished. Contact the Net-Zero Lab team for the current code.',
+    'section.geography.lock.placeholder': 'Access code',
+    'section.geography.lock.button': 'Unlock',
+    'section.geography.lock.error': 'Incorrect access code. Try again.',
+    'section.cluster.security.simulation': 'Simulation access',
+    'section.cluster.security.editor': 'Editor access',
     'section.cluster.security.simPlaceholder': 'Simulation password',
     'section.cluster.security.editorPlaceholder': 'Editor password',
     'section.cluster.security.unlock': 'Unlock',
@@ -698,7 +718,7 @@ const I18N = {
     'section.cluster.security.editorError': 'Incorrect editor password.'
   },
   bg: {
-    'page.title': 'Net-Zero Lab - декарбонизация на българската химическа индустрия',
+    'page.title': 'Net-Zero Lab - декарбонизация на българската химическа и индустриална дейност',
     'brand.subtitle': 'Химическа индустрия BG',
     'nav.overview': 'Обзор',
     'nav.companies': 'Компании',
@@ -710,7 +730,19 @@ const I18N = {
     'nav.cbam': 'CBAM & ETS',
     'nav.netzerolab': 'Net-Zero Lab',
     'nav.cluster': 'Клъстерен анализ',
+    'nav.geography': 'Индустриална география',
+    'nav.dataset': 'Набор от данни',
     'controls.text': 'Текст',
+    'controls.langGroup': 'Смяна на езика',
+    'controls.switchToEn': 'Превключи на английски',
+    'controls.switchToBg': 'Превключи на български',
+    'controls.fontGroup': 'Настройки на размера на текста',
+    'controls.fontDecrease': 'Намали размера на текста',
+    'controls.fontIncrease': 'Увеличи размера на текста',
+    'controls.fontScale': 'Мащаб на текста',
+    'controls.toggleTheme': 'Смяна на темата',
+    'controls.toggleMenu': 'Смяна на менюто',
+    'alert.cdnFailure': 'Част от графиките не успяха да заредят необходим скрипт от външна CDN мрежа. Графиките на тази страница може да не се визуализират. Опитайте да презаредите страницата или проверете връзката/ad-blocker-а си.',
     'sidebar.sources': 'Източници: Европейска комисия · МОСВ · CEFIC · ЕБВР',
     'theme.light': 'Светъл режим',
     'theme.dark': 'Тъмен режим',
@@ -724,6 +756,9 @@ const I18N = {
     'section.emissions.title': 'Данни за емисиите',
     'section.emissions.desc': 'Официален национален инвентар на ПГ на България · UNFCCC CRF · 2010-2023',
     'section.emissions.pill': 'Официални · 2023',
+    'section.dataset.title': 'Структуриран набор от данни',
+    'section.dataset.desc': 'Табличен изглед на изходните данни, историческите редове и регистъра на компаниите зад таблото',
+    'section.dataset.pill': '6 генерирани таблици',
     'section.policy.title': 'Политики и регулации',
     'section.policy.desc': 'Регулаторната рамка, която оформя индустриалната декарбонизация в България',
     'section.netzerolab.title': 'Net-Zero Lab',
@@ -736,34 +771,43 @@ const I18N = {
     'section.investments.pill': 'Оценки · 2026',
     'section.cbam.title': 'CBAM & ETS калкулатор',
     'section.cbam.desc': 'Оценка на въглеродната експозиция 2026-2034 от CBAM-свързаното намаляване на безплатните квоти и ETS допускания, по компания и продукт',
-    'section.cbam.pill': 'Жива формула · апр 2026',
+    'section.cbam.pill': 'Жива формула · 2026',
     'section.cluster.title': 'Клъстерен анализ',
-    'section.cluster.desc': 'Матрица със сценарии, показваща как всеки политически сценарий променя входовете на модела.',
-    'section.cluster.pill': '5 сценария · apply_scenario()',
+    'section.cluster.desc': 'Интегриран анализ на сценарии, компании, мрежи и решения по единна скала 0-20.',
+    'section.cluster.pill': '7 сценария · apply_scenario()',
     'section.cluster.cardTitle': 'Модул за клъстерен анализ',
     'section.cluster.kicker': 'Модулът се подготвя',
     'section.cluster.placeholderTitle': 'Клъстерният анализ ще бъде добавен скоро.',
     'section.cluster.placeholderDesc': 'Тази секция е запазена за следващата фаза на таблото, където ще добавиш картиране на клъстери, връзки между компаниите, споделена инфраструктура и изводи за индустриалната екосистема.',
-    'section.cluster.lock.kicker': 'Защитен достъп',
-    'section.cluster.lock.title': 'Защитена секция',
-    'section.cluster.lock.desc': 'Въведи паролата, за да видиш Cluster Analysis.',
-    'section.cluster.lock.placeholder': 'Парола',
+    'section.cluster.lock.kicker': 'Предварителен достъп',
+    'section.cluster.lock.title': 'Секция в преглед',
+    'section.cluster.lock.desc': 'Този модул е в процес на завършване. Въведи дневния код за достъп, за да го видиш - той не е защитна мярка, а само временна врата, докато модулът бъде довършен. За текущия код се свържи с екипа на Net-Zero Lab.',
+    'section.cluster.lock.placeholder': 'Код за достъп',
     'section.cluster.lock.button': 'Отключи',
-    'section.cluster.lock.error': 'Грешна парола. Опитай отново.',
-    'section.cluster.security.simulation': 'Simulation password section',
-    'section.cluster.security.editor': 'Editor Password',
-    'section.cluster.security.simPlaceholder': 'Simulation password',
-    'section.cluster.security.editorPlaceholder': 'Editor password',
+    'section.cluster.lock.error': 'Грешен код за достъп. Опитай отново.',
+    'section.geography.title': 'Индустриална география',
+    'section.geography.desc': 'Териториално разпределение на индустриалните ETS Top 20 в България с отделен контекстен слой за електро-, топлоенергийни и топлофикационни инсталации.',
+    'section.geography.pill': '20 анализирани + 28 контекстни · EU ETS 2024',
+    'section.geography.lock.kicker': 'Предварителен достъп',
+    'section.geography.lock.title': 'Секция в преглед',
+    'section.geography.lock.desc': 'Този модул е в процес на завършване. Въведи дневния код за достъп, за да го видиш - той не е защитна мярка, а само временна врата, докато модулът бъде довършен. За текущия код се свържи с екипа на Net-Zero Lab.',
+    'section.geography.lock.placeholder': 'Код за достъп',
+    'section.geography.lock.button': 'Отключи',
+    'section.geography.lock.error': 'Грешен код за достъп. Опитай отново.',
+    'section.cluster.security.simulation': 'Достъп за симулация',
+    'section.cluster.security.editor': 'Достъп за редактор',
+    'section.cluster.security.simPlaceholder': 'Парола за симулация',
+    'section.cluster.security.editorPlaceholder': 'Парола за редактор',
     'section.cluster.security.unlock': 'Отключи',
-    'section.cluster.security.enable': 'Enable',
+    'section.cluster.security.enable': 'Активирай',
     'section.cluster.security.locked': 'Заключен',
     'section.cluster.security.unlocked': 'Отключен',
     'section.cluster.security.viewOnly': 'Само преглед',
     'section.cluster.security.editMode': 'Редакция',
     'section.cluster.security.mainFirst': 'Първо отключи Cluster Analysis',
     'section.cluster.security.saved': 'Запазено в този браузър',
-    'section.cluster.security.simError': 'Грешна simulation парола.',
-    'section.cluster.security.editorError': 'Грешна editor парола.'
+    'section.cluster.security.simError': 'Грешна парола за симулация.',
+    'section.cluster.security.editorError': 'Грешна парола за редактор.'
   }
 };
 
@@ -773,11 +817,14 @@ const CLUSTER_EDITOR_PASSWORD_BASE = 'Editor';
 const CLUSTER_ACCESS_STORAGE_KEY = 'nzlClusterAccessUnlocked';
 const CLUSTER_SIMULATION_ACCESS_STORAGE_KEY = 'nzlClusterSimulationUnlocked';
 const CLUSTER_EDITOR_ACCESS_STORAGE_KEY = 'nzlClusterEditorUnlocked';
+const INDUSTRIAL_GEOGRAPHY_ACCESS_PASSWORD_BASE = 'Netzero';
+const INDUSTRIAL_GEOGRAPHY_ACCESS_STORAGE_KEY = 'nzlIndustrialGeographyAccessUnlocked';
 let clusterAccessUnlocked = false;
 let clusterSimulationUnlocked = false;
 let clusterEditorUnlocked = false;
 let clusterSimulationErrorVisible = false;
 let clusterEditorErrorVisible = false;
+let industrialGeographyAccessUnlocked = false;
 
 function getLanguage() {
   return document.documentElement.getAttribute('data-lang') || 'en';
@@ -800,6 +847,10 @@ function getCurrentClusterAccessPassword() {
   return `${CLUSTER_ACCESS_PASSWORD_BASE}${new Date().getDate()}`;
 }
 
+function getCurrentIndustrialGeographyPassword() {
+  return `${INDUSTRIAL_GEOGRAPHY_ACCESS_PASSWORD_BASE}${new Date().getDate()}`;
+}
+
 function getCurrentClusterSimulationPassword() {
   return `${CLUSTER_SIMULATION_PASSWORD_BASE}${new Date().getDate()}`;
 }
@@ -813,6 +864,14 @@ function readClusterAccessState() {
     clusterAccessUnlocked = localStorage.getItem(CLUSTER_ACCESS_STORAGE_KEY) === getClusterAccessDayToken();
   } catch (error) {
     clusterAccessUnlocked = false;
+  }
+}
+
+function readIndustrialGeographyAccessState() {
+  try {
+    industrialGeographyAccessUnlocked = localStorage.getItem(INDUSTRIAL_GEOGRAPHY_ACCESS_STORAGE_KEY) === getClusterAccessDayToken();
+  } catch (error) {
+    industrialGeographyAccessUnlocked = false;
   }
 }
 
@@ -839,6 +898,18 @@ function persistClusterAccessState(value) {
   }
 }
 
+function persistIndustrialGeographyAccessState(value) {
+  try {
+    if (value) {
+      localStorage.setItem(INDUSTRIAL_GEOGRAPHY_ACCESS_STORAGE_KEY, getClusterAccessDayToken());
+    } else {
+      localStorage.removeItem(INDUSTRIAL_GEOGRAPHY_ACCESS_STORAGE_KEY);
+    }
+  } catch (error) {
+    // Password persistence is optional.
+  }
+}
+
 function persistDailyClusterFlag(storageKey, value) {
   try {
     if (value) {
@@ -855,6 +926,10 @@ function isClusterAccessUnlocked() {
   return clusterAccessUnlocked;
 }
 
+function isIndustrialGeographyUnlocked() {
+  return industrialGeographyAccessUnlocked;
+}
+
 function isClusterSimulationUnlocked() {
   return clusterSimulationUnlocked;
 }
@@ -863,101 +938,9 @@ function isClusterEditorUnlocked() {
   return clusterEditorUnlocked;
 }
 
-function ensureClusterSecurityStyles() {
-  if (document.getElementById('cluster-security-panel-styles')) return;
-  const style = document.createElement('style');
-  style.id = 'cluster-security-panel-styles';
-  style.textContent = `
-    .cluster-security-panel {
-      min-width: min(420px, 44vw);
-      display: grid;
-      gap: 0.42rem;
-      align-items: stretch;
-      text-align: left;
-      white-space: normal;
-      padding: 0.7rem 0.85rem;
-    }
-    .cluster-security-heading {
-      font-size: 0.72rem;
-      font-weight: 800;
-      line-height: 1.2;
-    }
-    .cluster-security-row {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto auto;
-      gap: 0.42rem;
-      align-items: center;
-    }
-    .cluster-security-input {
-      min-width: 0;
-      padding: 0.38rem 0.48rem;
-      border: 1px solid rgba(255,255,255,0.22);
-      border-radius: 8px;
-      background: rgba(255,255,255,0.14);
-      color: currentColor;
-      font: inherit;
-      font-size: 0.72rem;
-    }
-    .cluster-security-input::placeholder {
-      color: rgba(255,255,255,0.78);
-    }
-    .cluster-security-input:disabled {
-      opacity: 0.65;
-      cursor: not-allowed;
-    }
-    .cluster-security-button {
-      padding: 0.36rem 0.62rem;
-      border: 1px solid rgba(255,255,255,0.22);
-      border-radius: 8px;
-      background: rgba(255,255,255,0.15);
-      color: currentColor;
-      font: inherit;
-      font-size: 0.7rem;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .cluster-security-button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-    .cluster-security-state {
-      padding: 0.22rem 0.44rem;
-      border-radius: 999px;
-      font-size: 0.64rem;
-      font-weight: 800;
-      letter-spacing: 0.03em;
-    }
-    .cluster-security-state.locked {
-      background: rgba(255,255,255,0.14);
-    }
-    .cluster-security-state.unlocked {
-      background: rgba(7, 124, 50, 0.22);
-    }
-    .cluster-security-note,
-    .cluster-security-error {
-      font-size: 0.64rem;
-      line-height: 1.3;
-    }
-    .cluster-security-error {
-      color: #ffe0d0;
-      font-weight: 700;
-    }
-    @media (max-width: 900px) {
-      .cluster-security-panel {
-        min-width: 100%;
-      }
-      .cluster-security-row {
-        grid-template-columns: 1fr;
-      }
-    }
-  `;
-  document.head.appendChild(style);
-}
-
 function renderClusterSecurityPanel() {
   const panel = document.getElementById('clusterSecurityPanel');
   if (!panel) return;
-  ensureClusterSecurityStyles();
 
   const controlsEnabled = clusterAccessUnlocked;
   const simulationStateLabel = clusterSimulationUnlocked ? translate('section.cluster.security.unlocked') : translate('section.cluster.security.locked');
@@ -1039,6 +1022,42 @@ function renderClusterAccessState() {
   renderClusterSecurityPanel();
 }
 
+function renderIndustrialGeographyAccessState() {
+  const gate = document.getElementById('industrialGeographyAccessGate');
+  const content = document.getElementById('industrialGeographyProtectedContent');
+  const kicker = document.getElementById('industrialGeographyAccessKicker');
+  const title = document.getElementById('industrialGeographyAccessTitle');
+  const desc = document.getElementById('industrialGeographyAccessDesc');
+  const input = document.getElementById('industrialGeographyAccessInput');
+  const button = document.getElementById('industrialGeographyAccessButton');
+  const error = document.getElementById('industrialGeographyAccessError');
+  if (!gate || !content) return;
+
+  if (kicker) kicker.textContent = translate('section.geography.lock.kicker');
+  if (title) title.textContent = translate('section.geography.lock.title');
+  if (desc) desc.textContent = translate('section.geography.lock.desc');
+  if (input) {
+    input.placeholder = translate('section.geography.lock.placeholder');
+    input.setAttribute('aria-label', translate('section.geography.lock.placeholder'));
+  }
+  if (button) button.textContent = translate('section.geography.lock.button');
+  if (error && error.dataset.visible === 'true') {
+    error.textContent = translate('section.geography.lock.error');
+  }
+
+  gate.hidden = industrialGeographyAccessUnlocked;
+  content.hidden = !industrialGeographyAccessUnlocked;
+
+  if (industrialGeographyAccessUnlocked) {
+    if (input) input.value = '';
+    if (error) {
+      error.hidden = true;
+      error.dataset.visible = 'false';
+      error.textContent = '';
+    }
+  }
+}
+
 function unlockClusterAnalysis() {
   const input = document.getElementById('clusterAccessInput');
   const error = document.getElementById('clusterAccessError');
@@ -1056,6 +1075,30 @@ function unlockClusterAnalysis() {
     error.hidden = false;
     error.dataset.visible = 'true';
     error.textContent = translate('section.cluster.lock.error');
+  }
+  if (input) {
+    input.focus();
+    input.select();
+  }
+}
+
+function unlockIndustrialGeography() {
+  const input = document.getElementById('industrialGeographyAccessInput');
+  const error = document.getElementById('industrialGeographyAccessError');
+  const value = input ? input.value.trim() : '';
+
+  if (value === getCurrentIndustrialGeographyPassword()) {
+    industrialGeographyAccessUnlocked = true;
+    persistIndustrialGeographyAccessState(true);
+    renderIndustrialGeographyAccessState();
+    renderIndustrialGeography();
+    return;
+  }
+
+  if (error) {
+    error.hidden = false;
+    error.dataset.visible = 'true';
+    error.textContent = translate('section.geography.lock.error');
   }
   if (input) {
     input.focus();
@@ -1123,6 +1166,11 @@ function setLanguage(lang) {
     if (key) el.textContent = translate(key);
   });
 
+  document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+    const key = el.getAttribute('data-i18n-aria');
+    if (key) el.setAttribute('aria-label', translate(key));
+  });
+
   document.querySelectorAll('.language-btn[data-lang]').forEach(btn => {
     const active = btn.dataset.lang === next;
     btn.classList.toggle('active', active);
@@ -1138,6 +1186,13 @@ function setLanguage(lang) {
   renderClusterAccessState();
   if (isClusterAccessUnlocked()) {
     renderClusterAnalysis();
+  }
+  renderIndustrialGeographyAccessState();
+  if (isIndustrialGeographyUnlocked()) {
+    renderIndustrialGeography();
+  }
+  if (document.getElementById('section-investments')?.classList.contains('active')) {
+    window.IndustrialInvestment?.render?.();
   }
   renderDatasetTables();
   updateThemeIcons(document.documentElement.getAttribute('data-theme') || 'dark');
@@ -1158,10 +1213,11 @@ function initLanguageControl() {
 }
 
 // ── THEME ────────────────────────────────────
+// The actual theme choice (saved preference, else OS preference) is resolved
+// by a blocking inline script in <head> to avoid a flash of the wrong theme.
+// Here we just sync the toggle icon/label to whatever was already applied.
 (function() {
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const initialTheme = prefersDark ? 'dark' : 'dark';
-  document.documentElement.setAttribute('data-theme', initialTheme);
+  const initialTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
   updateThemeIcons(initialTheme);
 })();
 
@@ -1169,6 +1225,7 @@ function toggleTheme() {
   const html = document.documentElement;
   const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
   html.setAttribute('data-theme', next);
+  localStorage.setItem('nzlTheme', next);
   updateThemeIcons(next);
   refreshChartsForTheme();
 }
@@ -1202,7 +1259,7 @@ function clampFontScale(value) {
   return Math.min(FONT_SCALE_MAX, Math.max(FONT_SCALE_MIN, numeric));
 }
 
-function applyFontScale(value) {
+function applyFontScale(value, persist = true) {
   const scale = clampFontScale(value);
   document.documentElement.style.fontSize = `${scale}%`;
   document.documentElement.style.setProperty('--font-scale', String(scale / 100));
@@ -1210,6 +1267,9 @@ function applyFontScale(value) {
   const display = document.getElementById('fontSizeValue');
   if (slider) slider.value = String(scale);
   if (display) display.textContent = `${scale}%`;
+  if (persist) {
+    try { localStorage.setItem('nzlFontScale', String(scale)); } catch (e) { /* storage unavailable */ }
+  }
   if (window.Chart && Chart.instances) {
     Object.values(Chart.instances).forEach(chart => chart?.resize?.());
   }
@@ -1222,7 +1282,12 @@ function adjustFontScale(delta) {
 }
 
 function initFontSizeControl() {
-  applyFontScale(FONT_SCALE_DEFAULT);
+  let saved = FONT_SCALE_DEFAULT;
+  try {
+    const stored = Number(localStorage.getItem('nzlFontScale'));
+    if (Number.isFinite(stored) && stored) saved = stored;
+  } catch (e) { /* storage unavailable */ }
+  applyFontScale(saved, false);
   document.getElementById('fontSizeSlider')?.addEventListener('input', e => applyFontScale(e.target.value));
   document.getElementById('fontSizeDecrease')?.addEventListener('click', () => adjustFontScale(-FONT_SCALE_STEP));
   document.getElementById('fontSizeIncrease')?.addEventListener('click', () => adjustFontScale(FONT_SCALE_STEP));
@@ -1252,8 +1317,20 @@ function showSection(id) {
       }
     }, 50);
   }
+  if (id === 'industrial-geography') {
+    setTimeout(() => {
+      renderIndustrialGeographyAccessState();
+      if (isIndustrialGeographyUnlocked()) {
+        renderIndustrialGeography();
+      } else {
+        document.getElementById('industrialGeographyAccessInput')?.focus();
+      }
+    }, 50);
+  }
   if (id === 'cbam')      { if (cbamChartInstance) { cbamChartInstance.destroy(); cbamChartInstance = null; } setTimeout(() => { renderPriceChips(); calcCBAM(); }, 50); }
-  if (id === 'investments') { if (invRangeChartInstance) { invRangeChartInstance.destroy(); invRangeChartInstance = null; } setTimeout(buildInvRangeChart, 50); }
+  if (id === 'investments') {
+    setTimeout(() => window.IndustrialInvestment?.render?.(), 50);
+  }
   if (id === 'roi') {
     if (paybackChartInst) { paybackChartInst.destroy(); paybackChartInst = null; }
     if (cashflowChartInst) { cashflowChartInst.destroy(); cashflowChartInst = null; }
@@ -1268,7 +1345,6 @@ function refreshChartsForTheme() {
   charts = {};
 
   if (cbamChartInstance) { cbamChartInstance.destroy(); cbamChartInstance = null; }
-  if (invRangeChartInstance) { invRangeChartInstance.destroy(); invRangeChartInstance = null; }
   if (paybackChartInst) { paybackChartInst.destroy(); paybackChartInst = null; }
   if (cashflowChartInst) { cashflowChartInst.destroy(); cashflowChartInst = null; }
   if (roiScenarioSnapshotChartInst) { roiScenarioSnapshotChartInst.destroy(); roiScenarioSnapshotChartInst = null; }
@@ -1292,11 +1368,15 @@ function refreshChartsForTheme() {
       renderPriceChips();
       calcCBAM();
     }
-    if (activeSection === 'section-investments') buildInvRangeChart();
+    if (activeSection === 'section-investments') window.IndustrialInvestment?.render?.();
     if (activeSection === 'section-roi') initRoi();
     if (activeSection === 'section-cluster') {
       renderClusterAccessState();
       if (isClusterAccessUnlocked()) renderClusterAnalysis();
+    }
+    if (activeSection === 'section-industrial-geography') {
+      renderIndustrialGeographyAccessState();
+      if (isIndustrialGeographyUnlocked()) renderIndustrialGeography();
     }
     if (activeSection === 'section-emissions') {
       if (document.getElementById('emsp-ippu')?.classList.contains('active')) buildIppuCharts();
@@ -1618,10 +1698,10 @@ const companies = [
     challenge:'Already near technical optimum for alternative fuels. Next step (CCUS) is capital-intensive. CO₂ geological storage in Bulgaria needs further research.'
   },
   {
-    id:'svilosa', name:'Sviloza AD', location:'Svishtov (Central Bulgaria)',
+    id:'svilosa', name:'Svilosa AD', location:'Svishtov (Central Bulgaria)',
     sector:'Bleached sulphate cellulose (pulp)', maturity:'advanced',
     color:'var(--teal)', colorBg:'var(--teal-light)', initials:'SV',
-    description:'Only producer of bleached sulfate cellulose in Bulgaria. Decarbonization integrated as a core strategy pillar for over two decades. Pioneer: Sviloza Biomass project registered under Kyoto Protocol (Gold Standard GS3379). Target: 62% reduction in EU ETS sectors by 2030 vs. 2005.',
+    description:'Only producer of bleached sulfate cellulose in Bulgaria. Decarbonization integrated as a core strategy pillar for over two decades. Pioneer: Svilosa Biomass project registered under Kyoto Protocol (Gold Standard GS3379). Target: 62% reduction in EU ETS sectors by 2030 vs. 2005.',
     emissions:'64.53 Kt CO₂eq · 2023 · Official (1.A.2.d)',
     employees:'800+', turnover:'EUR 66.0 million (2024)',
     crf: '1.A.2.d — Pulp, Paper & Print',
@@ -1629,7 +1709,7 @@ const companies = [
       'MCC Production Installation (microcrystalline cellulose): >€13.1M by 2030 — high-value product from biomass; reduces specific emissions',
       'PV park on existing infrastructure: 850 polycrystalline panels — reduces Scope 2 emissions',
       'HERB (High-Efficiency Recovery Boilers): future investment — black liquor combustion modernization for potential BECCS',
-      'Pioneer Kyoto Protocol Gold Standard project (GS3379) — Sviloza Biomass since 2002'
+      'Pioneer Kyoto Protocol Gold Standard project (GS3379) — Svilosa Biomass since 2002'
     ],
     pathways:['MCC high-value production','PV on-site','HERB boiler modernization','Biomass circular economy'],
     ets:'ETS-covered. Low-emission profile. Biomass fraction excluded from CO₂ accounting per IPCC.',
@@ -1755,15 +1835,18 @@ function renderCompanyGrid(filter = 'all') {
   `).join('');
 }
 
+let companyModalTrigger = null;
+
 function openCompanyModal(id) {
   const co = companies.find(c => c.id === id);
   if (!co) return;
+  companyModalTrigger = document.activeElement;
   const body = document.getElementById('modalBody');
   body.innerHTML = `
     <div class="modal-co-header">
       <div class="modal-co-logo" style="background:${co.colorBg};color:${co.color}">${co.initials}</div>
       <div class="modal-co-main">
-        <div class="modal-co-name">${co.name}</div>
+        <div class="modal-co-name" id="modalCoName">${co.name}</div>
         <div class="modal-co-meta">${co.location} · ${co.sector}</div>
       </div>
       <div class="modal-employee-pill"><span>Employees</span><strong>${co.employees}</strong></div>
@@ -1781,355 +1864,65 @@ function openCompanyModal(id) {
     <div class="modal-section"><div class="modal-section-title">Key Challenges</div><p class="modal-text">${co.challenge}</p></div>
   `;
   document.getElementById('companyModal').classList.add('open');
+  document.getElementById('modalContent')?.querySelector('.modal-close')?.focus();
 }
 
 function closeCompanyModal(event) {
   if (!event || event.target === document.getElementById('companyModal')) {
     document.getElementById('companyModal').classList.remove('open');
+    companyModalTrigger?.focus?.();
+    companyModalTrigger = null;
   }
 }
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && document.getElementById('companyModal')?.classList.contains('open')) {
+    closeCompanyModal();
+  }
+});
 
 // ── PATHWAYS TAB ─────────────────────────────
 function showPathway(id, btn) {
   document.querySelectorAll('.pw-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.pw-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.pw-tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
   document.getElementById('pw-' + id)?.classList.add('active');
   btn.classList.add('active');
-}
-
-const CLUSTER_SCENARIOS = [
-  {
-    name: {
-      en: 'Carbon pressure without enablement',
-      bg: 'Въглероден натиск без подкрепящи условия',
-    },
-    theme: 'pressure',
-    carbon_pressure: 0.95,
-    power_access: 0.35,
-    grid_readiness: 0.30,
-    hydrogen: 0.25,
-    co2_infra: 0.20,
-    permitting: 0.25,
-    finance: 0.30,
-    market_pull: 0.25,
-    stability: 0.35,
-  },
-  {
-    name: {
-      en: 'Coordinated green industrial policy',
-      bg: 'Координирана зелена индустриална политика',
-    },
-    theme: 'growth',
-    carbon_pressure: 0.85,
-    power_access: 0.80,
-    grid_readiness: 0.80,
-    hydrogen: 0.70,
-    co2_infra: 0.70,
-    permitting: 0.75,
-    finance: 0.80,
-    market_pull: 0.75,
-    stability: 0.80,
-  },
-  {
-    name: {
-      en: 'Defensive industrial continuity',
-      bg: 'Защитна индустриална непрекъснатост',
-    },
-    theme: 'defensive',
-    carbon_pressure: 0.40,
-    power_access: 0.45,
-    grid_readiness: 0.45,
-    hydrogen: 0.20,
-    co2_infra: 0.20,
-    permitting: 0.45,
-    finance: 0.40,
-    market_pull: 0.30,
-    stability: 0.55,
-  },
-  {
-    name: {
-      en: 'Volatile stop-go policy',
-      bg: 'Непоследователна stop-go политика',
-    },
-    theme: 'volatile',
-    carbon_pressure: 0.70,
-    power_access: 0.45,
-    grid_readiness: 0.40,
-    hydrogen: 0.25,
-    co2_infra: 0.25,
-    permitting: 0.25,
-    finance: 0.45,
-    market_pull: 0.35,
-    stability: 0.20,
-  },
-  {
-    name: {
-      en: 'Cluster covenant strategy',
-      bg: 'Стратегия за клъстерен пакт',
-    },
-    theme: 'cluster',
-    carbon_pressure: 0.80,
-    power_access: 0.70,
-    grid_readiness: 0.75,
-    hydrogen: 0.55,
-    co2_infra: 0.75,
-    permitting: 0.80,
-    finance: 0.75,
-    market_pull: 0.65,
-    stability: 0.75,
-  },
-];
-
-const CLUSTER_SCENARIO_FOCUS_KEYS = [
-  'carbon_pressure',
-  'power_access',
-  'infra_push',
-  'finance',
-  'stability',
-];
-
-const CLUSTER_PARAMETER_ROWS = [
-  { key: 'carbon_pressure', usage: ['B_eff', 'decarbonisation_depth'] },
-  { key: 'power_access', usage: ['T_eff', 'decarbonisation_depth'] },
-  { key: 'grid_readiness', usage: ['infra_push', 'T_eff', 'M_eff', 'bottleneck_infrastructure'] },
-  { key: 'hydrogen', usage: ['infra_push', 'T_eff', 'M_eff', 'bottleneck_infrastructure'] },
-  { key: 'co2_infra', usage: ['infra_push', 'T_eff', 'M_eff', 'bottleneck_infrastructure'] },
-  { key: 'permitting', usage: ['T_eff', 'M_eff', 'bottleneck_permitting'] },
-  { key: 'finance', usage: ['B_eff', 'T_eff', 'M_eff', 'competitiveness_retention', 'bottleneck_finance'] },
-  { key: 'market_pull', usage: ['B_eff', 'competitiveness_retention', 'bottleneck_market'] },
-  { key: 'stability', usage: ['B_eff', 'M_eff', 'competitiveness_retention'] },
-  { key: 'infra_push', usage: ['T_eff', 'M_eff', 'bottleneck_infrastructure'] },
-];
-
-const CLUSTER_FUNCTION_BLOCKS = [
-  {
-    title: 'infra_push',
-    summary: {
-      en: 'Derived infrastructure readiness proxy',
-      bg: 'Производен proxy за инфраструктурна готовност',
-    },
-    formula: '(grid_readiness + hydrogen + co2_infra) / 3',
-    drivers: ['grid_readiness', 'hydrogen', 'co2_infra'],
-    wide: true,
-  },
-  {
-    title: 'B_eff',
-    summary: {
-      en: 'Business environment effect',
-      bg: 'Ефект върху бизнес средата',
-    },
-    formula: 'clamp(B_i + 0.8·market_pull + 0.6·stability + 0.5·finance − 0.9·carbon_pressure·(carbon_sensitivity / 5))',
-    drivers: ['market_pull', 'stability', 'finance', 'carbon_pressure'],
-  },
-  {
-    title: 'T_eff',
-    summary: {
-      en: 'Technology readiness effect',
-      bg: 'Ефект върху технологичната готовност',
-    },
-    formula: 'clamp(T_i + 0.8·power_access + 0.7·infra_push·(infra_dependency / 5) + 0.4·finance + 0.3·permitting)',
-    drivers: ['power_access', 'infra_push', 'finance', 'permitting'],
-  },
-  {
-    title: 'M_eff',
-    summary: {
-      en: 'Mobility / moveability effect',
-      bg: 'Ефект върху мобилността / способността за преместване',
-    },
-    formula: 'clamp(M_i + 0.9·finance + 0.9·permitting + 0.7·infra_push + 0.5·stability − 0.4·(1 − stability))',
-    drivers: ['finance', 'permitting', 'infra_push', 'stability'],
-  },
-  {
-    title: 'decarbonisation_depth',
-    summary: {
-      en: 'Average decarbonisation depth',
-      bg: 'Средна дълбочина на декарбонизация',
-    },
-    formula: 'clamp(0.35·T_eff + 0.35·M_eff + 0.25·carbon_pressure + 0.05·power_access)',
-    drivers: ['T_eff', 'M_eff', 'carbon_pressure', 'power_access'],
-  },
-  {
-    title: 'competitiveness_retention',
-    summary: {
-      en: 'Competitiveness retention',
-      bg: 'Запазване на конкурентоспособността',
-    },
-    formula: 'clamp(0.45·B_eff + 0.20·market_pull + 0.20·stability + 0.15·finance)',
-    drivers: ['B_eff', 'market_pull', 'stability', 'finance'],
-  },
-];
-
-const CLUSTER_COPY = {
-  en: {
-    sourceKicker: 'Scenario overview',
-    sourceTitle: 'Scenario inputs',
-    sourceText: 'The matrix below shows how each Scenario field changes across the policy scenarios.',
-    sourceNote: 'Derived helper inside the function: infra_push = (grid_readiness + hydrogen + co2_infra) / 3. Values stay on the original 0-1 scale.',
-    functionTitle: 'How apply_scenario() uses the inputs',
-    functionDesc: 'Each block shows the output term and the parameter family behind it.',
-    matrixTitle: 'Scenario profiles',
-    matrixDesc: 'Five policy scenarios presented as compact profiles on a 0-1 scale.',
-    matrixNote: 'Higher values mean stronger enabling conditions. Carbon pressure indicates the intensity of cost pressure.',
-    scenarioMeta: 'policy scenario',
-    supportLabel: 'Enablement score',
-    scaleLabel: '0-1 scale',
-    labels: {
-      carbon_pressure: 'Carbon pressure',
-      power_access: 'Power access',
-      grid_readiness: 'Grid readiness',
-      hydrogen: 'Hydrogen availability',
-      co2_infra: 'CO2 infrastructure',
-      permitting: 'Permitting quality',
-      finance: 'Finance support',
-      market_pull: 'Market pull',
-      stability: 'Policy stability',
-      infra_push: 'Инфраструктурен импулс',
-    },
-    help: {
-      carbon_pressure: 'Strength of carbon-cost pressure in the scenario.',
-      power_access: 'Availability and quality of power access for electrification.',
-      grid_readiness: 'Readiness of grid infrastructure for industrial transition.',
-      hydrogen: 'Availability of hydrogen supply and related systems.',
-      co2_infra: 'Readiness of CO2 transport, storage, or shared capture infrastructure.',
-      permitting: 'Quality and speed of the permitting environment.',
-      finance: 'Access to public or private transition finance.',
-      market_pull: 'Demand-side support for low-carbon products.',
-      stability: 'Consistency and predictability of policy signals.',
-      infra_push: 'Derived in apply_scenario() from grid, hydrogen, and CO2 infrastructure readiness.',
-    },
-  },
-  bg: {
-    sourceKicker: 'Преглед на сценариите',
-    sourceTitle: 'Сценарийни входове',
-    sourceText: 'Матрицата по-долу показва как се променя всяко поле от Scenario между отделните политически сценарии.',
-    sourceNote: 'Производен helper вътре във функцията: infra_push = (grid_readiness + hydrogen + co2_infra) / 3. Стойностите са запазени в оригиналната скала 0-1.',
-    functionTitle: 'Как apply_scenario() използва входовете',
-    functionDesc: 'Всеки блок показва изходния термин и семейството параметри зад него.',
-    matrixTitle: 'Профили на сценариите',
-    matrixDesc: 'Пет политически сценария, подредени като компактни профили в скала от 0 до 1.',
-    matrixNote: 'По-високите стойности означават по-силни улесняващи условия. Въглеродният натиск показва силата на ценовия натиск.',
-    scenarioMeta: 'политически сценарий',
-    supportLabel: 'Индекс на подкрепата',
-    scaleLabel: 'Скала 0-1',
-    labels: {
-      carbon_pressure: 'Въглероден натиск',
-      power_access: 'Достъп до електроенергия',
-      grid_readiness: 'Готовност на мрежата',
-      hydrogen: 'Наличност на водород',
-      co2_infra: 'CO2 инфраструктура',
-      permitting: 'Качество на разрешителния режим',
-      finance: 'Финансова подкрепа',
-      market_pull: 'Пазарно търсене',
-      stability: 'Стабилност на политиката',
-      infra_push: 'Infrastructure push',
-    },
-    help: {
-      carbon_pressure: 'Силата на въглеродния ценови натиск в сценария.',
-      power_access: 'Наличност и качество на електрозахранването за електрификация.',
-      grid_readiness: 'Готовност на мрежовата инфраструктура за индустриалния преход.',
-      hydrogen: 'Наличност на водород и свързаните системи.',
-      co2_infra: 'Готовност на CO2 транспорт, съхранение или споделена capture инфраструктура.',
-      permitting: 'Качество и скорост на разрешителната среда.',
-      finance: 'Достъп до публично или частно финансиране за прехода.',
-      market_pull: 'Подкрепа от страна на търсенето за нисковъглеродни продукти.',
-      stability: 'Последователност и предвидимост на policy сигналите.',
-      infra_push: 'Производен термин в apply_scenario(), изчислен от готовността на мрежата, водорода и CO2 инфраструктурата.',
-    },
-  },
-};
-
-function getClusterCopy() {
-  return CLUSTER_COPY[getLanguage()] || CLUSTER_COPY.en;
-}
-
-function getClusterScenarioValue(scenario, key) {
-  if (key === 'infra_push') {
-    return (scenario.grid_readiness + scenario.hydrogen + scenario.co2_infra) / 3;
-  }
-  return scenario[key];
-}
-
-function getClusterScoreTone(value) {
-  if (value >= 0.75) return 'cluster-score-high';
-  if (value >= 0.55) return 'cluster-score-mid';
-  if (value >= 0.35) return 'cluster-score-low';
-  return 'cluster-score-weak';
-}
-
-function getClusterScenarioAverage(scenario) {
-  const keys = ['power_access', 'grid_readiness', 'hydrogen', 'co2_infra', 'permitting', 'finance', 'market_pull', 'stability'];
-  const total = keys.reduce((sum, key) => sum + scenario[key], 0);
-  return total / keys.length;
-}
-
-function getClusterScenarioName(scenario) {
-  const lang = getLanguage();
-  if (scenario.name && typeof scenario.name === 'object') {
-    return scenario.name[lang] || scenario.name.en || '';
-  }
-  return scenario.name || '';
+  btn.setAttribute('aria-selected', 'true');
 }
 
 function renderClusterAnalysis() {
-  const scenarioGrid = document.getElementById('clusterScenarioGrid');
-  if (!scenarioGrid) return;
+  window.ClusterAnalysis?.render?.();
+}
 
-  const copy = getClusterCopy();
-  const matrixTitle = document.getElementById('clusterMatrixTitle');
-  const matrixDesc = document.getElementById('clusterMatrixDesc');
-  const matrixNote = document.getElementById('clusterScenarioNote');
-  if (matrixTitle) matrixTitle.textContent = copy.matrixTitle;
-  if (matrixDesc) matrixDesc.textContent = copy.matrixDesc;
-  if (matrixNote) matrixNote.textContent = copy.matrixNote;
+function renderIndustrialGeography() {
+  window.IndustrialGeography?.render?.();
+}
 
-  scenarioGrid.innerHTML = CLUSTER_SCENARIOS.map(scenario => {
-    const supportScore = getClusterScenarioAverage(scenario);
-    return `
-      <article class="cluster-scenario-card theme-${escapeHtml(scenario.theme || 'cluster')}">
-        <div class="cluster-scenario-card-head">
-          <div>
-            <div class="cluster-scenario-meta">${escapeHtml(copy.scenarioMeta)}</div>
-            <h3>${escapeHtml(getClusterScenarioName(scenario))}</h3>
-          </div>
-          <div class="cluster-scenario-score">
-            <span>${escapeHtml(copy.supportLabel)}</span>
-            <strong>${supportScore.toFixed(2)}</strong>
-          </div>
-        </div>
-        <div class="cluster-scenario-metrics">
-          ${CLUSTER_SCENARIO_FOCUS_KEYS.map(key => {
-            const value = getClusterScenarioValue(scenario, key);
-            const width = Math.max(10, Math.round(value * 100));
-            const tone = getClusterScoreTone(value);
-            return `
-              <div class="cluster-scenario-metric">
-                <div class="cluster-scenario-metric-top">
-                  <span>${escapeHtml(copy.labels[key] || key)}</span>
-                  <strong>${value.toFixed(2)}</strong>
-                </div>
-                <div class="cluster-score-track ${tone}">
-                  <div class="cluster-score-fill" style="width:${width}%"></div>
-                </div>
-              </div>
-            `;
-          }).join('')}
-        </div>
-        <div class="cluster-scenario-scale">${escapeHtml(copy.scaleLabel)}</div>
-      </article>
-    `;
-  }).join('');
+// ── CDN FAILURE CHECK ────────────────────────
+// Chart.js/its annotation plugin load from a third-party CDN (Plotly is vendored
+// locally). If that CDN is blocked or down, every Chart.js-based chart on the
+// page silently fails to render with no explanation - surface it instead.
+function checkCdnHealth() {
+  const banner = document.getElementById('cdnFailureBanner');
+  if (!banner) return;
+  if (typeof window.Chart === 'undefined') {
+    banner.hidden = false;
+  }
 }
 
 // ── INIT ─────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   readClusterAccessState();
   readClusterSecondaryAccessState();
+  readIndustrialGeographyAccessState();
   initLanguageControl();
   initFontSizeControl();
   renderClusterAccessState();
+  renderIndustrialGeographyAccessState();
   renderCompanyGrid();
   renderDatasetTables();
   animateKPIs();
+  checkCdnHealth();
   setTimeout(buildCharts, 100);
   setTimeout(updateDashboardWithDbData, 250);
 });
@@ -2137,8 +1930,11 @@ document.addEventListener('DOMContentLoaded', () => {
 window.unlockClusterAnalysis = unlockClusterAnalysis;
 window.unlockClusterSimulation = unlockClusterSimulation;
 window.unlockClusterEditor = unlockClusterEditor;
+window.unlockIndustrialGeography = unlockIndustrialGeography;
+window.isClusterAccessUnlocked = isClusterAccessUnlocked;
 window.isClusterSimulationUnlocked = isClusterSimulationUnlocked;
 window.isClusterEditorUnlocked = isClusterEditorUnlocked;
+window.isIndustrialGeographyUnlocked = isIndustrialGeographyUnlocked;
 
 /* ═══════════════════════════════════════════════
    CBAM CALCULATOR LOGIC
@@ -2406,102 +2202,11 @@ function initCBAM() {
 
 // initCBAM called from showSection('cbam')
 
-/* ═══════════════════════════════════════════════
-   INVESTMENT RANGE CHART & VIEW TOGGLE
-═══════════════════════════════════════════════ */
-
-let invRangeChartInstance = null;
-
-function buildInvRangeChart() {
-  const ctx = document.getElementById('invRangeChart');
-  if (!ctx || invRangeChartInstance) return;
-  const c = getChartColors();
-
-  // Low and high CAPEX estimates per company (M€)
-  const companies = ['Agropolychim','Biovet','Solvay Sodi','LUKOIL Neftohim Burgas','Heidelberg Mat.','Holcim BG','Svilosa','Neochim','Orgachim'];
-  const low  = [250, 257, 365, 1000, 600, 15,  39,  4,  3];
-  const high = [300, 300, 865, 2130, 625, 615, 79, 165, 11];
-  const colors = getCompanyChartColors(ROI_CO_KEYS);
-
-  invRangeChartInstance = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: companies,
-      datasets: [
-        {
-          label: 'Low estimate (M€)',
-          data: low,
-          backgroundColor: colors.map(color => withChartAlpha(color, '99')),
-          borderColor: colors,
-          borderWidth: 1.5,
-          borderRadius: 4,
-          borderSkipped: false,
-          stack: 'a',
-        },
-        {
-          label: 'Additional (to high estimate)',
-          data: high.map((h, i) => h - low[i]),
-          backgroundColor: colors.map(color => withChartAlpha(color, '33')),
-          borderColor: colors.map(color => withChartAlpha(color, '66')),
-          borderWidth: 1,
-          borderRadius: 4,
-          borderSkipped: false,
-          stack: 'a',
-        }
-      ]
-    },
-    options: {
-      indexAxis: 'y',
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        ...chartDefaults().plugins,
-        legend: {
-          ...chartDefaults().plugins.legend,
-          labels: {
-            ...chartDefaults().plugins.legend.labels,
-            filter: (item) => item.datasetIndex === 0
-          }
-        },
-        tooltip: {
-          ...chartDefaults().plugins.tooltip,
-          callbacks: {
-            label: (ctx) => {
-              if (ctx.datasetIndex === 0) return ` Low: €${low[ctx.dataIndex]}M`;
-              return ` High: €${high[ctx.dataIndex]}M`;
-            },
-            footer: (items) => {
-              const i = items[0].dataIndex;
-              return `Range: €${low[i]}M – €${high[i]}M`;
-            }
-          }
-        }
-      },
-      scales: {
-        x: {
-          ...chartDefaults().scales.x,
-          stacked: true,
-          title: { display: true, text: 'CAPEX (M€)', color: c.textMuted, font: { size: 11, family: 'DM Sans' } },
-          ticks: {
-            ...chartDefaults().scales.x.ticks,
-            callback: v => v >= 1000 ? `€${(v/1000).toFixed(1)}B` : `€${v}M`
-          }
-        },
-        y: { ...chartDefaults().scales.y, stacked: true }
-      }
-    }
-  });
-}
-
-function setInvView(view, btn) {
-  document.querySelectorAll('.inv-view-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('inv-company-view').style.display = view === 'company' ? 'block' : 'none';
-  document.getElementById('inv-pathway-view').style.display = view === 'pathway' ? 'block' : 'none';
-}
-
-
-
+// The Investments section (#section-investments) is fully rendered by
+// industrial-investment.js's interactive technology-portfolio model - see
+// showSection()/refreshChartsForTheme(). The legacy static company-card
+// markup and its supporting buildInvRangeChart()/setInvView() were removed
+// (they were unreachable dead code, permanently overwritten on render).
 
 
 /* ═══════════════════════════════════════════════
@@ -2702,6 +2407,9 @@ const ROI_PATHWAYS = [
     note:'Energy independence. Combined PV + battery storage.'
   },
 ];
+
+// Shared read-only project dataset used by the modular Cluster Analysis decision layer.
+window.NZL_ROI_PATHWAYS = ROI_PATHWAYS;
 
 // Company keys, display names, colors
 const ROI_CO_KEYS = ['agropolychim','neochim','solvay','lukoil','svilosa','heidelberg','holcim','biovet','orgachim'];
@@ -3609,10 +3317,10 @@ function initRoi() {
 // ── EMISSIONS TAB NAVIGATION ──────────────────
 function showEmsTab(id, btn) {
   document.querySelectorAll('.ems-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.ems-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.ems-tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
   const panel = document.getElementById('emsp-' + id);
   if (panel) panel.classList.add('active');
-  if (btn) btn.classList.add('active');
+  if (btn) { btn.classList.add('active'); btn.setAttribute('aria-selected', 'true'); }
   // Build charts lazily on first open
   if (id === 'ippu') buildIppuCharts();
   if (id === 'subsector') buildSubsectorCharts();
