@@ -1,0 +1,16 @@
+{
+  "name": "net-zero-lab-dashboard",
+  "private": true,
+  "version": "2.0.0",
+  "description": "Bilingual (EN/BG) dashboard tracking the decarbonization of Bulgaria's chemical and industrial sector toward net-zero by 2050 - sourced emissions data, company profiles, pathways, and scenario analysis.",
+  "homepage": "https://github.com/mihailtg/Net-zero-LAB",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mihailtg/Net-zero-LAB.git"
+  },
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test --test-isolation=none tests/cluster-model.test.js tests/cluster-browser.test.js tests/industrial-geography.test.js tests/industrial-infrastructure.test.js tests/industrial-investment.test.js",
+    "check": "node --check app.js && node --check cluster-data.js && node --check cluster-i18n.js && node --check cluster-model.js && node --check cluster-simulation.js && node --check cluster-charts.js && node --check cluster-analysis.js && node --check industrial-geography.js && node --check industrial-infrastructure.js && node --check industrial-investment.js"
+  }
+}
