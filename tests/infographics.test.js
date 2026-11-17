@@ -25,8 +25,8 @@ const find = (id, cards = english) => cards.find((card) => card.id === id);
 const near = (actual, expected) => assert.ok(Math.abs(actual - expected) < 1e-8, `${actual} != ${expected}`);
 
 test('infographic series covers the platform in both languages with exportable self-contained SVGs', () => {
-  assert.equal(english.length, 12);
-  assert.ok(!english.some(card => ['investment-scale', 'industrial-processes'].includes(card.id)));
+  assert.equal(english.length, 11);
+  assert.ok(!english.some(card => ['investment-scale', 'industrial-processes', 'ccus-value-chain'].includes(card.id)));
   assert.deepEqual(bulgarian.map((card) => card.id), english.map((card) => card.id));
   for (const [index, card] of english.entries()) {
     const bg = bulgarian[index];
@@ -101,7 +101,7 @@ test('regional map shares reconcile to the bar chart and each shape uses the mat
   assert.match(map.note, /EuroGeographics/);
   assert.match(find('regional-emissions-map', bulgarian).note, /не всички емисии в България/);
   assert.ok(map.sources.some((source) => source.url === Geography.source));
-  assert.ok(english.every((card) => card.svg.includes(' / 12')));
+  assert.ok(english.every((card) => card.svg.includes(' / 11')));
   const html = read('index.html');
   assert.ok(html.indexOf('src="bulgaria-regions.js"') < html.indexOf('src="infographics.js"'));
 });
@@ -126,27 +126,23 @@ test('bundled official boundaries put representative cities in the correct plann
   }
 });
 
-test('physical balance and ANRAV financing reconcile and label their assumptions', () => {
+test('hydrogen physical balance reconciles and labels its assumptions', () => {
   const hydrogen = find('hydrogen-ammonia').data;
   near(hydrogen.electricityGWh, 122.64);
   near(hydrogen.h2Kt, 122.64 / 55);
   near(hydrogen.nh3Kt, hydrogen.h2Kt * .7 / (3 / 17));
   assert.match(find('hydrogen-ammonia').note, /before readiness/);
-  const ccus = find('ccus-value-chain').data;
-  near(ccus.grant + ccus.remaining, ccus.capex);
-  assert.ok(ccus.storageIncluded < ccus.grant);
-  assert.match(source.roiPathways.find((p) => p.id === 'hm-anrav').note, /€190M.*€38M.*€410M/);
-  assert.match(find('ccus-value-chain').note, /not a verified final project budget/);
+
 });
 
 test('finance posters read actual calculator inputs and respond when those inputs change', () => {
   assert.deepEqual(Array.from(find('cbam-phase-in').data.factors), Array.from(source.cbamFactors));
   assert.deepEqual(Array.from(find('carbon-price-scenarios').data.prices[1].values), Array.from(source.etsPrices.base));
   const modified = { ...source, inventory: { ...source.inventory, nat_2023: { ...source.inventory.nat_2023, energy: 1000 } },
-    roiPathways: source.roiPathways.map((p) => p.id === 'hm-anrav' ? { ...p, capex_M: 650 } : p) };
+    etsPrices: { ...source.etsPrices, base: source.etsPrices.base.map((price, index) => index === 0 ? 100 : price) } };
   const result = Infographics.buildSeries(modified, 'en');
   near(find('national-emissions', result).data.gross, 13581.43);
-  near(find('ccus-value-chain', result).data.remaining, 460);
+  near(find('carbon-price-scenarios', result).data.prices[1].values[0], 100);
   assert.match(find('carbon-price-scenarios').note, /not live market prices/);
 });
 

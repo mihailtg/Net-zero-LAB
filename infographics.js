@@ -200,22 +200,6 @@
       L('Theoretical full-year output before readiness and ramp-up constraints. NH₃ uses a hydrogen mass fraction of 3/17. Additional synthesis energy, losses and plant constraints are not included in this simple balance.', 'Теоретично производство за пълна година, преди ограниченията от готовност и въвеждане в експлоатация. Масовият дял на H₂ в NH₃ е 3/17. Простият баланс не включва допълнителна енергия за синтез, загуби и заводски ограничения.'),
       tiles(hydrogenTiles, 3), hydrogenTiles.map((item) => `${item.text}: ${item.heading}`), [modelSource], { electricityGWh, h2Kt, h2Share, nh3Kt });
 
-    const anrav = source.roiPathways.find((path) => path.id === 'hm-anrav');
-    const grant = 190; // Explicit split in the existing hm-anrav model note; storage is included.
-    const remaining = anrav.capex_M - grant;
-    const ccusTiles = [
-      { heading: L('Capture', 'Улавяне'), text: L('Separate CO₂ at the industrial source.', 'Отделяне на CO₂ при индустриалния източник.') },
-      { heading: L('Transport', 'Транспорт'), text: L('Condition and move CO₂ to a storage site.', 'Подготовка и пренос на CO₂ до място за съхранение.') },
-      { heading: L('Storage', 'Съхранение'), text: L('Permanent geological storage and monitoring.', 'Постоянно геоложко съхранение и мониторинг.') },
-      { heading: `€${n(anrav.capex_M, 0)}${L('M', ' млн.')}`, text: L('ANRAV CAPEX assumption in the ROI model', 'Допуснати капиталови разходи за ANRAV в ROI модела') },
-      { heading: `€${grant}${L('M', ' млн.')}`, text: L('Innovation Fund support; includes €38M for storage', 'Подкрепа от Иновационния фонд; включва €38 млн. за съхранение') },
-      { heading: `€${n(remaining, 0)}${L('M', ' млн.')}`, text: L('Remaining project financing in the assumed split', 'Остатъчно финансиране в допуснатото разпределение') },
-    ];
-    add('ccus-value-chain', 'technologies', 'model', 'industrial-geography', L('CCUS needs a complete value chain', 'CCUS изисква цялостна верига'),
-      L(`ANRAV example · modeled capture ${n(anrav.co2_kt, 0)} kt CO₂/year`, `Пример ANRAV · моделирано улавяне ${n(anrav.co2_kt, 0)} kt CO₂/година`),
-      L('The €600M total is a model assumption, not a verified final project budget. €190M + €410M = €600M; the €38M storage support is already inside €190M and must not be added again. Capacity is not actual captured CO₂.', 'Общите €600 млн. са моделно допускане, а не потвърден окончателен бюджет. €190 млн. + €410 млн. = €600 млн.; €38 млн. за съхранение са включени в €190 млн. Капацитетът не е реално уловено количество CO₂.'),
-      tiles(ccusTiles, 3), ccusTiles.map((item) => `${item.heading}: ${item.text}`), [roiSource, { name: 'ANRAV · Heidelberg Materials', url: 'https://www.heidelbergmaterials.bg/bg/node/524160' }], { capex: anrav.capex_M, grant, remaining, storageIncluded: 38, captureKt: anrav.co2_kt });
-
     const cbamRows = source.cbamYears.map((year, index) => ({ label: String(year), value: source.cbamFactors[index] * 100, display: pct(source.cbamFactors[index] * 100) }));
     add('cbam-phase-in', 'finance', 'model', 'cbam', L('How the CBAM cost factor grows', 'Как нараства разходният фактор за CBAM'),
       L('2026–2034 · phase-in factors used by the site calculator', '2026–2034 г. · фактори за поетапно въвеждане в калкулатора'),

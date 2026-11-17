@@ -5,7 +5,7 @@
 - **Pathways** - green hydrogen, CCUS, electrification, biomass, circular economy, N₂O abatement
 - **Emissions** - national GHG inventory, IPPU history through 2024, and industrial sub-sector and fuel data through 2023
 - **Dataset** - tabular views of the underlying source data
-- **Infographics** - 12 bilingual visual summaries of emissions, regions, participants, technologies, carbon costs, auction revenues and scenarios, with SVG/PNG downloads and print/PDF
+- **Infographics** - 11 bilingual visual summaries of emissions, regions, participants, technologies, carbon costs, auction revenues and scenarios, with SVG/PNG downloads and print/PDF
 - **Policy & Regulation** - the EU/Bulgarian regulatory framework (ETS, CBAM, IED, NECP)
 - **ROI Analysis** - avoided ETS cost vs. decarbonization investment, by pathway and company
 - **Investments** - a technology-portfolio CAPEX/abatement screening model (hydrogen, CCS, nuclear)
