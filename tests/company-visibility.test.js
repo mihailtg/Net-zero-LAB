@@ -75,6 +75,8 @@ test('one visibility setting restores retained company data, UI and projects', (
   assert.equal(restored.count.textContent, 9);
   assert.equal(restored.value('companies.find(co => co.id === "svilosa").name'), 'Svilosa AD');
   assert.equal(restored.value('ROI_PATHWAYS.filter(p => p.co === "Svilosa").length'), 4);
+  assert.equal(hidden.value('getEmploymentSummary2025().total'), 19493);
+  assert.equal(restored.value('getEmploymentSummary2025().total'), 19506);
   const Data = restored.context.ClusterData;
   assert.equal(Data.createDefaultCompanies().find((company) => company.id === 'svilosa').emissionsKt, 64.53);
   assert.ok(Data.NETWORK_EDGES.some((edge) => edge.source === 'svilosa'));

@@ -746,6 +746,9 @@ const I18N = {
     'section.dashboard.title': 'Overview Dashboard',
     'section.dashboard.desc': 'Bulgarian chemical industry decarbonization - key indicators and progress',
     'section.dashboard.pill': 'Latest available data · 2026',
+    'dashboard.employees.label': 'Direct employees (2025)',
+    'dashboard.employees.coverage': '{known} operators with data · {missing} without data',
+    'dashboard.employees.note': 'Available 2025 employment figures from Company Profiles, counting each operator once. Missing data and hidden companies are excluded.',
     'section.companies.title': 'Company Profiles',
     'section.companies.desc': 'Profiles of the industrial participants included in Cluster Analysis',
     'profile.unassessed': 'Not assessed',
@@ -827,6 +830,9 @@ const I18N = {
     'section.dashboard.title': 'Обзорно табло',
     'section.dashboard.desc': 'Декарбонизация на българската химическа индустрия - ключови показатели и напредък',
     'section.dashboard.pill': 'Последни налични данни · 2026',
+    'dashboard.employees.label': 'Пряко ангажирани служители (2025)',
+    'dashboard.employees.coverage': '{known} оператора с данни · {missing} без данни',
+    'dashboard.employees.note': 'Налични данни за служителите през 2025 г. от фирмените профили, като всеки оператор се брои веднъж. Липсващите стойности и скритите компании са изключени.',
     'section.companies.title': 'Профили на компании',
     'section.companies.desc': 'Профили на индустриалните участници, включени в клъстерния анализ',
     'profile.unassessed': 'Без оценка',
@@ -915,6 +921,7 @@ function setLanguage(lang) {
   }
   renderDatasetTables();
   renderCompanyGrid();
+  updateEmploymentKpi();
   updateIppuCaptions();
   if (activeCompanyProfileId) renderCompanyModalContent(companies.find((company) => company.id === activeCompanyProfileId));
   if (document.getElementById('section-infographics')?.classList.contains('active')) window.NZLInfographics?.render();
@@ -1102,6 +1109,24 @@ function closeMobileSidebar() {
 }
 
 // ── KPI COUNTER ANIMATION ────────────────────
+function getEmploymentSummary2025() {
+  const operators = new Map(companies.map(company => [company.staffOperatorId || company.id, company.directEmployees2025]));
+  const known = [...operators.values()].filter(Number.isFinite);
+  return { total: known.reduce((sum, count) => sum + count, 0), knownOperators: known.length, missingOperators: operators.size - known.length };
+}
+
+function updateEmploymentKpi() {
+  const value = document.getElementById('dashboardEmployeesValue');
+  if (!value) return;
+  const summary = getEmploymentSummary2025();
+  value.setAttribute('data-target', String(summary.total));
+  value.textContent = registryNumber(summary.total);
+  const coverage = document.getElementById('dashboardEmployeesCoverage');
+  if (coverage) coverage.textContent = translate('dashboard.employees.coverage')
+    .replace('{known}', summary.knownOperators).replace('{missing}', summary.missingOperators);
+  document.getElementById('dashboardEmployeesCard')?.setAttribute('title', translate('dashboard.employees.note'));
+}
+
 function animateKPIs() {
   document.querySelectorAll('.kpi-val[data-target]').forEach(el => {
     const target = parseFloat(el.getAttribute('data-target'));
@@ -1111,7 +1136,9 @@ function animateKPIs() {
     function update(now) {
       const progress = Math.min((now - startTime) / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
-      el.textContent = isFloat ? (eased * target).toFixed(2) : Math.round(eased * target).toLocaleString();
+      el.textContent = isFloat ? (eased * target).toFixed(2)
+        : el.id === 'dashboardEmployeesValue' ? registryNumber(Math.round(eased * target))
+        : Math.round(eased * target).toLocaleString();
       if (progress < 1) requestAnimationFrame(update);
     }
     requestAnimationFrame(update);

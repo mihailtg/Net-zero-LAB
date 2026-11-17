@@ -151,6 +151,23 @@ test('every active company description and project note is translated without ch
   assert.equal(run('ROI_PATHWAYS.find(p => p.id === "hm-anrav").capex_M'), 600);
 });
 
+test('overview employment uses 2025 operator totals without double-counting sites and translates its coverage', () => {
+  const { context, html, nodes, run } = environment();
+  ['cluster-data.js', 'app.js'].forEach(name => run(read(name)));
+  assert.deepEqual(JSON.parse(run('JSON.stringify(getEmploymentSummary2025())')), { total: 19493, knownOperators: 45, missingOperators: 9 });
+  const value = element('div'); value.id = 'dashboardEmployeesValue';
+  const coverage = element('div'); const card = element('div');
+  nodes.set('dashboardEmployeesValue', value); nodes.set('dashboardEmployeesCoverage', coverage); nodes.set('dashboardEmployeesCard', card);
+  context.updateEmploymentKpi();
+  assert.equal(value.getAttribute('data-target'), '19493');
+  assert.equal(value.textContent.replace(/\D/g, ''), '19493');
+  assert.equal(coverage.textContent, '45 operators with data · 9 without data');
+  html.setAttribute('data-lang', 'bg'); context.updateEmploymentKpi();
+  assert.equal(coverage.textContent, '45 оператора с данни · 9 без данни');
+  assert.match(card.getAttribute('title'), /всеки оператор се брои веднъж/);
+  assert.doesNotMatch(read('index.html'), /data-target="12850"|5\.22% of industrial workforce/);
+});
+
 test('chart labels, callback text and captions follow the language without changing values or this binding', () => {
   const { html, i18n } = environment();
   html.setAttribute('data-lang', 'bg');
