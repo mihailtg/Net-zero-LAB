@@ -90,10 +90,10 @@ test('company aggregates are calculated from visible factor profiles', () => {
   });
 });
 
-test('supplied ETS Top 20 is merged exactly without dropping supplemental companies', () => {
+test('supplied ETS Top 20 is merged exactly with active supplemental companies', () => {
   const state = defaults();
   const ranked = state.companies.filter((company) => company.etsRank2024);
-  assert.equal(state.companies.length, 24);
+  assert.equal(state.companies.length, 23);
   assert.equal(ranked.length, 20);
   assert.deepEqual(ranked.map((company) => company.etsRank2024), Array.from({ length: 20 }, (_, index) => index + 1));
   assert.ok(Math.abs(ranked.reduce((sum, company) => sum + company.emissions2023Kt, 0) - 6182.637) < 1e-9);
@@ -102,7 +102,7 @@ test('supplied ETS Top 20 is merged exactly without dropping supplemental compan
   assert.ok(Math.abs(ranked.reduce((sum, company) => sum + company.industrialShare2024, 0) - 70.40) < 1e-9);
   assert.equal(state.companies.find((company) => company.id === 'lukoil').emissionsKt, 1803.061);
   assert.equal(state.companies.find((company) => company.id === 'neochim').emissionsKt, 553.866);
-  assert.equal(state.companies.filter((company) => company.datasetScope === 'supplemental').length, 4);
+  assert.equal(state.companies.filter((company) => company.datasetScope === 'supplemental').length, 3);
 });
 
 test('sector analysis reproduces supplied aggregates and stays scenario-linked', () => {

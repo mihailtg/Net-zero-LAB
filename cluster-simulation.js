@@ -28,10 +28,6 @@
     return JSON.parse(JSON.stringify(value));
   }
 
-  function canEdit() {
-    return typeof root.isClusterEditorUnlocked !== 'function' || root.isClusterEditorUnlocked();
-  }
-
   function sanitizeBoolean(value, fallback) {
     if (value === undefined || value === null) return Boolean(fallback);
     if (value === false || value === 0 || value === 'false' || value === '0') return false;
@@ -96,6 +92,9 @@
   function sanitizeScenario(candidate, fallback) {
     const base = fallback || Data.DEFAULT_SCENARIOS.find((scenario) => scenario.id === candidate?.id) || Data.DEFAULT_SCENARIOS[0];
     const custom = Boolean(candidate?.custom || !Data.DEFAULT_SCENARIOS.some((scenario) => scenario.id === candidate?.id));
+    // Built-in explanations follow the current wording; saved numerical inputs stay editable.
+    // User-created scenarios retain their own names and descriptions.
+    const copySource = custom ? candidate : base;
     const values = Object.fromEntries(Data.SCENARIO_PARAMETER_KEYS.map((key) => [
       key,
       Model.clamp01(candidate?.values?.[key] ?? candidate?.[key] ?? base.values[key]),
@@ -109,19 +108,19 @@
       description: { en: 'User-defined scenario based on the current model inputs.', bg: 'Потребителски сценарий според текущите входове на модела.' },
       basis: { en: 'Assumptions require user validation.', bg: 'Допусканията изискват потребителска валидация.' },
     };
-    const focusSource = Array.isArray(candidate?.focus) ? candidate.focus : custom ? [] : base.focus || [];
-    const evidenceSource = Array.isArray(candidate?.evidence) ? candidate.evidence : custom ? [] : base.evidence || [];
+    const focusSource = Array.isArray(copySource?.focus) ? copySource.focus : custom ? [] : base.focus || [];
+    const evidenceSource = Array.isArray(copySource?.evidence) ? copySource.evidence : custom ? [] : base.evidence || [];
     return {
       id: String(candidate?.id || base.id).replace(/[^a-zA-Z0-9_-]/g, '-').slice(0, 80) || base.id,
       name: {
-        en: String(candidate?.name?.en || base.name.en || base.id).slice(0, 120),
-        bg: String(candidate?.name?.bg || base.name.bg || candidate?.name?.en || base.id).slice(0, 120),
+        en: String(copySource?.name?.en || base.name.en || base.id).slice(0, 120),
+        bg: String(copySource?.name?.bg || base.name.bg || copySource?.name?.en || base.id).slice(0, 120),
       },
       theme: String(candidate?.theme || base.theme || 'custom').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 30) || 'custom',
       custom,
-      role: localized(candidate?.role, custom ? null : base.role, generic.role),
-      description: localized(candidate?.description, custom ? null : base.description, generic.description),
-      basis: localized(candidate?.basis, custom ? null : base.basis, generic.basis),
+      role: localized(copySource?.role, custom ? null : base.role, generic.role),
+      description: localized(copySource?.description, custom ? null : base.description, generic.description),
+      basis: localized(copySource?.basis, custom ? null : base.basis, generic.basis),
       focus: focusSource.slice(0, 8).map((item) => localized(item, null, { en: '', bg: '' })),
       evidence: evidenceSource.slice(0, 8).map((item) => ({
         name: localized(item?.name, null, { en: 'Source', bg: 'Източник' }),
@@ -382,7 +381,7 @@
   }
 
   function updateScenarioValue(scenarioId, key, score20) {
-    if (!canEdit() || !Data.SCENARIO_PARAMETER_KEYS.includes(key)) return false;
+    if (!Data.SCENARIO_PARAMETER_KEYS.includes(key)) return false;
     const scenario = state.scenarios.find((entry) => entry.id === scenarioId);
     if (!scenario) return false;
     pushUndo();
@@ -395,7 +394,7 @@
     const booleanKeys = ['greenHydrogen', 'electrolyzers', 'ammoniaStorage', 'ccs'];
     const countKeys = ['electrolyzerUnits', 'nuclearReactors'];
     const percentageKeys = ['hydrogenToAmmoniaShare'];
-    if (!canEdit() || ![...booleanKeys, ...countKeys, ...percentageKeys].includes(key)) return false;
+    if (![...booleanKeys, ...countKeys, ...percentageKeys].includes(key)) return false;
     const scenario = state.scenarios.find((entry) => entry.id === scenarioId);
     if (!scenario) return false;
     const technologies = sanitizeTechnologies(scenario.technologies);
@@ -419,7 +418,7 @@
   }
 
   function updateCompanyMetric(companyId, metricKey, score20) {
-    if (!canEdit() || !Data.COMPANY_METRIC_KEYS.includes(metricKey)) return false;
+    if (!Data.COMPANY_METRIC_KEYS.includes(metricKey)) return false;
     const index = state.companies.findIndex((company) => company.id === companyId);
     if (index < 0) return false;
     pushUndo();
@@ -429,7 +428,6 @@
   }
 
   function updateCompanyFactor(companyId, metricKey, factorKey, score20) {
-    if (!canEdit()) return false;
     const index = state.companies.findIndex((company) => company.id === companyId);
     if (index < 0) return false;
     const definition = Model.getMetricDefinition(metricKey);
@@ -446,7 +444,6 @@
   }
 
   function cloneScenario(scenarioId, language = 'en') {
-    if (!canEdit()) return null;
     const source = state.scenarios.find((scenario) => scenario.id === scenarioId);
     if (!source) return null;
     pushUndo();
@@ -468,7 +465,6 @@
   }
 
   function deleteScenario(scenarioId) {
-    if (!canEdit()) return false;
     const scenario = state.scenarios.find((entry) => entry.id === scenarioId);
     if (!scenario?.custom) return false;
     pushUndo();
@@ -480,7 +476,6 @@
   }
 
   function resetScenario(scenarioId) {
-    if (!canEdit()) return false;
     const index = state.scenarios.findIndex((scenario) => scenario.id === scenarioId);
     const baseline = Data.DEFAULT_SCENARIOS.find((scenario) => scenario.id === scenarioId);
     if (index < 0 || !baseline) return false;
@@ -491,7 +486,6 @@
   }
 
   function resetAll() {
-    if (!canEdit()) return false;
     pushUndo();
     const defaults = Data.createDefaultState();
     state = sanitizeState(defaults);
@@ -500,7 +494,7 @@
   }
 
   function undo() {
-    if (!canEdit() || !undoStack.length) return false;
+    if (!undoStack.length) return false;
     state = sanitizeState(undoStack.pop());
     commit('undo');
     return true;
@@ -528,7 +522,6 @@
   }
 
   function importStateJson(jsonText) {
-    if (!canEdit()) return { ok: false, error: 'editor_locked' };
     try {
       const parsed = JSON.parse(jsonText);
       const candidate = parsed?.state || parsed;

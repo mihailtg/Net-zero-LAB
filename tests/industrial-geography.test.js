@@ -178,22 +178,31 @@ test('map and bubble models preserve all installations and emission sizing', () 
   assert.ok(Math.abs(Geography.sumEmissions(companies) - 6462.515) < 0.000001);
 });
 
-test('render builds both Plotly views without undefined values', () => {
+test('render builds both Plotly views without undefined values', async () => {
   const originalDocument = global.document;
   const originalPlotly = global.Plotly;
   const originalGetComputedStyle = global.getComputedStyle;
+  const originalInfrastructure = global.IndustrialInfrastructure;
   const calls = [];
+  const infrastructureCalls = [];
+  const contextListeners = new Map();
+  let currentLanguage = 'en';
   const nodes = {
     industrialGeographyGrid: {
       innerHTML: '',
       querySelectorAll() { return []; },
+      querySelector(selector) {
+        return selector === '[data-geo-context-visible]' ? {
+          addEventListener(type, listener) { contextListeners.set(type, listener); },
+        } : null;
+      },
     },
     industrialGeoMap: { id: 'industrialGeoMap', innerHTML: '', clientWidth: 900, clientHeight: 500 },
     industrialGeoBubbles: { id: 'industrialGeoBubbles', innerHTML: '', clientHeight: 560 },
   };
 
   global.document = {
-    documentElement: { getAttribute: () => 'en' },
+    documentElement: { getAttribute: () => currentLanguage },
     getElementById(id) { return nodes[id] || null; },
   };
   global.getComputedStyle = () => ({ getPropertyValue: () => '' });
@@ -201,6 +210,7 @@ test('render builds both Plotly views without undefined values', () => {
     purge() {},
     react(node, traces, layout) { calls.push({ node, traces, layout }); },
   };
+  global.IndustrialInfrastructure = { render(options) { infrastructureCalls.push(options); } };
 
   try {
     Geography.setIncludeContextInClusters(false);
@@ -210,37 +220,80 @@ test('render builds both Plotly views without undefined values', () => {
     assert.match(nodes.industrialGeographyGrid.innerHTML, /data-geo-cluster-mode="region"/);
     assert.match(nodes.industrialGeographyGrid.innerHTML, /data-geo-context-clusters\s*>/);
     assert.match(nodes.industrialGeographyGrid.innerHTML, /Context only · excluded from analysis/);
-    assert.match(nodes.industrialGeographyGrid.innerHTML, /excluded from emission clusters by default/);
+    assert.match(nodes.industrialGeographyGrid.innerHTML, /By default they are excluded from emission clusters/);
     assert.doesNotMatch(nodes.industrialGeographyGrid.innerHTML, /undefined|NaN/);
     assert.equal(calls.length, 2);
-    assert.equal(calls[0].traces.filter((trace) => trace.meta?.analysisIncluded).reduce((sum, trace) => sum + trace.x.length, 0), 20);
+    assert.equal(calls[0].traces.filter((trace) => trace.meta?.analysisIncluded).reduce((sum, trace) => sum + trace.x.length, 0), 53);
     assert.equal(calls[0].traces.filter((trace) => trace.meta?.contextOnly).reduce((sum, trace) => sum + trace.x.length, 0), 28);
-    assert.equal(calls[1].traces.reduce((sum, trace) => sum + trace.x.length, 0), 20);
+    assert.equal(calls[1].traces.reduce((sum, trace) => sum + trace.x.length, 0), 53);
 
     Geography.setIncludeContextInClusters(true);
     assert.equal(Geography.getIncludeContextInClusters(), true);
     assert.match(nodes.industrialGeographyGrid.innerHTML, /data-geo-context-clusters checked/);
     assert.equal(calls.length, 4);
-    assert.equal(calls[3].traces.reduce((sum, trace) => sum + trace.x.length, 0), 48);
+    assert.equal(calls[3].traces.reduce((sum, trace) => sum + trace.x.length, 0), 81);
     assert.equal(calls[3].traces.filter((trace) => trace.meta?.contextOnly).reduce((sum, trace) => sum + trace.x.length, 0), 28);
 
     Geography.setClusterMode('region');
     assert.equal(Geography.getClusterMode(), 'region');
     assert.equal(calls.length, 6);
     assert.equal(calls[5].layout.annotations.length, 6);
-    assert.equal(calls[5].traces.reduce((sum, trace) => sum + trace.x.length, 0), 48);
+    assert.equal(calls[5].traces.reduce((sum, trace) => sum + trace.x.length, 0), 81);
+
+    assert.match(nodes.industrialGeographyGrid.innerHTML, /data-geo-context-visible checked/);
+    const kpis = nodes.industrialGeographyGrid.innerHTML.match(/<div class="industrial-geo-kpis"[\s\S]*?<\/div>\s*<\/div>/)[0];
+    contextListeners.get('change')({ currentTarget: { checked: false } });
+    assert.equal(Geography.getContextVisible(), false);
+    assert.equal(calls[6].traces.filter(trace => trace.meta?.contextOnly).length, 0);
+    assert.equal(calls[7].traces.filter(trace => trace.meta?.contextOnly).length, 0);
+    assert.equal(calls[7].traces.reduce((sum, trace) => sum + trace.x.length, 0), 53);
+    assert.equal(infrastructureCalls.at(-1).contextInstallations.length, 0);
+    assert.ok(nodes.industrialGeographyGrid.innerHTML.includes(kpis));
+    assert.doesNotMatch(nodes.industrialGeographyGrid.innerHTML, /class="industrial-geo-context-legend"/);
+    assert.match(nodes.industrialGeographyGrid.innerHTML, /data-geo-context-clusters checked disabled/);
+
+    currentLanguage = 'bg';
+    Geography.setClusterMode('activity');
+    assert.equal(Geography.getContextVisible(), false);
+    assert.match(nodes.industrialGeographyGrid.innerHTML, /Показвай допълнителния ETS контекст/);
+    assert.equal(calls.at(-2).traces.filter(trace => trace.meta?.contextOnly).length, 0);
+    assert.equal(calls.at(-1).traces.filter(trace => trace.meta?.contextOnly).length, 0);
+
+    contextListeners.get('change')({ currentTarget: { checked: true } });
+    assert.equal(Geography.getContextVisible(), true);
+    assert.equal(calls.at(-2).traces.filter(trace => trace.meta?.contextOnly).reduce((sum, trace) => sum + trace.x.length, 0), 28);
+    assert.equal(calls.at(-1).traces.filter(trace => trace.meta?.contextOnly).reduce((sum, trace) => sum + trace.x.length, 0), 28);
+    assert.equal(infrastructureCalls.at(-1).contextInstallations.length, 28);
+
+    // A fast toggle can replace a chart while Plotly is still calculating margins.
+    const purged = [];
+    let finishDrawing;
+    const drawing = new Promise(resolve => { finishDrawing = resolve; });
+    global.Plotly.react = () => drawing;
+    global.Plotly.purge = node => purged.push(node.id);
+    Geography.render();
+    purged.length = 0;
+    Geography.setContextVisible(false);
+    assert.deepEqual(purged, [], 'pending plots must remain intact until their drawing completes');
+    finishDrawing();
+    await drawing;
+    await Promise.resolve();
+    assert.deepEqual(purged.sort(), ['industrialGeoBubbles', 'industrialGeoMap']);
   } finally {
     Geography.setIncludeContextInClusters(false);
+    Geography.setContextVisible(true);
     if (originalDocument === undefined) delete global.document;
     else global.document = originalDocument;
     if (originalPlotly === undefined) delete global.Plotly;
     else global.Plotly = originalPlotly;
     if (originalGetComputedStyle === undefined) delete global.getComputedStyle;
     else global.getComputedStyle = originalGetComputedStyle;
+    if (originalInfrastructure === undefined) delete global.IndustrialInfrastructure;
+    else global.IndustrialInfrastructure = originalInfrastructure;
   }
 });
 
-test('section is placed after Cluster Analysis and uses an independent daily Netzero password', () => {
+test('section is placed after Cluster Analysis and opens directly without an access gate', () => {
   const root = path.join(__dirname, '..');
   const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
   const app = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
@@ -248,10 +301,9 @@ test('section is placed after Cluster Analysis and uses an independent daily Net
 
   assert.ok(html.indexOf('section-industrial-geography') > html.indexOf('section-cluster'));
   assert.match(html, /data-section="industrial-geography"/);
-  assert.match(html, /id="industrialGeographyAccessGate"/);
-  assert.match(app, /INDUSTRIAL_GEOGRAPHY_ACCESS_PASSWORD_BASE = 'Netzero'/);
-  assert.match(app, /getCurrentIndustrialGeographyPassword[\s\S]*new Date\(\)\.getDate\(\)/);
-  assert.match(app, /nzlIndustrialGeographyAccessUnlocked/);
+  assert.match(html, /<div id="industrialGeographyContent">/);
+  assert.doesNotMatch(html, /industrialGeographyAccessGate|type="password"/);
+  assert.doesNotMatch(app, /INDUSTRIAL_GEOGRAPHY_ACCESS_PASSWORD_BASE|nzlIndustrialGeographyAccessUnlocked/);
   assert.match(app, /Индустриална география/);
 
   const requiredKeys = [

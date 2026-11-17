@@ -19,7 +19,9 @@
   let trajectoryMode = 'scenarios';
   let selectedSectorPathwayId = 'refining';
   let companySearch = '';
-  let companyClusterFilter = 'all';
+  let companyRegionFilter = 'all';
+  let companyActivityFilter = 'all';
+  const registryCopy = (en, bg) => language() === 'bg' ? bg : en;
   let monteCarloCache = null;
   let toastTimer = null;
 
@@ -114,18 +116,6 @@
     return Simulation.getSelectedCompany();
   }
 
-  function isAccessUnlocked() {
-    return typeof root.isClusterAccessUnlocked !== 'function' || root.isClusterAccessUnlocked();
-  }
-
-  function isSimulationUnlocked() {
-    return typeof root.isClusterSimulationUnlocked === 'function' && root.isClusterSimulationUnlocked();
-  }
-
-  function isEditorUnlocked() {
-    return typeof root.isClusterEditorUnlocked === 'function' && root.isClusterEditorUnlocked();
-  }
-
   function ensureMainTabs() {
     const sectionDesc = root.document.querySelector('#section-cluster .section-desc');
     if (!sectionDesc?.parentElement) return;
@@ -196,10 +186,6 @@
   }
 
   function renderScenarioRoster(state, selectedScenario) {
-    const ranked = Model.rankScenarios(state.scenarios, state.companies).map((entry) => ({
-      ...entry,
-      trajectory: Model.buildTransitionTrajectory(entry.scenario, state.companies),
-    }));
     return `
       <section class="cluster-panel cluster-roster-panel" aria-labelledby="clusterRosterTitle">
         <div class="cluster-panel-head">
@@ -208,28 +194,27 @@
             <p>${escapeHtml(t('scenario.rosterDesc'))}</p>
           </div>
         </div>
-        <div class="cluster-roster-list">
-          ${ranked.map((entry, index) => {
-            const selected = entry.scenario.id === selectedScenario.id;
+        <ul class="cluster-roster-list">
+          ${state.scenarios.map((scenario) => {
+            const selected = scenario.id === selectedScenario.id;
             return `
+              <li class="cluster-roster-item">
               <button
                 type="button"
-                class="cluster-roster-row theme-${escapeHtml(entry.scenario.theme)} ${selected ? 'active' : ''}"
+                class="cluster-roster-row theme-${escapeHtml(scenario.theme)} ${selected ? 'active' : ''}"
                 data-cluster-action="select-scenario"
-                data-scenario-id="${escapeHtml(entry.scenario.id)}"
+                data-scenario-id="${escapeHtml(scenario.id)}"
                 aria-pressed="${selected}"
               >
-                <span class="cluster-rank">${index + 1}</span>
                 <span class="cluster-roster-name">
-                  <strong>${escapeHtml(Model.getScenarioName(entry.scenario, language()))}</strong>
-                  <small>${escapeHtml(localize(entry.scenario.role) || t('outcome.balance'))}</small>
+                  <strong>${escapeHtml(Model.getScenarioName(scenario, language()))}</strong>
+                  <small>${escapeHtml(localize(scenario.role))}</small>
                 </span>
-                <span class="cluster-roster-score ${scoreTone(entry.outcome.balance)}">${formatScore(entry.outcome.balance)}</span>
-                <span class="cluster-roster-secondary" title="${escapeHtml(t('trajectory.reduction2050'))}">${formatNumber(entry.trajectory.aggregate.target2050 * 100, 0)}% · 2050</span>
               </button>
+              </li>
             `;
           }).join('')}
-        </div>
+        </ul>
       </section>
     `;
   }
@@ -415,7 +400,6 @@
           data-scenario-id="${escapeHtml(scenario.id)}"
           data-key="${key}"
           ${enabled ? 'checked' : ''}
-          ${editorDisabledAttribute()}
         >
         <span class="cluster-switch" aria-hidden="true"><i></i></span>
         <span class="cluster-tech-copy">
@@ -431,11 +415,10 @@
     const technologies = Model.getTechnologyPortfolio(scenario);
     const reactors = technologies.nuclearReactors;
     const electrolyzerUnits = technologies.electrolyzerUnits;
-    const editorUnlocked = isEditorUnlocked();
-    const reactorDecrementDisabled = !editorUnlocked || reactors <= 0 ? 'disabled' : '';
-    const reactorIncrementDisabled = !editorUnlocked || reactors >= Data.TECHNOLOGY_ASSUMPTIONS.maxNuclearReactors ? 'disabled' : '';
-    const electrolyzerDecrementDisabled = !editorUnlocked || electrolyzerUnits <= 0 ? 'disabled' : '';
-    const electrolyzerIncrementDisabled = !editorUnlocked || electrolyzerUnits >= Data.TECHNOLOGY_ASSUMPTIONS.maxElectrolyzerUnits ? 'disabled' : '';
+    const reactorDecrementDisabled = reactors <= 0 ? 'disabled' : '';
+    const reactorIncrementDisabled = reactors >= Data.TECHNOLOGY_ASSUMPTIONS.maxNuclearReactors ? 'disabled' : '';
+    const electrolyzerDecrementDisabled = electrolyzerUnits <= 0 ? 'disabled' : '';
+    const electrolyzerIncrementDisabled = electrolyzerUnits >= Data.TECHNOLOGY_ASSUMPTIONS.maxElectrolyzerUnits ? 'disabled' : '';
     return `
       <div class="cluster-technology-controls" aria-labelledby="clusterTechnologyTitle">
         <div class="cluster-technology-heading">
@@ -462,7 +445,6 @@
                 aria-label="${escapeHtml(t('trajectory.electrolyzerUnits'))}"
                 data-cluster-change="electrolyzer-units"
                 data-scenario-id="${escapeHtml(scenario.id)}"
-                ${editorDisabledAttribute()}
               >
               <button type="button" title="${escapeHtml(t('trajectory.increaseElectrolyzers'))}" aria-label="${escapeHtml(t('trajectory.increaseElectrolyzers'))}" data-cluster-action="electrolyzer-step" data-delta="1" ${electrolyzerIncrementDisabled}>+</button>
             </div>
@@ -482,7 +464,6 @@
                 aria-label="${escapeHtml(t('trajectory.reactorCount'))}"
                 data-cluster-change="nuclear-reactors"
                 data-scenario-id="${escapeHtml(scenario.id)}"
-                ${editorDisabledAttribute()}
               >
               <button type="button" title="${escapeHtml(t('trajectory.increaseReactors'))}" aria-label="${escapeHtml(t('trajectory.increaseReactors'))}" data-cluster-action="nuclear-step" data-delta="1" ${reactorIncrementDisabled}>+</button>
             </div>
@@ -746,7 +727,6 @@
                 aria-label="${escapeHtml(t('market.configuredShare'))}"
                 data-cluster-change="hydrogen-ammonia-share"
                 data-scenario-id="${escapeHtml(scenario.id)}"
-                ${editorDisabledAttribute()}
               >
             </label>
             <div class="cluster-allocation-bar" aria-label="${escapeHtml(t('market.allocationTitle'))}">
@@ -998,12 +978,23 @@
     `;
   }
 
+  function companyRegions(company) {
+    const ids = company.regionIds || [company.geography?.regionId];
+    return Data.STATISTICAL_REGIONS.filter((region) => ids.includes(region.id));
+  }
+
+  function companyRegionNames(company) {
+    return companyRegions(company).map((region) => localize(region.name)).join(' · ');
+  }
+
   function filterCompanies(companies) {
     const query = companySearch.trim().toLocaleLowerCase(language() === 'bg' ? 'bg' : 'en');
     return companies.filter((company) => {
-      const matchesCluster = companyClusterFilter === 'all' || company.cluster === companyClusterFilter;
-      const haystack = `${company.company} ${company.cluster} ${company.sector}`.toLocaleLowerCase(language() === 'bg' ? 'bg' : 'en');
-      return matchesCluster && (!query || haystack.includes(query));
+      const matchesRegion = companyRegionFilter === 'all' || companyRegions(company).some((region) => region.id === companyRegionFilter);
+      const original = `${company.company} ${company.companyBg || ''} ${company.cluster} ${company.sector}`;
+      const translated = [company.company, company.cluster, company.sector, company.mainActivity].map((value) => localize(value)).join(' ');
+      const haystack = `${original} ${translated} ${companyRegionNames(company)}`.toLocaleLowerCase(language() === 'bg' ? 'bg' : 'en');
+      return matchesRegion && (companyActivityFilter === 'all' || company.mainActivityId === companyActivityFilter) && (!query || haystack.includes(query));
     });
   }
 
@@ -1072,13 +1063,16 @@
   }
 
   function renderCompanies(state) {
-    const hydrated = state.companies.map(Model.hydrateCompany);
+    const roster = (Data.createCompanyRoster || Data.createDefaultCompanies)();
+    const hydrated = roster.map(company => {
+      const assessed = state.companies.find(entry => entry.id === company.id);
+      return assessed ? { ...company, ...Model.hydrateCompany(assessed), company: company.company, companyBg: company.companyBg } : company;
+    });
     const filtered = filterCompanies(hydrated);
     const selected = getSelectedCompany();
     const selectedHydrated = Model.hydrateCompany(selected);
     const decision = Model.getDecisionLayer(getSelectedScenario(), state.companies, { pathways: getPathways() });
     const selectedDecision = decision.companyPriorities.find((company) => company.id === selected.id);
-    const clusters = [...new Set(hydrated.map((company) => company.cluster))].sort();
 
     return `
       <div class="cluster-view">
@@ -1086,7 +1080,7 @@
           <div class="cluster-panel-head cluster-toolbar-head">
             <div>
               <h3 id="clusterCompaniesTitle">${escapeHtml(t('companies.title'))}</h3>
-              <p>${escapeHtml(t('companies.desc'))}</p>
+              <p>${escapeHtml(registryCopy('Operator register · 2025 emissions and free allowances. Model scores remain based on the assessed 2024 set; new operators have no model score.', 'Регистър на операторите · емисии и безплатни квоти за 2025 г. Оценките на модела остават за оценения набор за 2024 г.; новите оператори нямат моделна оценка.'))}</p>
             </div>
             <div class="cluster-filter-row">
               <label class="cluster-field compact-field">
@@ -1094,11 +1088,15 @@
                 <input type="search" value="${escapeHtml(companySearch)}" placeholder="${escapeHtml(t('companies.search'))}" data-cluster-input="company-search">
               </label>
               <label class="cluster-field compact-field">
-                <span class="sr-only">${escapeHtml(t('general.cluster'))}</span>
-                <select data-cluster-change="company-cluster-filter">
-                  <option value="all">${escapeHtml(t('companies.allClusters'))}</option>
-                  ${clusters.map((cluster) => `<option value="${escapeHtml(cluster)}" ${companyClusterFilter === cluster ? 'selected' : ''}>${escapeHtml(cluster)}</option>`).join('')}
+                <span class="sr-only">${escapeHtml(t('companies.region'))}</span>
+                <select data-cluster-change="company-region-filter">
+                  <option value="all">${escapeHtml(t('companies.allRegions'))}</option>
+                  ${Data.STATISTICAL_REGIONS.map((region) => `<option value="${escapeHtml(region.id)}" ${companyRegionFilter === region.id ? 'selected' : ''}>${escapeHtml(localize(region.name))}</option>`).join('')}
                 </select>
+              </label>
+              <label class="cluster-field compact-field">
+                <span>${escapeHtml(registryCopy('Main activity', 'Основна дейност'))}</span>
+                <select data-cluster-change="company-activity-filter"><option value="all">${escapeHtml(registryCopy('All activities', 'Всички дейности'))}</option>${[...new Map(roster.map(co => [co.mainActivityId, co.mainActivity])).entries()].map(([id, activity]) => `<option value="${escapeHtml(id)}" ${companyActivityFilter === id ? 'selected' : ''}>${escapeHtml(localize(activity))}</option>`).join('')}</select>
               </label>
             </div>
           </div>
@@ -1107,19 +1105,25 @@
               <caption class="sr-only">${escapeHtml(t('companies.baselineMetrics'))}</caption>
               <thead><tr>
                 <th scope="col">${escapeHtml(t('general.company'))}</th>
-                <th scope="col">${escapeHtml(t('general.cluster'))}</th>
+                <th scope="col">${escapeHtml(t('companies.region'))}</th>
+                <th scope="col">${escapeHtml(registryCopy('Main activity', 'Основна дейност'))}</th>
+                <th scope="col">2025 · t CO₂e</th><th scope="col">2025 · EUA</th>
                 ${Data.CORE_METRIC_DEFINITIONS.map((metric) => `<th scope="col">${escapeHtml(metric.key.replace('_i', ''))}</th>`).join('')}
                 <th scope="col">${escapeHtml(t('general.confidence'))}</th>
               </tr></thead>
               <tbody>${filtered.map((company) => `
                 <tr class="${company.id === selected.id ? 'selected' : ''}">
                   <th scope="row">
-                    <button type="button" class="cluster-table-link" data-cluster-action="select-company" data-company-id="${escapeHtml(company.id)}">${escapeHtml(company.company)}</button>
+                    <button type="button" class="cluster-table-link" data-cluster-action="open-company-profile" data-company-id="${escapeHtml(company.id)}">${escapeHtml(language() === 'bg' ? company.companyBg || localize(company.company) : company.company)}</button>
                     <small>${escapeHtml(company.sector)}</small>
+                    ${company.modelAssessed ? `<button type="button" class="cluster-table-link" data-cluster-action="select-company" data-company-id="${escapeHtml(company.id)}">${escapeHtml(registryCopy('Model assessment', 'Оценка по модела'))}</button>` : ''}
                   </th>
-                  <td>${escapeHtml(company.cluster)}</td>
-                  ${Data.CORE_METRIC_DEFINITIONS.map((metric) => `<td class="${scoreTone(company[metric.key])}">${formatScore(company[metric.key])}</td>`).join('')}
-                  <td>${formatNumber(company.provenance?.confidence20 || 0, 0)}</td>
+                  <td>${escapeHtml(companyRegionNames(company))}</td>
+                  <td>${escapeHtml(localize(company.mainActivity))}</td>
+                  <td>${company.verifiedEmissions2025T == null ? escapeHtml(t('general.notAvailable')) : formatNumber(company.verifiedEmissions2025T, 0)}</td>
+                  <td>${company.freeAllowances2025Eua == null ? escapeHtml(t('general.notAvailable')) : formatNumber(company.freeAllowances2025Eua, 0)}</td>
+                  ${Data.CORE_METRIC_DEFINITIONS.map((metric) => `<td class="${company.modelAssessed ? scoreTone(company[metric.key]) : ''}">${company.modelAssessed ? formatScore(company[metric.key]) : '—'}</td>`).join('')}
+                  <td>${company.modelAssessed ? formatNumber(company.provenance?.confidence20 || 0, 0) : '—'}</td>
                 </tr>
               `).join('')}</tbody>
             </table>
@@ -1430,12 +1434,7 @@
     `;
   }
 
-  function editorDisabledAttribute() {
-    return isEditorUnlocked() ? '' : 'disabled';
-  }
-
   function renderSimulationToolbar(state, scenario) {
-    const disabled = editorDisabledAttribute();
     return `
       <div class="cluster-sim-toolbar">
         <label class="cluster-field scenario-select-field">
@@ -1445,15 +1444,15 @@
           </select>
         </label>
         <div class="cluster-command-row" role="group" aria-label="${escapeHtml(t('meta.simulation.title'))}">
-          <button type="button" class="cluster-btn" data-cluster-action="clone-scenario" ${disabled}>${escapeHtml(t('action.clone'))}</button>
-          <button type="button" class="cluster-btn" data-cluster-action="reset-scenario" ${disabled || scenario.custom ? 'disabled' : ''}>${escapeHtml(t('action.resetScenario'))}</button>
-          <button type="button" class="cluster-btn danger" data-cluster-action="delete-scenario" ${disabled || !scenario.custom ? 'disabled' : ''}>${escapeHtml(t('action.deleteScenario'))}</button>
-          <button type="button" class="cluster-btn" data-cluster-action="undo" ${disabled || !Simulation.canUndo() ? 'disabled' : ''}>${escapeHtml(t('action.undo'))}</button>
-          <button type="button" class="cluster-btn" data-cluster-action="reset-all" ${disabled}>${escapeHtml(t('action.resetAll'))}</button>
+          <button type="button" class="cluster-btn" data-cluster-action="clone-scenario">${escapeHtml(t('action.clone'))}</button>
+          <button type="button" class="cluster-btn" data-cluster-action="reset-scenario" ${scenario.custom ? 'disabled' : ''}>${escapeHtml(t('action.resetScenario'))}</button>
+          <button type="button" class="cluster-btn danger" data-cluster-action="delete-scenario" ${!scenario.custom ? 'disabled' : ''}>${escapeHtml(t('action.deleteScenario'))}</button>
+          <button type="button" class="cluster-btn" data-cluster-action="undo" ${!Simulation.canUndo() ? 'disabled' : ''}>${escapeHtml(t('action.undo'))}</button>
+          <button type="button" class="cluster-btn" data-cluster-action="reset-all">${escapeHtml(t('action.resetAll'))}</button>
         </div>
         <div class="cluster-command-row" role="group" aria-label="${escapeHtml(t('action.exportGroup'))}">
           <button type="button" class="cluster-btn" data-cluster-action="export-json">${escapeHtml(t('action.exportJson'))}</button>
-          <button type="button" class="cluster-btn" data-cluster-action="trigger-import" ${disabled}>${escapeHtml(t('action.importJson'))}</button>
+          <button type="button" class="cluster-btn" data-cluster-action="trigger-import">${escapeHtml(t('action.importJson'))}</button>
           <button type="button" class="cluster-btn" data-cluster-action="export-csv">${escapeHtml(t('action.exportCsv'))}</button>
           <button type="button" class="cluster-btn" data-cluster-action="share">${escapeHtml(t('action.share'))}</button>
           <button type="button" class="cluster-btn" data-cluster-action="print">${escapeHtml(t('action.print'))}</button>
@@ -1464,7 +1463,6 @@
   }
 
   function renderScenarioEditor(state) {
-    const disabled = editorDisabledAttribute();
     return `
       <section class="cluster-panel" aria-labelledby="clusterScenarioEditorTitle">
         <div class="cluster-panel-head"><div><h3 id="clusterScenarioEditorTitle">${escapeHtml(t('simulation.scenarioInputs'))}</h3><p>${escapeHtml(t('general.scale'))}</p></div></div>
@@ -1486,7 +1484,6 @@
                     data-cluster-change="scenario-value"
                     data-scenario-id="${escapeHtml(scenario.id)}"
                     data-key="${key}"
-                    ${disabled}
                   ></td>
                 `).join('')}
               </tr>
@@ -1498,7 +1495,6 @@
   }
 
   function renderCompanyEditor(state) {
-    const disabled = editorDisabledAttribute();
     return `
       <section class="cluster-panel" aria-labelledby="clusterCompanyEditorTitle">
         <div class="cluster-panel-head"><div><h3 id="clusterCompanyEditorTitle">${escapeHtml(t('simulation.companyInputs'))}</h3><p>${escapeHtml(t('companies.factorDerived'))}</p></div></div>
@@ -1522,7 +1518,6 @@
                       data-cluster-change="company-metric"
                       data-company-id="${escapeHtml(company.id)}"
                       data-key="${metric.key}"
-                      ${disabled}
                     ></td>
                   `).join('')}
                 </tr>
@@ -1537,7 +1532,6 @@
   function renderFactorEditor(state) {
     const company = getSelectedCompany();
     const metric = Model.getMetricDefinition(state.selectedMetricKey) || Data.CORE_METRIC_DEFINITIONS[0];
-    const disabled = editorDisabledAttribute();
     const aggregate = Model.calculateCompanyMetric(company, metric.key);
     return `
       <section class="cluster-panel" aria-labelledby="clusterFactorEditorTitle">
@@ -1560,7 +1554,6 @@
                   data-company-id="${escapeHtml(company.id)}"
                   data-metric-key="${metric.key}"
                   data-factor-key="${factor.key}"
-                  ${disabled}
                 >
               </label>
             `;
@@ -1612,28 +1605,21 @@
 
   function renderSimulation(state) {
     const scenario = getSelectedScenario();
-    const simulationUnlocked = isSimulationUnlocked();
-    const editorUnlocked = isEditorUnlocked();
     return `
       <div class="cluster-view cluster-simulation-view">
         <section class="cluster-panel cluster-sim-intro" aria-labelledby="clusterSimulationTitle">
           <div class="cluster-panel-head cluster-toolbar-head">
             <div><h3 id="clusterSimulationTitle">${escapeHtml(t('simulation.title'))}</h3><p>${escapeHtml(t('simulation.desc'))}</p></div>
-            <div class="cluster-status-row">
-              <span class="cluster-badge ${simulationUnlocked ? 'success' : 'locked'}">${escapeHtml(t(simulationUnlocked ? 'simulation.unlocked' : 'simulation.locked'))}</span>
-              <span class="cluster-badge ${editorUnlocked ? 'success' : 'neutral'}">${escapeHtml(t(editorUnlocked ? 'simulation.editorEnabled' : 'simulation.viewOnly'))}</span>
-            </div>
           </div>
-          <p class="cluster-sim-note">${escapeHtml(editorUnlocked ? t('simulation.savedLocal') : t('simulation.editorMessage'))}</p>
+          <p class="cluster-sim-note">${escapeHtml(t('simulation.savedLocal'))}</p>
           ${renderSimulationToolbar(state, scenario)}
         </section>
 
-        <div class="cluster-sim-protected ${simulationUnlocked ? '' : 'is-locked'}">
+        <div class="cluster-sim-workspace">
           ${renderScenarioEditor(state)}
           ${renderCompanyEditor(state)}
           ${renderFactorEditor(state)}
           ${renderUncertainty(state, scenario)}
-          ${simulationUnlocked ? '' : `<div class="cluster-sim-overlay" role="status"><div><strong>${escapeHtml(t('simulation.locked'))}</strong><span>${escapeHtml(t('simulation.lockMessage'))}</span></div></div>`}
         </div>
       </div>
     `;
@@ -1680,7 +1666,7 @@
       const decision = Model.getDecisionLayer(scenario, state.companies, { pathways: getPathways() });
       Charts.renderPortfolio('clusterPortfolioChart', decision.pathwayPortfolios, language());
     }
-    if (activeMainTab === 'simulation' && isSimulationUnlocked()) {
+    if (activeMainTab === 'simulation') {
       const sensitivity = Model.runSensitivity(scenario, state.companies, 0.05);
       Charts.renderSensitivity('clusterSensitivityChart', sensitivity, language());
       Charts.renderMonteCarlo('clusterMonteCarloChart', getMonteCarlo(state, scenario), language());
@@ -1697,7 +1683,7 @@
 
   function renderClusterAnalysis() {
     const grid = root.document.getElementById('clusterScenarioGrid');
-    if (!grid || !isAccessUnlocked()) return;
+    if (!grid) return;
     ensureMainTabs();
     updateSectionMeta();
     Charts.purge(CLUSTER_CHART_IDS);
@@ -1714,12 +1700,6 @@
     toast.textContent = message;
     toast.hidden = false;
     toastTimer = root.setTimeout(() => { toast.hidden = true; }, 3200);
-  }
-
-  function requireEditor() {
-    if (isEditorUnlocked()) return true;
-    showToast(t('toast.editorRequired'));
-    return false;
   }
 
   function downloadFile(filename, content, mimeType) {
@@ -1811,14 +1791,12 @@
       return;
     }
     if (action === 'nuclear-step') {
-      if (!requireEditor()) return;
       const scenario = getSelectedScenario();
       const current = scenario.technologies?.nuclearReactors || 0;
       Simulation.updateScenarioTechnology(scenario.id, 'nuclearReactors', current + Number(button.dataset.delta || 0));
       return;
     }
     if (action === 'electrolyzer-step') {
-      if (!requireEditor()) return;
       const scenario = getSelectedScenario();
       const current = scenario.technologies?.electrolyzerUnits || 0;
       Simulation.updateScenarioTechnology(scenario.id, 'electrolyzerUnits', current + Number(button.dataset.delta || 0));
@@ -1828,38 +1806,37 @@
       Simulation.selectScenario(button.dataset.scenarioId);
       return;
     }
+    if (action === 'open-company-profile') {
+      root.openCompanyModal?.(button.dataset.companyId);
+      return;
+    }
     if (action === 'select-company') {
       if (activeMainTab === 'sectors') activeMainTab = 'companies';
       Simulation.selectCompany(button.dataset.companyId);
       return;
     }
     if (action === 'clone-scenario') {
-      if (!requireEditor()) return;
       Simulation.cloneScenario(getSelectedScenario().id, language());
       showToast(t('toast.cloned'));
       return;
     }
     if (action === 'reset-scenario') {
-      if (!requireEditor()) return;
       Simulation.resetScenario(getSelectedScenario().id);
       showToast(t('toast.reset'));
       return;
     }
     if (action === 'delete-scenario') {
-      if (!requireEditor()) return;
       Simulation.deleteScenario(getSelectedScenario().id);
       showToast(t('toast.deleted'));
       return;
     }
     if (action === 'reset-all') {
-      if (!requireEditor()) return;
       if (root.confirm?.(t('action.resetAllConfirm')) === false) return;
       Simulation.resetAll();
       showToast(t('toast.reset'));
       return;
     }
     if (action === 'undo') {
-      if (!requireEditor()) return;
       Simulation.undo();
       showToast(t('toast.undo'));
       return;
@@ -1869,7 +1846,6 @@
       return;
     }
     if (action === 'trigger-import') {
-      if (!requireEditor()) return;
       root.document.getElementById('clusterImportFile')?.click();
       return;
     }
@@ -1900,8 +1876,12 @@
     if (type === 'comparison-scenario') Simulation.selectComparisonScenario(control.value);
     if (type === 'select-company') Simulation.selectCompany(control.value);
     if (type === 'select-metric') Simulation.selectMetric(control.value);
-    if (type === 'company-cluster-filter') {
-      companyClusterFilter = control.value;
+    if (type === 'company-region-filter') {
+      companyRegionFilter = Data.STATISTICAL_REGIONS.some((region) => region.id === control.value) ? control.value : 'all';
+      renderClusterAnalysis();
+    }
+    if (type === 'company-activity-filter') {
+      companyActivityFilter = control.value;
       renderClusterAnalysis();
     }
     if (type === 'scenario-value') Simulation.updateScenarioValue(control.dataset.scenarioId, control.dataset.key, control.value);
@@ -1976,7 +1956,7 @@
 
   Simulation.subscribe((event) => {
     if (!['selection', 'monte-carlo-options'].includes(event.type)) monteCarloCache = null;
-    if (isAccessUnlocked()) renderClusterAnalysis();
+    renderClusterAnalysis();
   });
 
   root.ClusterAnalysis = Object.freeze({
@@ -1994,9 +1974,9 @@
   if (root.document.readyState === 'loading') {
     root.document.addEventListener('DOMContentLoaded', () => {
       const active = root.document.getElementById('section-cluster')?.classList.contains('active');
-      if (active && isAccessUnlocked()) renderClusterAnalysis();
+      if (active) renderClusterAnalysis();
     }, { once: true });
-  } else if (root.document.getElementById('section-cluster')?.classList.contains('active') && isAccessUnlocked()) {
+  } else if (root.document.getElementById('section-cluster')?.classList.contains('active')) {
     renderClusterAnalysis();
   }
 })(window);

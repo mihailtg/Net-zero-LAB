@@ -1,9 +1,18 @@
 (function initClusterData(root, factory) {
-  const api = factory();
+  const registry = root.CompanyRegistry2025 || (typeof require === 'function' ? require('./company-registry-2025.js') : null);
+  const api = factory(registry);
   root.ClusterData = api;
   if (typeof module === 'object' && module.exports) module.exports = api;
-})(typeof window !== 'undefined' ? window : globalThis, function createClusterData() {
+})(typeof window !== 'undefined' ? window : globalThis, function createClusterData(Registry) {
   'use strict';
+
+  // Temporarily inactive companies stay in the source data for future restoration.
+  // Remove an ID here to include it throughout the dashboard again.
+  const HIDDEN_COMPANY_IDS = Object.freeze(['svilosa']);
+
+  function isCompanyVisible(id) {
+    return !HIDDEN_COMPANY_IDS.includes(String(id).toLowerCase());
+  }
 
   const VERSION = 8;
   const VISUAL_SCALE_MAX = 20;
@@ -74,10 +83,10 @@
   const DEFAULT_SCENARIOS = [
     {
       id: 'pressure',
-      name: { en: 'CBAM and ETS squeeze', bg: 'CBAM и ETS натиск' },
+      name: { en: 'Rising carbon costs', bg: 'Нарастващи въглеродни разходи' },
       theme: 'pressure',
-      role: { en: 'Compliance stress test', bg: 'Стрес тест за съответствие' },
-      description: { en: 'Carbon costs and product reporting tighten faster than Bulgarian industrial infrastructure, finance and offtake can respond.', bg: 'Въглеродните разходи и продуктовото отчитане се затягат по-бързо, отколкото българската индустриална инфраструктура, финансирането и договорите могат да отговорят.' },
+      role: { en: 'CBAM and EU ETS compliance pressure', bg: 'Натиск от разходите по CBAM и EU ETS' },
+      description: { en: 'Carbon costs and reporting obligations increase faster than companies can secure infrastructure, finance and long-term sales contracts.', bg: 'Въглеродните разходи и изискванията за отчитане нарастват по-бързо, отколкото предприятията успяват да осигурят инфраструктура, финансиране и дългосрочни договори за продажба.' },
       basis: { en: 'CBAM has applied definitively since 2026 and EU ETS free allocation in covered sectors declines toward 2034, while H2 and CO2 networks remain delayed.', bg: 'CBAM се прилага окончателно от 2026 г., а безплатните квоти по EU ETS в обхванатите сектори намаляват до 2034 г., докато H2 и CO2 мрежите се забавят.' },
       focus: [{ en: 'Very high carbon pressure', bg: 'Много висок въглероден натиск' }, { en: 'Strong reporting, weak delivery', bg: 'Силно отчитане, слабо изпълнение' }, { en: 'No scaled enabling technology', bg: 'Без мащабирана подпомагаща технология' }],
       evidence: [
@@ -104,12 +113,12 @@
     },
     {
       id: 'growth',
-      name: { en: 'Renewables and green molecules', bg: 'ВЕИ и зелени молекули' },
+      name: { en: 'Renewables, green hydrogen and ammonia', bg: 'ВЕИ, зелен водород и зелен амоняк' },
       theme: 'growth',
-      role: { en: 'Green-molecule opportunity', bg: 'Възможност за зелени молекули' },
-      description: { en: 'Rapid solar, storage and grid growth supports industrial electrification, renewable H2, green NH3 and contracted green products.', bg: 'Бързото развитие на солари, съхранение и мрежи подкрепя индустриалната електрификация, възобновяемия H2, зеления NH3 и договорените зелени продукти.' },
+      role: { en: 'Renewable power for low-carbon production', bg: 'Възобновяема енергия за нисковъглеродно производство' },
+      description: { en: 'New solar capacity, energy storage and grid upgrades support industrial electrification and the production of green hydrogen and ammonia, backed by long-term sales contracts.', bg: 'Нови фотоволтаични мощности, съхранение на енергия и подобрения в мрежата подпомагат електрификацията на индустрията и производството на зелен водород и амоняк с дългосрочни договори за продажба.' },
       basis: { en: 'Scales beyond Bulgaria’s funded renewable-and-storage build-out and 55 MW hydrogen pilot toward a 400 MW industrial electrolyzer portfolio.', bg: 'Надгражда финансираните в България ВЕИ и батерии и 55 MW водороден пилот до индустриален електролизьорен портфейл от 400 MW.' },
-      focus: [{ en: 'Very strong power and grid', bg: 'Много силни ток и мрежа' }, { en: '400 MW electrolysis', bg: '400 MW електролиза' }, { en: '70% of H2 routed to NH3', bg: '70% от H2 към NH3' }],
+      focus: [{ en: 'Expanded power supply and grid capacity', bg: 'Разширено електроснабдяване и мрежов капацитет' }, { en: '400 MW electrolysis', bg: '400 MW електролиза' }, { en: '70% of H2 routed to NH3', bg: '70% от водорода за производство на амоняк' }],
       evidence: [
         { name: { en: 'EU RRF: 1,425 MW renewables with storage', bg: 'МВУ: 1425 MW ВЕИ със съхранение' }, url: 'https://reforms-investments.ec.europa.eu/projects/support-new-capacities-electricity-generation-renewable-sources-and-electricity-storage_en' },
         { name: { en: 'Bulgarian Energy Ministry: 55 MW hydrogen pilot', bg: 'Министерство на енергетиката: 55 MW водороден пилот' }, url: 'https://www.me.government.bg/en/news/italiya-i-balgariya-prouchvat-vazmojnostite-za-zasilvane-na-energiinoto-satrudnichestvo-3220.html' },
@@ -135,12 +144,12 @@
     },
     {
       id: 'defensive',
-      name: { en: 'Nuclear backbone and electrification', bg: 'Ядрена опора и електрификация' },
+      name: { en: 'Nuclear power and industrial electrification', bg: 'Ядрена енергия и електрификация на индустрията' },
       theme: 'defensive',
-      role: { en: 'Firm-power pathway', bg: 'Път с гарантирана мощност' },
-      description: { en: 'Two new AP1000 units, stronger grids and long-term electricity contracting drive direct electrification, while H2 and CCUS remain secondary.', bg: 'Два нови блока AP1000, по-силни мрежи и дългосрочни договори за ток водят директната електрификация, докато H2 и CCUS остават вторични.' },
+      role: { en: 'Reliable power for industrial processes', bg: 'Надеждно електроснабдяване за производството' },
+      description: { en: 'Two new AP1000 units, grid upgrades and long-term electricity contracts support the replacement of fossil-fuel processes with electric technologies. Hydrogen and CCUS have a supporting role.', bg: 'Два нови блока AP1000, подобрения в мрежата и дългосрочни договори за електроенергия подпомагат замяната на процеси с изкопаеми горива с електрически технологии. Водородът и CCUS имат допълваща роля.' },
       basis: { en: 'Reflects Bulgaria’s active Unit 7 and 8 development path and assumes both 1,000 MW model units become available after the mid-2030s.', bg: 'Отразява активния проект за 7-и и 8-и блок и приема, че и двете моделни единици по 1000 MW стават налични след средата на 30-те години.' },
-      focus: [{ en: 'Two 1,000 MW reactors', bg: 'Два реактора по 1000 MW' }, { en: 'Highest firm-power visibility', bg: 'Най-висока предвидимост на мощността' }, { en: 'Direct electrification first', bg: 'Приоритет на директната електрификация' }],
+      focus: [{ en: 'Two 1,000 MW reactors', bg: 'Два реактора по 1000 MW' }, { en: 'Predictable long-term electricity supply', bg: 'Предвидимо дългосрочно електроснабдяване' }, { en: 'Direct electrification first', bg: 'Приоритет на директната електрификация' }],
       evidence: [
         { name: { en: 'Bulgarian Energy Ministry: Kozloduy Units 7 and 8', bg: 'Министерство на енергетиката: блокове 7 и 8 на АЕЦ Козлодуй' }, url: 'https://www.me.government.bg/en/news/bulgaria-signs-strategically-important-agreement-for-new-nuclear-capacity-at-kozloduy-npp-3735.html' },
         { name: { en: 'EU RRF: RESTORE grid-scale storage', bg: 'МВУ: национално батерийно съхранение RESTORE' }, url: 'https://reforms-investments.ec.europa.eu/projects/national-infrastructure-storage-electricity-restore_en' },
@@ -166,10 +175,10 @@
     },
     {
       id: 'volatile',
-      name: { en: 'Fragmented current-policy delivery', bg: 'Фрагментирано изпълнение на текущите политики' },
+      name: { en: 'Uneven implementation of current policies', bg: 'Неравномерно изпълнение на текущите политики' },
       theme: 'volatile',
-      role: { en: 'Reference scenario', bg: 'Референтен сценарий' },
-      description: { en: 'Solar and batteries expand, but permitting, industrial grid connections, clean-product contracts and shared H2/CO2 infrastructure advance unevenly.', bg: 'Соларите и батериите растат, но разрешителните, индустриалните мрежови връзки, договорите за чисти продукти и общата H2/CO2 инфраструктура напредват неравномерно.' },
+      role: { en: 'Current-policy reference scenario', bg: 'Референтен сценарий при текущите политики' },
+      description: { en: 'Solar and battery capacity grows, but permitting, industrial grid connections, low-carbon product contracts and shared hydrogen and CO2 infrastructure advance at different speeds.', bg: 'Фотоволтаичните и батерийните мощности се увеличават, но разрешителните, присъединяването на предприятията към мрежата, договорите за нисковъглеродни продукти и общата инфраструктура за водород и CO₂ се развиват с различна скорост.' },
       basis: { en: 'A central case anchored in projects already funded or under development, including approximately 60 MW of pilot electrolysis but no scaled NH3 or CCUS chain.', bg: 'Централен случай, стъпил върху финансирани или разработвани проекти, включително около 60 MW пилотна електролиза, но без мащабирана NH3 или CCUS верига.' },
       focus: [{ en: 'Current-project pipeline', bg: 'Текущ проектен портфейл' }, { en: '60 MW pilot electrolysis', bg: '60 MW пилотна електролиза' }, { en: 'Delivery remains fragmented', bg: 'Изпълнението остава фрагментирано' }],
       evidence: [
@@ -197,10 +206,10 @@
     },
     {
       id: 'cluster',
-      name: { en: 'Industrial hubs with H2 and CCUS', bg: 'Индустриални хъбове с H2 и CCUS' },
+      name: { en: 'Shared hydrogen and CO2 infrastructure', bg: 'Обща инфраструктура за водород и CO₂' },
       theme: 'cluster',
-      role: { en: 'Integrated net-zero pathway', bg: 'Интегриран net-zero път' },
-      description: { en: 'Industrial hubs jointly develop clean power, H2/NH3, CO2 transport and storage, certification and long-term green-product offtake.', bg: 'Индустриални хъбове съвместно развиват чист ток, H2/NH3, транспорт и съхранение на CO2, сертификация и дългосрочни договори за зелени продукти.' },
+      role: { en: 'Coordinated industrial decarbonisation', bg: 'Координирана индустриална декарбонизация' },
+      description: { en: 'Companies in industrial clusters jointly develop low-carbon electricity, hydrogen and ammonia production, CO2 transport and storage, certification and long-term sales contracts.', bg: 'Предприятията в индустриалните клъстери съвместно развиват нисковъглеродно електроснабдяване, производство на водород и амоняк, транспорт и съхранение на CO₂, сертификация и дългосрочни договори за продажба.' },
       basis: { en: 'Extends the ANRAV full-chain CCUS concept and EU Hydrogen Valley logic across the Devnya, Dimitrovgrad and mineral-material clusters.', bg: 'Разширява пълната CCUS верига на ANRAV и логиката на европейските Hydrogen Valleys към клъстерите Девня, Димитровград и минерални материали.' },
       focus: [{ en: 'Highest cluster coordination', bg: 'Най-силна клъстерна координация' }, { en: '200 MW electrolysis and NH3', bg: '200 MW електролиза и NH3' }, { en: 'Scaled CO2 network and CCS', bg: 'Мащабирана CO2 мрежа и CCS' }],
       evidence: [
@@ -228,10 +237,10 @@
     },
     {
       id: 'stalled',
-      name: { en: 'Fast response, then structural stall', bg: 'Бърз отклик, после структурен застой' },
+      name: { en: 'Early emissions cuts, then stagnation', bg: 'Бърз напредък, последван от застой' },
       theme: 'stalled',
-      role: { en: 'Front-loaded plateau stress test', bg: 'Стрес тест с ранен скок и плато' },
-      description: { en: 'Efficiency, operational measures and fast permits deliver a strong initial response, but weak grids, shared infrastructure and bankable offtake leave emissions reduction on a low plateau.', bg: 'Ефективността, оперативните мерки и бързите разрешителни дават силен начален отклик, но слабите мрежи, общата инфраструктура и надеждните договори оставят емисионната редукция на ниско плато.' },
+      role: { en: 'Infrastructure constraints limit further progress', bg: 'Инфраструктурните ограничения забавят прехода' },
+      description: { en: 'Efficiency improvements, operational measures and faster permits deliver early emissions cuts. Further progress stalls because grid capacity, shared infrastructure and reliable sales contracts remain insufficient.', bg: 'Подобренията в ефективността, оперативните мерки и по-бързите разрешителни намаляват емисиите в началото. След това напредъкът спира поради недостатъчен мрежов капацитет, обща инфраструктура и надеждни договори за продажба.' },
       basis: { en: 'A deliberate delivery-risk case: approximately 28% reduction is reached by 2030, but missing investment conditions limit the 2050 reduction to 34%.', bg: 'Съзнателен сценарий за риск при изпълнението: около 28% намаление се достига до 2030 г., но липсващите инвестиционни условия ограничават редукцията през 2050 г. до 34%.' },
       focus: [{ en: 'Strong response before 2030', bg: 'Силен отклик преди 2030 г.' }, { en: '34% emissions reduction ceiling', bg: 'Таван от 34% емисионна редукция' }, { en: 'No scaled H2, CCS or nuclear build-out', bg: 'Без мащабирани H2, CCS или нови ядрени мощности' }],
       evidence: [
@@ -266,9 +275,9 @@
     },
     {
       id: 'shutdown',
-      name: { en: 'Zero emissions, zero industry', bg: 'Нулеви емисии, нулева индустрия' },
+      name: { en: 'Zero emissions through industrial closure', bg: 'Нулеви емисии чрез закриване на производства' },
       theme: 'shutdown',
-      role: { en: 'Deindustrialisation failure case', bg: 'Провал чрез деиндустриализация' },
+      role: { en: 'Deindustrialisation risk scenario', bg: 'Сценарий за риск от деиндустриализация' },
       description: { en: 'Carbon constraints and compliance obligations tighten without affordable energy, finance or enabling infrastructure. Plants close or relocate, taking territorial industrial emissions to zero by 2050 together with domestic industrial activity.', bg: 'Въглеродните ограничения и изискванията се затягат без достъпна енергия, финансиране и подпомагаща инфраструктура. Предприятията затварят или се изнасят, така че до 2050 г. териториалните индустриални емисии и местната индустриална активност достигат нула.' },
       basis: { en: 'A deliberately undesirable boundary case that separates genuine technological abatement from emissions removed through plant closure and carbon leakage.', bg: 'Съзнателно нежелан граничен сценарий, който отделя реалното технологично намаление от емисиите, изчезнали чрез закриване и изнасяне на производството.' },
       focus: [{ en: '100% territorial emissions reduction', bg: '100% териториална емисионна редукция' }, { en: '0% domestic industry operating in 2050', bg: '0% работеща местна индустрия през 2050 г.' }, { en: 'Closures dominate, not technology', bg: 'Закриванията доминират, не технологиите' }],
@@ -447,7 +456,7 @@
   const COMPANY_METRIC_DEFINITIONS = [...CORE_METRIC_DEFINITIONS, ...SENSITIVITY_DEFINITIONS];
   const COMPANY_METRIC_KEYS = COMPANY_METRIC_DEFINITIONS.map((metric) => metric.key);
 
-  const ETS_REGISTRY_URL = 'https://climate.ec.europa.eu/eu-action/carbon-markets/eu-emissions-trading-system-eu-ets/union-registry_en';
+  const ETS_REGISTRY_URL = 'https://climate.ec.europa.eu/areas-action/carbon-markets/eu-emissions-trading-system-eu-ets/union-registry_en';
 
   const STATISTICAL_REGIONS = Object.freeze([
     { id: 'BG31', name: { en: 'North-West', bg: 'Северозападен' } },
@@ -690,7 +699,7 @@
       provenance: {
         source: config.companySource,
         url: config.companySourceUrl,
-        emissionsSource: '2023-2024 verified-emissions extract supplied for the analysis; EU ETS Union Registry methodology.',
+        emissionsSource: 'European Commission · EU ETS Union Registry · 2023–2024',
         emissionsUrl: ETS_REGISTRY_URL,
         year: 2024,
         confidence20: config.confidence20,
@@ -903,24 +912,29 @@
     }),
     {
       id: 'orgachim', company: 'Orgachim AD', cluster: 'Ruse', sector: 'Coatings', specificSector: 'Coatings', sectorPathwayId: 'supplemental-chemicals', pathwayAliases: ['Orgachim'], emissionsKt: 40,
+      regionIds: ['BG32'],
       datasetScope: 'supplemental', indicator: { en: 'Supplemental company outside the supplied ETS Top 20.', bg: 'Допълнителна компания извън подадения ETS Top 20.' },
       scores20: { B_i: 12.4, T_i: 13.6, M_i: 12.4, E_i: 10.8, C_i: 14.8, K_i: 11.2, industrial_weight: 11.2, infra_dependency: 11.6, carbon_sensitivity: 11.2, power_price_sensitivity: 12.4 },
       provenance: { source: 'Company project disclosures and sector screening', year: 2024, confidence20: 8, method: 'Expert screening proxy.', note: 'No separately disclosed verified emissions were available.' },
     },
     {
       id: 'biovet', company: 'Biovet AD', cluster: 'Razgrad/Peshtera', sector: 'Veterinary pharmaceuticals', specificSector: 'Veterinary pharmaceuticals', sectorPathwayId: 'supplemental-chemicals', pathwayAliases: ['Biovet', 'Biovet / Huvepharma'], emissionsKt: 180,
+      // The company profile covers Razgrad, Peshtera and Botevgrad installations.
+      regionIds: ['BG32', 'BG42', 'BG41'],
       datasetScope: 'supplemental', indicator: { en: 'Supplemental company outside the supplied ETS Top 20.', bg: 'Допълнителна компания извън подадения ETS Top 20.' },
       scores20: { B_i: 16.0, T_i: 16.4, M_i: 15.6, E_i: 11.2, C_i: 12.0, K_i: 14.4, industrial_weight: 14.4, infra_dependency: 15.2, carbon_sensitivity: 10.4, power_price_sensitivity: 15.2 },
       provenance: { source: 'Company decarbonisation programme disclosures', year: 2024, confidence20: 10, method: 'Project-led screening proxy.', note: 'Absolute emissions baseline requires confirmation.' },
     },
     {
       id: 'svilosa', company: 'Svilosa AD', cluster: 'Svishtov', sector: 'Pulp and paper', specificSector: 'Pulp and paper', sectorPathwayId: 'supplemental-pulp', pathwayAliases: ['Svilosa'], emissionsKt: 64.53,
+      regionIds: ['BG32'],
       datasetScope: 'supplemental', indicator: { en: 'Supplemental company outside the supplied ETS Top 20.', bg: 'Допълнителна компания извън подадения ETS Top 20.' },
       scores20: { B_i: 14.4, T_i: 16.0, M_i: 13.6, E_i: 10.0, C_i: 12.4, K_i: 14.0, industrial_weight: 13.2, infra_dependency: 10.8, carbon_sensitivity: 9.6, power_price_sensitivity: 11.6 },
       provenance: { source: 'Official category 1.A.2.d and company project disclosures', year: 2023, confidence20: 15, method: 'Inventory-led screening proxy.', note: 'The energy category is official; company allocation is a screening assumption.' },
     },
     {
       id: 'agria', company: 'Agria AD', cluster: 'Plovdiv', sector: 'Agrochemicals', specificSector: 'Agrochemicals', sectorPathwayId: 'supplemental-chemicals', pathwayAliases: ['Agria'], emissionsKt: 30,
+      regionIds: ['BG42'],
       datasetScope: 'supplemental', indicator: { en: 'Supplemental company outside the supplied ETS Top 20.', bg: 'Допълнителна компания извън подадения ETS Top 20.' },
       scores20: { B_i: 11.2, T_i: 12.8, M_i: 11.6, E_i: 8.8, C_i: 13.6, K_i: 10.4, industrial_weight: 8.8, infra_dependency: 9.2, carbon_sensitivity: 8.4, power_price_sensitivity: 10.8 },
       provenance: { source: 'Public company information and sector screening', year: 2024, confidence20: 7, method: 'Low-confidence expert screening proxy.', note: 'Primary company data are required before decision use.' },
@@ -1646,11 +1660,33 @@
         pathwayAliases: company.pathwayAliases.slice(),
         indicator: company.indicator ? { ...company.indicator } : undefined,
         geography: company.geography ? { ...company.geography } : undefined,
+        regionIds: company.regionIds ? company.regionIds.slice() : [company.geography?.regionId].filter(Boolean),
         provenance: { ...company.provenance },
         factors: Object.fromEntries(COMPANY_METRIC_DEFINITIONS.map((metric, metricIndex) => [
           metric.key,
           createFactorProfile(scores20[metric.key], metric, (companyIndex + 1) * 19 + metricIndex * 7),
         ])),
+      };
+    }).filter((company) => isCompanyVisible(company.id));
+  }
+
+  function createCompanyRoster() {
+    const baseline = createDefaultCompanies();
+    const supplied = Registry?.records || [];
+    const ids = [...baseline.map((company) => company.id), ...supplied.map((company) => company.id)];
+    return [...new Set(ids)].filter(isCompanyVisible).map((id) => {
+      const existing = baseline.find((company) => company.id === id);
+      const row = supplied.find((company) => company.id === id);
+      const geography = existing?.geography || row?.geography;
+      return {
+        ...existing, ...row, id, modelAssessed: Boolean(existing), geography,
+        company: row?.company || existing.company,
+        cluster: existing?.cluster || geography?.locality || '',
+        sector: existing?.sector || row?.mainActivity.en,
+        specificSector: row?.mainActivity.en || existing?.specificSector,
+        mainActivityId: row?.mainActivityId || `supplemental-${id}`,
+        mainActivity: row?.mainActivity || { en: existing.specificSector || existing.sector, bg: existing.specificSector || existing.sector },
+        regionIds: existing?.regionIds || [geography?.regionId].filter(Boolean),
       };
     });
   }
@@ -1684,6 +1720,8 @@
   }
 
   return Object.freeze({
+    HIDDEN_COMPANY_IDS,
+    isCompanyVisible,
     VERSION,
     VISUAL_SCALE_MAX,
     TECHNOLOGY_DEFAULTS,
@@ -1696,13 +1734,14 @@
     SENSITIVITY_DEFINITIONS,
     COMPANY_METRIC_DEFINITIONS,
     COMPANY_METRIC_KEYS,
-    COMPANY_BASELINES,
+    COMPANY_BASELINES: COMPANY_BASELINES.filter((company) => isCompanyVisible(company.id)),
     STATISTICAL_REGIONS,
     INSTALLATION_GEOGRAPHY,
+    ETS_REGISTRY_URL,
     GEOGRAPHY_CONTEXT_INSTALLATIONS,
     SECTOR_PATHWAYS,
     COMPANY_TRANSITION_PROFILES,
-    NETWORK_EDGES,
+    NETWORK_EDGES: NETWORK_EDGES.filter((edge) => isCompanyVisible(edge.source) && isCompanyVisible(edge.target)),
     ELECTROLYZER_VALLEY_CANDIDATES,
     CEMENT_CCS_ASSUMPTIONS,
     CEMENT_CCS_STORAGE_SITES,
@@ -1712,10 +1751,14 @@
     AMMONIA_LOGISTICS_NODES,
     AMMONIA_LOGISTICS_ROUTES,
     INFRASTRUCTURE_SITING_SOURCES,
-    SHARED_INFRASTRUCTURE_OPPORTUNITIES,
+    SHARED_INFRASTRUCTURE_OPPORTUNITIES: SHARED_INFRASTRUCTURE_OPPORTUNITIES.map((project) => ({
+      ...project,
+      members: project.members.filter(isCompanyVisible),
+    })),
     SYSTEM_EFFECT_AXES,
     SYSTEM_EFFECT_MATRIX,
     createDefaultCompanies,
+    createCompanyRoster,
     createDefaultScenarios,
     createDefaultTechnologyPortfolio,
     createDefaultState,

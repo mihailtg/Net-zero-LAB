@@ -6,12 +6,12 @@
 <title>Net-Zero Lab - Bulgarian Chemical &amp; Industrial Decarbonization</title>
 <meta name="description" content="Tracking the decarbonization journey of Bulgaria's chemical and industrial sector toward net-zero by 2050 - sourced data, company profiles, pathways, and scenario analysis.">
 <meta name="theme-color" content="#181d23">
-<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="assets/logo.svg">
+<link rel="icon" href="assets/net-zero-lab-icon.png" type="image/png">
+<link rel="apple-touch-icon" href="assets/net-zero-lab-icon.png">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Net-Zero Lab - Bulgarian Chemical &amp; Industrial Decarbonization">
 <meta property="og:description" content="Tracking the decarbonization journey of Bulgaria's chemical and industrial sector toward net-zero by 2050 - sourced data, company profiles, pathways, and scenario analysis.">
-<meta property="og:image" content="assets/logo.svg">
+<meta property="og:image" content="assets/net-zero-lab-icon.png">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Net-Zero Lab - Bulgarian Chemical &amp; Industrial Decarbonization">
 <meta name="twitter:description" content="Tracking the decarbonization journey of Bulgaria's chemical and industrial sector toward net-zero by 2050.">
@@ -36,6 +36,7 @@
     <link rel="stylesheet" href="industrial-geography.css">
     <link rel="stylesheet" href="industrial-infrastructure.css">
     <link rel="stylesheet" href="industrial-investment.css">
+<link rel="stylesheet" href="infographics.css">
 </head>
 <body>
 <div id="cdnFailureBanner" class="cdn-failure-banner" hidden>
@@ -46,11 +47,8 @@
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-header">
     <div class="logo">
-      <img class="logo-img" src="assets/logo.svg" alt="Net-Zero Lab logo">
-      <div>
-        <div class="logo-title">Net-Zero Lab</div>
-        <div class="logo-sub" data-i18n="brand.subtitle">BG Chemical Industry</div>
-      </div>
+      <div class="logo-mark"><img class="logo-img" src="assets/net-zero-lab-official.webp" width="450" height="99" alt="Net-Zero Lab logo"></div>
+      <div class="logo-sub" data-i18n="brand.subtitle">BG Chemical Industry</div>
     </div>
   </div>
 
@@ -98,12 +96,14 @@
     <button class="nav-item" data-section="cluster" onclick="showSection('cluster')">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><path d="M12 7v5"/><path d="M10.5 11.5 6.5 17"/><path d="M13.5 11.5 17.5 17"/></svg>
       <span data-i18n="nav.cluster">Cluster Analysis</span>
-      <svg class="nav-preview-badge" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><title>Preview - access code required</title><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
     </button>
     <button class="nav-item" data-section="industrial-geography" onclick="showSection('industrial-geography')">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0z"/><circle cx="12" cy="10" r="2.5"/></svg>
       <span data-i18n="nav.geography">Industrial Geography</span>
-      <svg class="nav-preview-badge" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><title>Preview - access code required</title><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+    </button>
+    <button class="nav-item" data-section="infographics" onclick="showSection('infographics')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 16v-4M12 16V8M17 16v-6"/></svg>
+      <span data-i18n="nav.infographics">Infographics</span>
     </button>
   </nav>
 
@@ -132,7 +132,7 @@
   <button class="mobile-menu-btn" onclick="toggleMobileSidebar()" data-i18n-aria="controls.toggleMenu" aria-label="Toggle menu">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
-  <div class="mobile-logo"><img class="mobile-logo-img" src="assets/logo.svg" alt="">Net-Zero Lab</div>
+  <div class="mobile-logo"><span class="mobile-logo-mark"><img class="mobile-logo-img" src="assets/net-zero-lab-icon.png" width="192" height="192" alt=""></span>Net-Zero Lab</div>
   <button class="theme-toggle-sm" onclick="toggleTheme()" data-i18n-aria="controls.toggleTheme" aria-label="Toggle theme">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="themeIconMobile"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
   </button>
@@ -210,13 +210,14 @@
       <div class="card">
         <div class="card-head">
           <div>
-            <div class="card-title">IPPU Sector Breakdown (2023)</div>
+            <div class="card-title" data-i18n="inventory.breakdown">IPPU Sector Breakdown (2024)</div>
             <div class="card-sub">Industrial Processes &amp; Product Use emissions</div>
           </div>
         </div>
         <div class="chart-wrap chart-wrap-sm">
           <canvas id="ipuPieChart"></canvas>
         </div>
+        <div class="db-note" id="dashboardIppuNote"></div>
       </div>
     </div>
 
@@ -247,10 +248,10 @@
         <div class="progress-item">
           <div class="progress-label">
             <span>Chemical sector share of IPPU emissions</span>
-            <span class="progress-val-text">26.8%</span>
+            <span class="progress-val-text" id="chemicalIppuShare">26.3%</span>
           </div>
-          <div class="progress-bar-wrap"><div class="progress-bar pb-amber" style="width:26.8%"></div></div>
-          <div class="progress-note">2.B Chemical Industry 1,033.67 / IPPU total 3,855.65 Kt CO₂eq, 2023</div>
+          <div class="progress-bar-wrap"><div class="progress-bar pb-amber" id="chemicalIppuShareBar" style="width:26.3%"></div></div>
+          <div class="progress-note" id="chemicalIppuShareNote"></div>
         </div>
         <div class="progress-item">
           <div class="progress-label">
@@ -275,7 +276,7 @@
           <div class="tl-content">
             <div class="tl-year">2022–2024</div>
             <div class="tl-title">First-Wave Transition</div>
-            <div class="tl-desc">Biomass co-firing at Solvay Sodi (30% share); Agropolychim dual-pressure nitric acid plant programme; Svilosa BioTEC biomass plant (16 MW)</div>
+            <div class="tl-desc">Biomass co-firing at Solvay Sodi (30% share); Agropolychim dual-pressure nitric acid plant programme<span data-company="svilosa" hidden>; Svilosa BioTEC biomass plant (16 MW)</span></div>
           </div>
         </div>
         <div class="timeline-item timeline-active">
@@ -311,16 +312,18 @@
     <div class="section-head">
       <div>
         <h1 class="section-title" data-i18n="section.companies.title">Company Profiles</h1>
-        <p class="section-desc" data-i18n="section.companies.desc">Key chemical industry players and their decarbonization status</p>
+        <p class="section-desc" data-i18n="section.companies.desc">Profiles of the industrial participants included in Cluster Analysis</p>
       </div>
       <div class="filter-row">
         <button class="filter-btn active" onclick="filterCompanies('all', this)">All</button>
         <button class="filter-btn" onclick="filterCompanies('advanced', this)">Advanced</button>
         <button class="filter-btn" onclick="filterCompanies('progressing', this)">Progressing</button>
         <button class="filter-btn" onclick="filterCompanies('early', this)">Early Stage</button>
+        <button class="filter-btn" onclick="filterCompanies('unassessed', this)" data-i18n="profile.unassessed">Not assessed</button>
       </div>
     </div>
 
+    <div class="company-registry-filters" id="companyRegistryFilters"></div>
     <div class="company-grid" id="companyGrid">
       <!-- Cards populated by JS -->
     </div>
@@ -449,7 +452,7 @@
               <div class="milestone-list">
                 <div class="milestone">
                   <div class="ms-year">ANRAV</div>
-                  <div class="ms-text">€600M assumed CCUS CAPEX split into €190M funded by the EU Innovation Fund (incl. €38M for geological storage) and €410M remaining project financing; 800,000 t CO₂/yr captured at Devnya (Heidelberg Materials); hybrid OxyCal + post-combustion technology; ANRAV.beta pilot completed; full-scale commissioning 2028. First full CCUS chain in Eastern Europe. (Source: Heidelberg-Part01.docx)</div>
+                  <div class="ms-text">€600M assumed CCUS CAPEX split into €190M funded by the EU Innovation Fund (incl. €38M for geological storage) and €410M remaining project financing; 800,000 t CO₂/yr captured at Devnya (Heidelberg Materials); hybrid OxyCal + post-combustion technology; ANRAV.beta pilot completed; full-scale commissioning 2028. First full CCUS chain in Eastern Europe.</div>
                 </div>
                 <div class="milestone">
                   <div class="ms-year">Holcim</div>
@@ -539,7 +542,7 @@
               <h3 class="pw-section-title mt-3">Current deployments</h3>
               <ul class="pw-list">
                 <li>Solvay Sodi: biomass co-firing is already around 30% in one boiler, delivering about 20% CO₂ reduction; the next step is scale-up to 50% in CFB steam generators No. 7 and No. 8.</li>
-                <li>Svilosa: BioTEC biomass CHP is operational at 16 MW and 65 t steam/hour from waste biomass; future HERB boiler modernization would improve black liquor combustion and may enable BECCS later.</li>
+                <li data-company="svilosa" hidden>Svilosa: BioTEC biomass CHP is operational at 16 MW and 65 t steam/hour from waste biomass; future HERB boiler modernization would improve black liquor combustion and may enable BECCS later.</li>
                 <li>Biovet / Huvepharma: Greenburn® treats residual mycelium as biomass for carbon-neutral steam, with biogas from wastewater fermentation; the site reports 30% absolute CO₂ reduction over 2020–2023.</li>
                 <li>Holcim Bulgaria: approximately 90% fossil fuel substitution in clinker production using alternative fuels, contributing to 443 kg CO₂/t cement in 2023, the lowest specific emissions in the global Holcim Group.</li>
                 <li>Heidelberg Materials: RDF and tyre-feeding upgrade on kiln Line No. 7, including a 480 t/day shredder, supports about 60 kt CO₂/year reduction.</li>
@@ -594,7 +597,7 @@
               <p>Circular routes reduce emissions by keeping carbon and materials in productive use for longer. The priority is to turn industrial by-products, biomass side streams, agricultural residues, and lower-value waste into higher-value products or process inputs instead of relying on virgin fossil or mineral feedstocks.</p>
               <h3 class="pw-section-title mt-3">Specific opportunities</h3>
               <ul class="pw-list">
-                <li>Svilosa: microcrystalline cellulose installation above €13.1M creates higher-value products from biomass and lowers emissions intensity per unit of output.</li>
+                <li data-company="svilosa" hidden>Svilosa: microcrystalline cellulose installation above €13.1M creates higher-value products from biomass and lowers emissions intensity per unit of output.</li>
                 <li>Orgachim: sunflower- and castor-oil-based coatings and resins support bio-based, low-VOC product development and lower dependence on fossil-derived inputs.</li>
                 <li>Solvay Sodi: e.Solvay electrochemical process under testing could reduce CO₂ by about 50% while saving water, salt, and limestone.</li>
                 <li>Solvay Sodi: bio-coke testing replaces metallurgical coke with wood charcoal in lime kilns as a circular bridge before full electrification.</li>
@@ -622,7 +625,7 @@
                   <div class="pw-stat-val">50%</div>
                   <div class="pw-stat-label">Potential CO₂ reduction from e.Solvay if validated</div>
                 </div>
-                <div class="pw-stat">
+                <div class="pw-stat" data-company="svilosa" hidden>
                   <div class="pw-stat-val">€13.1M</div>
                   <div class="pw-stat-label">Svilosa MCC investment</div>
                 </div>
@@ -674,7 +677,7 @@
               </div>
               <div class="alert-box alert-green mt-3">
                 <strong>Priority action:</strong> N₂O abatement on nitric acid units is the most immediate "no-regrets" measure in Bulgaria's chemical sector. Agropolychim integrates near-zero N₂O into new HNO₃ plant design (€250M programme). Neochim urgently needs catalytic abatement installation: €3–6M → 277 kt CO₂eq/yr saved → payback &lt;3 months.
-                <div class="db-note mt-2" style="opacity:0.85">Note: this pathway-level saving is substantially larger than the entire national 2.B.2 Nitric Acid CRF category (75.19 Kt CO₂eq for both plants combined, 2023 - see Emissions tab). Treat 277 kt as an unverified company-supplied estimate pending reconciliation with the official inventory, not as directly additive to the CRF total.</div>
+                <div class="db-note mt-2" style="opacity:0.85">Note: this pathway-level saving is substantially larger than the entire national 2.B.2 Nitric Acid CRF category (75.19 Kt CO₂eq for both plants combined, 2023 - see Emissions tab). Treat 277 kt as an unverified company estimate pending reconciliation with the official inventory, not as directly additive to the CRF total.</div>
               </div>
             </div>
           </div>
@@ -743,7 +746,7 @@
             </tr>
           </tbody>
         </table>
-        <div class="db-note mt-2">* Company-supplied N₂O abatement estimate; it exceeds the entire national 2.B.2 Nitric Acid CRF category (75.19 Kt CO₂eq for both plants combined, 2023 - see Emissions tab). Treat as an unverified upper-bound pending reconciliation with the official inventory.</div>
+        <div class="db-note mt-2">* Company N₂O abatement estimate; it exceeds the entire national 2.B.2 Nitric Acid CRF category (75.19 Kt CO₂eq for both plants combined, 2023 - see Emissions tab). Treat as an unverified upper-bound pending reconciliation with the official inventory.</div>
       </div>
     </div>
   </section>
@@ -753,14 +756,14 @@
     <div class="section-head">
       <div>
         <h1 class="section-title" data-i18n="section.emissions.title">Emissions Data</h1>
-        <p class="section-desc" data-i18n="section.emissions.desc">Official Bulgarian National GHG Inventory · UNFCCC CRF · 2010–2023</p>
+        <p class="section-desc" data-i18n="section.emissions.desc">National GHG inventory · IPPU 2010–2024 · industrial sub-sectors through 2023</p>
       </div>
       <div class="pill pill-green" data-i18n="section.emissions.pill">Official · 2023</div>
     </div>
 
     <!-- Tabs -->
     <div class="ems-tabs" role="tablist">
-      <button class="ems-tab active" role="tab" aria-selected="true" onclick="showEmsTab('ippu',this)">IPPU Historical (2010–2023)</button>
+      <button class="ems-tab active" role="tab" aria-selected="true" onclick="showEmsTab('ippu',this)" data-i18n="inventory.historyTab">IPPU Historical (2010–2024)</button>
       <button class="ems-tab" role="tab" aria-selected="false" onclick="showEmsTab('subsector',this)">Industry Sub-sectors</button>
       <button class="ems-tab" role="tab" aria-selected="false" onclick="showEmsTab('fuel2023',this)">Fuel Combustion 2023</button>
       <button class="ems-tab" role="tab" aria-selected="false" onclick="showEmsTab('cbam',this)">CBAM Exposure</button>
@@ -771,30 +774,31 @@
       <div class="chart-grid-2">
         <div class="card">
           <div class="card-head">
-            <div class="card-title">IPPU Total Emissions 2010–2023</div>
+            <div class="card-title" data-i18n="inventory.historyTitle">IPPU Total Emissions 2010–2024</div>
             <div class="card-sub">CRF Sector 2 · Kt CO₂eq · Official national inventory</div>
           </div>
           <div class="chart-wrap" style="height:240px"><canvas id="ippuTotalChart"></canvas></div>
         </div>
         <div class="card">
           <div class="card-head">
-            <div class="card-title">IPPU Sub-sector Breakdown 2023</div>
-            <div class="card-sub">CRF Sector 2 · Total: 3,855.65 Kt CO₂eq</div>
+            <div class="card-title" data-i18n="inventory.breakdown">IPPU Sector Breakdown (2024)</div>
+            <div class="card-sub" id="ippuBreakdownTotal"></div>
           </div>
           <div class="chart-wrap" style="height:240px"><canvas id="ippu2023PieChart"></canvas></div>
         </div>
       </div>
       <div class="card mt-4">
         <div class="card-head">
-          <div class="card-title">IPPU Sub-sectors Stacked - 2010–2023</div>
-          <div class="card-sub">Kt CO₂eq · 2.A Mineral Industry · 2.B Chemical Industry · 2.C Metal · 2.F ODS Substitutes</div>
+          <div class="card-title" data-i18n="inventory.stackedTitle">IPPU Sub-sectors Stacked — 2010–2024</div>
+          <div class="card-sub" data-i18n="inventory.stackedDesc">Kt CO₂eq · categories 2.A–2.H and reported total</div>
         </div>
         <div class="chart-wrap" style="height:260px"><canvas id="ippuStackedChart"></canvas></div>
+        <div class="db-note" id="ippuReconciliation"></div>
       </div>
       <div class="card mt-4">
         <div class="card-head">
-          <div class="card-title">IPPU Data Table 2010–2023</div>
-          <div class="card-sub">Kt CO₂eq · CRF Sector 2 · Source: Database_01.xlsx Sheet2</div>
+          <div class="card-title" data-i18n="inventory.tableTitle">IPPU Data Table 2010–2024</div>
+          <div class="card-sub">Kt CO₂eq · CRF Sector 2</div>
         </div>
         <div class="table-wrap"><table class="data-table" id="ippuDataTable"></table></div>
       </div>
@@ -805,7 +809,7 @@
       <div class="card">
         <div class="card-head">
           <div class="card-title">Key Industry Sub-sectors - Energy Combustion 2010–2023</div>
-          <div class="card-sub">Kt CO₂eq · 1.A.1.b Petroleum Refining (LUKOIL Neftohim Burgas) · 1.A.2.c Chemical Industry · 1.A.2.d Pulp &amp; Paper (Svilosa)</div>
+          <div class="card-sub">Kt CO₂eq · 1.A.1.b Petroleum Refining (LUKOIL Neftohim Burgas) · 1.A.2.c Chemical Industry · 1.A.2.d Pulp &amp; Paper</div>
         </div>
         <div class="chart-wrap" style="height:260px"><canvas id="energySubsecChart"></canvas></div>
       </div>
@@ -851,7 +855,7 @@
       <div class="card mt-4">
         <div class="card-head">
           <div class="card-title">Full Fuel Combustion Table - Sector 1.A (2023)</div>
-          <div class="card-sub">Kt CO₂eq · Sub-sectors · Source: Database_01.xlsx Sheet4</div>
+          <div class="card-sub">Kt CO₂eq · Sub-sectors</div>
         </div>
         <div class="table-wrap"><table class="data-table" id="fuelCombustionTable"></table></div>
         <div class="db-note" style="margin-top:0.75rem">
@@ -1239,7 +1243,7 @@
         <h1 class="section-title" data-i18n="section.roi.title">ROI Analysis</h1>
         <p class="section-desc" data-i18n="section.roi.desc">How avoided ETS compliance costs compensate decarbonization investments - payback periods and cumulative cashflows 2026–2040</p>
       </div>
-      <div class="pill pill-green" data-i18n="section.roi.pill">9 companies · Official data</div>
+      <div class="pill pill-green" data-i18n="section.roi.pill">8 companies · Official data</div>
     </div>
 
     <!-- Hero insight -->
@@ -1287,13 +1291,13 @@
         <div class="rk-icon" style="color:var(--blue)">&#8857;</div>
         <div class="rk-val" id="rk-sector-breakeven">2031</div>
         <div class="rk-label">Sector break-even year</div>
-        <div class="rk-sub">Committed investments, 9 companies</div>
+        <div class="rk-sub">Committed investments, <span data-calculator-company-count>8</span> companies</div>
       </div>
       <div class="roi-kpi">
         <div class="rk-icon" style="color:var(--amber)">&#9650;</div>
         <div class="rk-val" id="rk-savings-2030">€250M</div>
         <div class="rk-label">Annual carbon savings 2030</div>
-        <div class="rk-sub">All committed pathways, 9 companies</div>
+        <div class="rk-sub">All committed pathways, <span data-calculator-company-count>8</span> companies</div>
       </div>
       <div class="roi-kpi">
         <div class="rk-icon" style="color:var(--teal)">&#8730;</div>
@@ -1320,7 +1324,7 @@
           <button class="pf-btn" data-co="heidelberg"    onclick="filterPayback('heidelberg',this)">Heidelberg</button>
           <button class="pf-btn" data-co="holcim"        onclick="filterPayback('holcim',this)">Holcim</button>
           <button class="pf-btn" data-co="biovet"        onclick="filterPayback('biovet',this)">Biovet</button>
-          <button class="pf-btn" data-co="svilosa"       onclick="filterPayback('svilosa',this)">Svilosa</button>
+          <button class="pf-btn" data-co="svilosa" data-company="svilosa" hidden onclick="filterPayback('svilosa',this)">Svilosa</button>
           <button class="pf-btn" data-co="orgachim"      onclick="filterPayback('orgachim',this)">Orgachim</button>
         </div>
         <div class="chart-wrap" id="paybackChartWrap" style="height:340px">
@@ -1337,7 +1341,7 @@
               <option value="neochim">Neochim AD</option>
               <option value="solvay">Solvay Sodi Bulgaria</option>
               <option value="lukoil">LUKOIL Neftohim Burgas</option>
-              <option value="svilosa">Svilosa AD</option>
+              <option value="svilosa" data-company="svilosa" hidden disabled>Svilosa AD</option>
               <option value="heidelberg">Heidelberg Materials BG</option>
               <option value="holcim">Holcim Bulgaria AD</option>
               <option value="biovet">Biovet / Huvepharma</option>
@@ -1382,13 +1386,13 @@
       <div class="card-head">
         <div>
           <div class="card-title">Scenario Cashflow Snapshot 2026–2040</div>
-          <div class="card-sub">Investment plus user-provided Low / Base / High ETS and Net series</div>
+          <div class="card-sub">Investment plus Low / Base / High ETS and Net scenarios</div>
         </div>
       </div>
       <div class="chart-wrap" style="height:360px">
         <canvas id="roiScenarioSnapshotChart"></canvas>
       </div>
-      <div class="mac-note">Bars show Investment. Dashed lines show the ETS series and solid lines show the matching Net series from the provided table.</div>
+      <div class="mac-note">Bars show Investment. Dashed lines show the ETS scenarios and solid lines show the matching Net scenarios.</div>
     </div>
 
     <!-- Abatement cost curve concept -->
@@ -1778,7 +1782,7 @@
           </div>
 
           <!-- Svilosa -->
-          <div class="co-input-card" id="inp-svilosa">
+          <div class="co-input-card" id="inp-svilosa" data-company="svilosa" hidden>
             <div class="cic-header">
               <div class="cic-logo" style="background:var(--teal-light);color:var(--teal)">SV</div>
               <div>
@@ -1965,7 +1969,7 @@
                   <th>Neochim</th>
                   <th>Solvay Sodi</th>
                   <th>LUKOIL Neftohim Burgas</th>
-                  <th>Svilosa</th>
+                  <th data-company="svilosa" hidden>Svilosa</th>
                   <th>Heidelberg</th>
                   <th>Holcim</th>
                   <th>Biovet</th>
@@ -2012,28 +2016,10 @@
         <h1 class="section-title" data-i18n="section.cluster.title">Cluster Analysis</h1>
         <p class="section-desc" data-i18n="section.cluster.desc">Scenario matrix showing how each policy scenario changes the model inputs.</p>
       </div>
-      <div class="pill pill-green cluster-security-panel" id="clusterSecurityPanel"></div>
     </div>
 
-    <div class="cluster-access-shell">
-      <div class="card mt-4 cluster-access-card" id="clusterAccessGate">
-        <div class="cluster-access-kicker">Preview access</div>
-        <div class="cluster-access-title" id="clusterAccessTitle">Preview section</div>
-        <div class="cluster-access-desc" id="clusterAccessDesc">This module is in preview. Enter today's access code to view it - it is not a security control, just a soft gate while the module is finished. Contact the Net-Zero Lab team for the current code.</div>
-        <form class="cluster-access-form" onsubmit="unlockClusterAnalysis(); return false;">
-          <input
-            class="cluster-access-input"
-            id="clusterAccessInput"
-            type="password"
-            autocomplete="current-password"
-            placeholder="Access code"
-          >
-          <button class="cluster-access-button" id="clusterAccessButton" type="submit">Unlock</button>
-        </form>
-        <div class="cluster-access-error" id="clusterAccessError" role="alert" hidden></div>
-      </div>
-
-      <div id="clusterProtectedContent" hidden>
+    <div class="cluster-workspace-shell">
+      <div id="clusterContent">
         <div class="cluster-workspace-head">
           <div>
             <div class="cluster-workspace-title" id="clusterMatrixTitle">Scenario comparison</div>
@@ -2050,39 +2036,34 @@
     <div class="section-head">
       <div>
         <h1 class="section-title" data-i18n="section.geography.title">Industrial Geography</h1>
-        <p class="section-desc" data-i18n="section.geography.desc">Territorial distribution of Bulgaria's industrial ETS Top 20, with a separate power, heat, and district-heating context layer.</p>
+        <p class="section-desc" data-i18n="section.geography.desc">Bulgaria's industrial operator register, with main-activity filters, 2025 emissions and a separate view of the 2024 installation baseline.</p>
       </div>
-      <div class="pill pill-green" data-i18n="section.geography.pill">20 analysed + 28 context · EU ETS 2024</div>
+      <div class="pill pill-green" data-i18n="section.geography.pill">Operator register · 2024–2025</div>
     </div>
 
-    <div class="industrial-geo-access-shell">
-      <div class="card industrial-geo-access-card" id="industrialGeographyAccessGate">
-        <div class="industrial-geo-access-kicker" id="industrialGeographyAccessKicker">Preview access</div>
-        <div class="industrial-geo-access-title" id="industrialGeographyAccessTitle">Preview section</div>
-        <div class="industrial-geo-access-desc" id="industrialGeographyAccessDesc">This module is in preview. Enter today's access code to view it - it is not a security control, just a soft gate while the module is finished. Contact the Net-Zero Lab team for the current code.</div>
-        <form class="industrial-geo-access-form" onsubmit="unlockIndustrialGeography(); return false;">
-          <input
-            class="industrial-geo-access-input"
-            id="industrialGeographyAccessInput"
-            type="password"
-            autocomplete="current-password"
-            placeholder="Access code"
-          >
-          <button class="industrial-geo-access-button" id="industrialGeographyAccessButton" type="submit">Unlock</button>
-        </form>
-        <div class="industrial-geo-access-error" id="industrialGeographyAccessError" role="alert" hidden></div>
-      </div>
-
-      <div id="industrialGeographyProtectedContent" hidden>
+    <div class="industrial-geo-workspace-shell">
+      <div id="industrialGeographyContent">
         <div id="industrialGeographyGrid"></div>
       </div>
     </div>
   </section>
 
+  <section class="section" id="section-infographics">
+    <div class="section-head">
+      <div>
+        <h1 class="section-title" data-i18n="nav.infographics">Infographics</h1>
+        <p class="section-desc" data-i18n="section.infographics.desc">Emissions, industry and transition pathways in a visual series.</p>
+      </div>
+    </div>
+    <div id="infographicsContent" data-core-i18n-ignore></div>
+  </section>
 </main>
 
-<script src="app.js"></script>
+<script src="company-registry-2025.js"></script>
 <script src="cluster-data.js"></script>
+<script src="core-i18n-bg.js"></script>
+<script src="core-i18n.js"></script>
+<script src="app.js"></script>
 <script src="cluster-i18n.js"></script>
 <script src="cluster-model.js"></script>
 <script src="cluster-simulation.js"></script>
@@ -2091,6 +2072,8 @@
 <script src="industrial-geography.js"></script>
 <script src="industrial-infrastructure.js"></script>
 <script src="industrial-investment.js"></script>
+<script src="bulgaria-regions.js"></script>
+<script src="infographics.js"></script>
 </body>
 </html>
 

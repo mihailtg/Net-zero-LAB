@@ -14,6 +14,7 @@ test('Plotly is served locally so protected charts do not depend on a CDN', () =
 });
 
 test('browser modules register in dependency order', () => {
+  let currentLanguage = 'en';
   const listeners = new Map();
   const nodes = new Map();
   const grid = { id: 'clusterScenarioGrid', innerHTML: '' };
@@ -27,7 +28,7 @@ test('browser modules register in dependency order', () => {
   ['clusterMatrixTitle', 'clusterMatrixDesc', 'clusterScenarioNote'].forEach((id) => nodes.set(id, { id, textContent: '' }));
   const document = {
     readyState: 'loading',
-    documentElement: { getAttribute: () => 'en' },
+    documentElement: { getAttribute: () => currentLanguage },
     addEventListener(type, listener) { listeners.set(type, listener); },
     getElementById(id) { return nodes.get(id) || null; },
     querySelector(selector) { return selector === '#section-cluster .section-desc' ? sectionDesc : null; },
@@ -67,9 +68,6 @@ test('browser modules register in dependency order', () => {
       setItem() {},
     },
     requestAnimationFrame(callback) { callback(); },
-    isClusterAccessUnlocked: () => true,
-    isClusterSimulationUnlocked: () => true,
-    isClusterEditorUnlocked: () => true,
     btoa(value) { return Buffer.from(value, 'binary').toString('base64'); },
     atob(value) { return Buffer.from(value, 'base64').toString('binary'); },
   };
@@ -78,6 +76,9 @@ test('browser modules register in dependency order', () => {
   vm.createContext(context);
 
   const files = [
+    'company-registry-2025.js',
+    'core-i18n-bg.js',
+    'core-i18n.js',
     'cluster-data.js',
     'cluster-i18n.js',
     'cluster-model.js',
@@ -107,6 +108,15 @@ test('browser modules register in dependency order', () => {
   assert.equal(migrated.hydrogenToAmmoniaShare, 50);
 
   context.ClusterAnalysis.render();
+  const roster = () => grid.innerHTML.match(/<ul class="cluster-roster-list">([\s\S]*?)<\/ul>/)[1];
+  const rosterIds = () => [...roster().matchAll(/data-scenario-id="([^"]+)"/g)].map((match) => match[1]);
+  const expectedScenarioOrder = Array.from(context.ClusterSimulation.getState().scenarios, (scenario) => scenario.id);
+  assert.match(grid.innerHTML, /Different scenarios/);
+  assert.deepEqual(rosterIds(), expectedScenarioOrder);
+  assert.doesNotMatch(roster(), /cluster-rank|cluster-roster-score|cluster-roster-secondary/);
+  assert.equal(context.ClusterSimulation.updateScenarioValue('growth', 'finance', 0), true);
+  assert.deepEqual(rosterIds(), expectedScenarioOrder);
+  assert.equal(context.ClusterSimulation.undo(), true);
   assert.match(grid.innerHTML, /data-cluster-change="technology-toggle"/);
   assert.match(grid.innerHTML, /data-key="greenHydrogen"/);
   assert.match(grid.innerHTML, /data-key="electrolyzers"/);
@@ -116,8 +126,8 @@ test('browser modules register in dependency order', () => {
   assert.match(grid.innerHTML, /data-cluster-action="nuclear-step"/);
   assert.match(grid.innerHTML, /data-cluster-action="trajectory-mode"/);
   assert.match(grid.innerHTML, /cluster-scenario-basis/);
-  assert.match(grid.innerHTML, /Fast response, then structural stall/);
-  assert.match(grid.innerHTML, /Zero emissions, zero industry/);
+  assert.match(grid.innerHTML, /Early emissions cuts, then stagnation/);
+  assert.match(grid.innerHTML, /Zero emissions through industrial closure/);
 
   assert.equal(context.ClusterSimulation.selectScenario('stalled'), true);
   context.ClusterAnalysis.render();
@@ -148,6 +158,87 @@ test('browser modules register in dependency order', () => {
   assert.match(grid.innerHTML, /6,462,515/);
   assert.equal((grid.innerHTML.match(/data-company-id=/g) || []).length, 20);
   assert.doesNotMatch(grid.innerHTML, /undefined|NaN/);
+
+  // Fresh visitors can use simulations and editors without access flags or prompts.
+  context.ClusterSimulation.setMonteCarloOptions({ iterations: 100, uncertainty20: 0 });
+  assert.equal(context.ClusterAnalysis.setActiveMainTab('simulation'), true);
+  assert.match(grid.innerHTML, /cluster-sim-workspace/);
+  assert.doesNotMatch(grid.innerHTML, /type="password"|is-locked|cluster-sim-overlay|undefined|NaN/);
+  assert.match(grid.innerHTML, /data-cluster-action="clone-scenario"\s*>/);
+  assert.match(grid.innerHTML, /data-cluster-action="trigger-import"\s*>/);
+  assert.equal(context.ClusterSimulation.updateScenarioValue('cluster', 'finance', 12), true);
+  assert.equal(context.ClusterSimulation.getState().scenarios.find((scenario) => scenario.id === 'cluster').values.finance, 0.6);
+  assert.equal(context.ClusterSimulation.undo(), true);
+  assert.equal(context.ClusterAnalysis.setActiveMainTab('scenarios'), true);
+
+  currentLanguage = 'bg';
+  context.ClusterAnalysis.render();
+  assert.match(grid.innerHTML, /Различни сценарии/);
+  assert.match(roster(), /Ядрена енергия и електрификация на индустрията/);
+  assert.match(roster(), /ВЕИ, зелен водород и зелен амоняк/);
+  assert.doesNotMatch(roster(), /Ядрена опора|зелени молекули|Класация/);
+  assert.deepEqual(rosterIds(), expectedScenarioOrder);
+  assert.equal(context.ClusterAnalysis.setActiveMainTab('companies'), true);
+  const search = { dataset: { clusterInput: 'company-search' }, value: 'Неохим' };
+  listeners.get('input')({ target: { closest: () => search } });
+  assert.match(grid.innerHTML, /data-cluster-action="select-company" data-company-id="neochim"/);
+  assert.doesNotMatch(grid.innerHTML, /data-cluster-action="select-company" data-company-id="aurubis"/);
+  search.value = '';
+  listeners.get('input')({ target: { closest: () => search } });
+
+  const regionalFilter = { dataset: { clusterChange: 'company-region-filter' }, value: 'all' };
+  const chooseRegion = (value) => {
+    regionalFilter.value = value;
+    listeners.get('change')({ target: { closest: () => regionalFilter } });
+  };
+  const participantIds = () => [...grid.innerHTML.matchAll(/data-cluster-action="select-company" data-company-id="([^"]+)"/g)].map((match) => match[1]);
+  const options = () => grid.innerHTML.match(/data-cluster-change="company-region-filter">([\s\S]*?)<\/select>/)[1];
+  assert.equal((options().match(/<option /g) || []).length, 7);
+  assert.match(options(), /Всички райони/);
+  for (const name of ['Северозападен', 'Северен централен', 'Североизточен', 'Югоизточен', 'Югозападен', 'Южен централен']) assert.ok(options().includes(name));
+  assert.doesNotMatch(options(), /Devnya|Burgas|Девня|Бургас/);
+  const expectedParticipants = {
+    BG31: ['zlatna-panega', 'holcim', 'rubin'],
+    BG32: ['amylum', 'han-asparuh', 'orgachim', 'biovet'],
+    BG33: ['solvay', 'heidelberg', 'trakya-glass', 'agropolychim', 'pasabahce'],
+    BG34: ['lukoil', 'promet-steel'],
+    BG41: ['znhv-puklina', 'stomana', 'ba-glass-sofia', 'aurubis', 'biovet'],
+    BG42: ['neochim', 'ba-glass-plovdiv', 'calcit', 'ognyanovo-k', 'biovet', 'agria'],
+  };
+  for (const [regionId, expected] of Object.entries(expectedParticipants)) {
+    chooseRegion(regionId);
+    assert.deepEqual(participantIds().sort(), expected.sort(), regionId);
+  }
+  chooseRegion('BG33');
+  search.value = 'Неохим';
+  listeners.get('input')({ target: { closest: () => search } });
+  assert.deepEqual(participantIds(), []);
+  search.value = 'Солвей';
+  listeners.get('input')({ target: { closest: () => search } });
+  assert.deepEqual(participantIds(), ['solvay']);
+  search.value = '';
+  listeners.get('input')({ target: { closest: () => search } });
+  currentLanguage = 'en';
+  context.ClusterAnalysis.render();
+  assert.match(options(), /All regions/);
+  assert.match(options(), /value="BG33" selected>North-East/);
+  assert.deepEqual(participantIds().sort(), expectedParticipants.BG33.sort());
+  chooseRegion('all');
+  assert.equal(participantIds().length, 23);
+  assert.equal(new Set(participantIds()).size, 23);
+  const profileIds = () => [...grid.innerHTML.matchAll(/data-cluster-action="open-company-profile" data-company-id="([^"]+)"/g)].map(match => match[1]);
+  assert.equal(profileIds().length, 56);
+  assert.ok(profileIds().includes('kcm'));
+  assert.ok(profileIds().includes('keraminzhenering'));
+  const activityControl = { dataset: { clusterChange: 'company-activity-filter' }, value: 'ceramics' };
+  listeners.get('change')({ target: { closest: () => activityControl } });
+  assert.equal(profileIds().length, 15);
+  assert.ok(profileIds().includes('vos-ceramics'));
+  assert.ok(!profileIds().includes('solvay'));
+  activityControl.value = 'all';
+  listeners.get('change')({ target: { closest: () => activityControl } });
+  assert.doesNotMatch(grid.innerHTML, /company-cluster-filter/);
+  assert.equal(context.ClusterAnalysis.setActiveMainTab('scenarios'), true);
 
   const chartClasses = new Set();
   const chartHandlers = new Map();
@@ -253,4 +344,46 @@ test('version 7 state keeps user edits while adding the two stress scenarios', (
   assert.equal(state.scenarios.find((scenario) => scenario.id === 'stalled').transitionDynamics.type, 'front_loaded_plateau');
   assert.equal(state.scenarios.find((scenario) => scenario.id === 'shutdown').transitionDynamics.type, 'deindustrialisation');
   assert.ok(stored.has('nzlClusterSimulationDataV8'));
+});
+
+test('saved built-in scenarios receive current wording while inputs and custom scenario text are retained', () => {
+  const Data = require('../cluster-data.js');
+  const saved = Data.createDefaultState();
+  const growth = saved.scenarios.find((scenario) => scenario.id === 'growth');
+  growth.name = { en: 'Renewables and green molecules', bg: 'ВЕИ и зелени молекули' };
+  growth.role = { en: 'Green-molecule opportunity', bg: 'Възможност за зелени молекули' };
+  growth.values.finance = 0.123;
+  growth.technologies.electrolyzerUnits = 31;
+  saved.selectedScenarioId = 'growth';
+  saved.scenarios.push({
+    ...structuredClone(growth), id: 'my-industrial-scenario', custom: true,
+    name: { en: 'My industrial scenario', bg: 'Моят индустриален сценарий' },
+    role: { en: 'My assumptions', bg: 'Моите допускания' },
+    description: { en: 'User-defined pathway.', bg: 'Потребителски технологичен път.' },
+  });
+  const context = {
+    console, structuredClone,
+    localStorage: {
+      getItem: (key) => key === 'nzlClusterSimulationDataV8' ? JSON.stringify(saved) : null,
+      setItem() {},
+    },
+  };
+  context.window = context;
+  vm.createContext(context);
+  ['cluster-data.js', 'cluster-model.js', 'cluster-simulation.js'].forEach((file) => {
+    vm.runInContext(fs.readFileSync(path.join(__dirname, '..', file), 'utf8'), context);
+  });
+  const state = context.ClusterSimulation.getState();
+  const currentGrowth = state.scenarios.find((scenario) => scenario.id === 'growth');
+  const defaultGrowth = Data.DEFAULT_SCENARIOS.find((scenario) => scenario.id === 'growth');
+  assert.equal(currentGrowth.name.bg, defaultGrowth.name.bg);
+  assert.equal(currentGrowth.role.bg, defaultGrowth.role.bg);
+  assert.equal(currentGrowth.description.bg, defaultGrowth.description.bg);
+  assert.equal(currentGrowth.values.finance, 0.123);
+  assert.equal(currentGrowth.technologies.electrolyzerUnits, 31);
+  assert.equal(state.selectedScenarioId, 'growth');
+  const custom = state.scenarios.find((scenario) => scenario.id === 'my-industrial-scenario');
+  assert.equal(custom.name.bg, 'Моят индустриален сценарий');
+  assert.equal(custom.role.bg, 'Моите допускания');
+  assert.equal(custom.description.bg, 'Потребителски технологичен път.');
 });

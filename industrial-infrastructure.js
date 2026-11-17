@@ -16,6 +16,7 @@
   const DEFAULT_LAYERS = Object.freeze({ ets: true, valleys: true, ccs: true, ammonia: true });
   const MAP_BOUNDS = Object.freeze({ xMin: 22.1, xMax: 28.85, yMin: 41, yMax: 44.45 });
   const MAP_Y_SCALE_RATIO = 1.35;
+  const pendingPlots = new WeakMap();
 
   let planningPhase = '2030';
   let ccsIntervalYears = 5;
@@ -791,7 +792,7 @@
       theme,
       viewport: { width, height },
     });
-    root.Plotly.react(node, model.traces, {
+    const drawing = root.Plotly.react(node, root.CoreI18n?.plotTraces(model.traces) || model.traces, {
       autosize: true, height,
       margin: { l: 12, r: 12, t: 8, b: 8 },
       paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
@@ -800,6 +801,7 @@
       yaxis: { range: [MAP_BOUNDS.yMin, MAP_BOUNDS.yMax], visible: false, fixedrange: true, zeroline: false, scaleanchor: 'x', scaleratio: MAP_Y_SCALE_RATIO },
       shapes: model.shapes, annotations: model.annotations, showlegend: false,
     }, plotConfig());
+    if (drawing?.then) pendingPlots.set(node, drawing);
     observeMapSize(node);
   }
 
@@ -831,7 +833,12 @@
 
   function purge() {
     const node = root.document?.getElementById('industrialInfrastructureMap');
-    if (node && root.Plotly?.purge) root.Plotly.purge(node);
+    if (!node || !root.Plotly?.purge) return;
+    const drawing = pendingPlots.get(node);
+    if (drawing) {
+      pendingPlots.delete(node);
+      drawing.then(() => root.Plotly?.purge?.(node), () => root.Plotly?.purge?.(node));
+    } else root.Plotly.purge(node);
   }
 
   function render(options = {}) {

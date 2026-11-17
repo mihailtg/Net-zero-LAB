@@ -1,14 +1,17 @@
 /* ═══════════════════════════════════════════════
    OFFICIAL BULGARIAN GHG INVENTORY DATABASE
    Source: Database_01.xlsx — National Inventory
-   Sheet2: IPPU & sub-sector historical 2010–2023
+   Sheet2: IPPU history; user-supplied total correction for 2023 and IPPU data for 2024
    Sheet4: Fuel combustion breakdown 2023
 ═══════════════════════════════════════════════ */
+
+const CALCULATOR_COMPANY_KEYS = ['agropolychim','neochim','solvay','lukoil','svilosa','heidelberg','holcim','biovet','orgachim']
+  .filter(ClusterData.isCompanyVisible);
 
 const DB = {
   "nat_2023": {
     "energy": 32853.46,
-    "ippu": 3855.65,
+    "ippu": 3925.62,
     "agri": 5941.62,
     "waste": 2714.19,
     "lulucf": -8601.07
@@ -21,6 +24,17 @@ const DB = {
     "2.F ODS Substitutes": 631.39,
     "2.G Other": 51.78
   },
+  "ippu_2024": {
+    "2.A Mineral Industry": 2039.82,
+    "2.B Chemical Industry": 1076.03,
+    "2.C Metal Industry": 200.08,
+    "2.D Non-energy products from fuels and solvent use": 14.17,
+    "2.E Electronic industry": "NO",
+    "2.F Product uses as substitutes for ODS": 713.86,
+    "2.G Other product manufacture and use": 52.29,
+    "2.H Other": "IE,NA"
+  },
+  "ippu_revision_source": "User-supplied correction: 2023 total and 2024 total/breakdown. Component sums are retained separately from reported totals.",
   "ippu_hist": [
     {
       "year": 2010,
@@ -154,13 +168,25 @@ const DB = {
     },
     {
       "year": 2023,
-      "total": 3855.65,
+      "total": 3925.62,
       "mineral": 1967.87,
       "chemical": 1033.67,
       "metal": 158.11,
       "nonenergy": 12.83,
       "ods": 631.39,
       "other": 51.78
+    },
+    {
+      "year": 2024,
+      "total": 4096.25,
+      "mineral": 2039.82,
+      "chemical": 1076.03,
+      "metal": 200.08,
+      "nonenergy": 14.17,
+      "electronics": "NO",
+      "ods": 713.86,
+      "other": 52.29,
+      "otherH": "IE,NA"
     }
   ],
   "chemical_industry_emissions_trend": [
@@ -182,7 +208,8 @@ const DB = {
     { "year": 2020, "value": 4280.67 },
     { "year": 2021, "value": 4562.2 },
     { "year": 2022, "value": 4554.75 },
-    { "year": 2023, "value": 3855.65 }
+    { "year": 2023, "value": 3925.62 },
+    { "year": 2024, "value": 4096.25 }
   ],
   "subsec_hist": [
     {
@@ -623,6 +650,60 @@ const DB = {
    NET-ZERO LAB — Core App Logic & Data
 ═══════════════════════════════════════════════ */
 
+const IPPU_SECTORS = Object.freeze([
+  { code: '2.A', key: 'mineral', label: '2.A Mineral Industry' },
+  { code: '2.B', key: 'chemical', label: '2.B Chemical Industry' },
+  { code: '2.C', key: 'metal', label: '2.C Metal Industry' },
+  { code: '2.D', key: 'nonenergy', label: '2.D Non-energy products from fuels and solvent use', legendLabel: '2.D Non-energy Products' },
+  { code: '2.E', key: 'electronics', label: '2.E Electronic industry' },
+  { code: '2.F', key: 'ods', label: '2.F Product uses as substitutes for ODS', legendLabel: '2.F ODS' },
+  { code: '2.G', key: 'other', label: '2.G Other product manufacture and use', legendLabel: '2.G Other products' },
+  { code: '2.H', key: 'otherH', label: '2.H Other' },
+].map(Object.freeze));
+
+function getIppuBreakdown(year = DB.ippu_hist.at(-1).year) {
+  const history = DB.ippu_hist.find((row) => row.year === year);
+  const raw = DB[`ippu_${year}`];
+  const rows = IPPU_SECTORS.map((sector) => {
+    const original = raw ? Object.entries(raw).find(([label]) => label.startsWith(sector.code + ' '))?.[1] : history?.[sector.key];
+    return { ...sector, value: Number.isFinite(original) ? original : null, notation: typeof original === 'string' ? original : null };
+  });
+  const sum = rows.reduce((total, row) => total + (row.value ?? 0), 0);
+  return { year, rows, total: history.total, sum, difference: Math.round((history.total - sum) * 100) / 100 };
+}
+
+function getIppuReconciliationNote() {
+  const bg = getLanguage() === 'bg';
+  const n = (value) => value.toLocaleString(bg ? 'bg-BG' : 'en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return [2023, 2024].map((year) => {
+    const snapshot = getIppuBreakdown(year);
+    return bg
+      ? `${year} г.: общо ${n(snapshot.total)}, сбор на категориите ${n(snapshot.sum)}, неразпределена разлика ${n(snapshot.difference)} kt CO₂eq.`
+      : `${year}: reported total ${n(snapshot.total)}, category sum ${n(snapshot.sum)}, unallocated difference ${n(snapshot.difference)} kt CO₂eq.`;
+  }).join(' ') + (bg ? ' За 2024 г.: 2.E — NO; 2.H — IE,NA. Това са отчетни означения, а не числови нули.' : '2024: 2.E — NO; 2.H — IE,NA. These are reporting notations, not numeric zeros.');
+}
+
+function updateIppuCaptions() {
+  const snapshot = getIppuBreakdown();
+  const bg = getLanguage() === 'bg';
+  const n = (value, digits = 2) => value.toLocaleString(bg ? 'bg-BG' : 'en-GB', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+  const share = snapshot.rows.find((row) => row.code === '2.B').value / snapshot.total * 100;
+  for (const id of ['dashboardIppuNote', 'ippuReconciliation']) {
+    const node = document.getElementById(id);
+    if (node) node.textContent = getIppuReconciliationNote();
+  }
+  const total = document.getElementById('ippuBreakdownTotal');
+  if (total) total.textContent = `CRF 2 · ${snapshot.year} · ${n(snapshot.total)} kt CO₂eq`;
+  const value = document.getElementById('chemicalIppuShare');
+  if (value) value.textContent = `${n(share, 1)}%`;
+  const bar = document.getElementById('chemicalIppuShareBar');
+  if (bar) bar.style.width = `${share}%`;
+  const note = document.getElementById('chemicalIppuShareNote');
+  if (note) note.textContent = bg
+    ? `2.B Химическа промишленост: ${n(snapshot.rows[1].value)} / общо IPPU ${n(snapshot.total)} kt CO₂eq, ${snapshot.year} г.`
+    : `2.B Chemical Industry: ${n(snapshot.rows[1].value)} / IPPU total ${n(snapshot.total)} kt CO₂eq, ${snapshot.year}`;
+}
+
 // ── LANGUAGE SWITCH ─────────────────────────
 const I18N = {
   en: {
@@ -630,6 +711,14 @@ const I18N = {
     'brand.subtitle': 'BG Chemical Industry',
     'nav.overview': 'Overview',
     'nav.companies': 'Companies',
+    'nav.infographics': 'Infographics',
+    'inventory.breakdown': 'IPPU Sector Breakdown (2024)',
+    'inventory.historyTab': 'IPPU Historical (2010–2024)',
+    'inventory.historyTitle': 'IPPU Total Emissions 2010–2024',
+    'inventory.stackedTitle': 'IPPU Sub-sectors Stacked — 2010–2024',
+    'inventory.stackedDesc': 'Kt CO₂eq · categories 2.A–2.H and reported total',
+    'inventory.tableTitle': 'IPPU Data Table 2010–2024',
+    'section.infographics.desc': 'Emissions, industry and transition pathways in a visual series.',
     'nav.pathways': 'Pathways',
     'nav.emissions': 'Emissions',
     'nav.dataset': 'Dataset',
@@ -658,11 +747,18 @@ const I18N = {
     'section.dashboard.desc': 'Bulgarian chemical industry decarbonization - key indicators and progress',
     'section.dashboard.pill': 'Latest available data · 2026',
     'section.companies.title': 'Company Profiles',
-    'section.companies.desc': 'Key chemical industry players and their decarbonization status',
+    'section.companies.desc': 'Profiles of the industrial participants included in Cluster Analysis',
+    'profile.unassessed': 'Not assessed',
+    'profile.notAvailable': 'Not available in the current dataset',
+    'profile.noInitiatives': 'Further company-specific initiative details are not available in the current dataset.',
+    'profile.sectorOptions': 'Sector transition options',
+    'profile.sectorOptionsNote': 'These are sector-level options, not confirmed company commitments.',
+    'profile.limitations': 'Data limitations',
+    'profile.sources': 'Sources',
     'section.pathways.title': 'Decarbonization Pathways',
     'section.pathways.desc': 'Technology levers and transition routes toward net-zero',
     'section.emissions.title': 'Emissions Data',
-    'section.emissions.desc': 'Official Bulgarian National GHG Inventory · UNFCCC CRF · 2010–2023',
+    'section.emissions.desc': 'National GHG inventory · IPPU 2010–2024 · industrial sub-sectors through 2023',
     'section.emissions.pill': 'Official · 2023',
     'section.dataset.title': 'Structured Dataset',
     'section.dataset.desc': "Tabular views of the dashboard's source data, history series, and company registry",
@@ -673,7 +769,7 @@ const I18N = {
     'section.netzerolab.desc': 'Research unit at FEBA, Sofia University, translating climate-neutrality targets into evidence-based transformation',
     'section.roi.title': 'ROI Analysis',
     'section.roi.desc': 'How avoided ETS compliance costs compensate decarbonization investments - payback periods and cumulative cashflows 2026–2040',
-    'section.roi.pill': '9 companies · Official data',
+    'section.roi.pill': `${CALCULATOR_COMPANY_KEYS.length} companies · Official data`,
     'section.investments.title': 'Technology Investment Needs',
     'section.investments.desc': 'Required CAPEX per company and decarbonization pathway toward net-zero by 2050',
     'section.investments.pill': 'Estimates · 2026',
@@ -687,41 +783,23 @@ const I18N = {
     'section.cluster.kicker': 'Module in progress',
     'section.cluster.placeholderTitle': 'Cluster analysis is coming soon.',
     'section.cluster.placeholderDesc': 'This section is reserved for the next phase of the dashboard, where you will add cluster mapping, inter-company linkages, shared infrastructure, and industrial ecosystem insights.',
-    'section.cluster.lock.kicker': 'Preview access',
-    'section.cluster.lock.title': 'Preview section',
-    'section.cluster.lock.desc': 'This module is in preview. Enter today\'s access code to view it - it is not a security control, just a soft gate while the module is finished. Contact the Net-Zero Lab team for the current code.',
-    'section.cluster.lock.placeholder': 'Access code',
-    'section.cluster.lock.button': 'Unlock',
-    'section.cluster.lock.error': 'Incorrect access code. Try again.',
     'section.geography.title': 'Industrial Geography',
-    'section.geography.desc': "Territorial distribution of Bulgaria's industrial ETS Top 20, with a separate power, heat, and district-heating context layer.",
-    'section.geography.pill': '20 analysed + 28 context · EU ETS 2024',
-    'section.geography.lock.kicker': 'Preview access',
-    'section.geography.lock.title': 'Preview section',
-    'section.geography.lock.desc': 'This module is in preview. Enter today\'s access code to view it - it is not a security control, just a soft gate while the module is finished. Contact the Net-Zero Lab team for the current code.',
-    'section.geography.lock.placeholder': 'Access code',
-    'section.geography.lock.button': 'Unlock',
-    'section.geography.lock.error': 'Incorrect access code. Try again.',
-    'section.cluster.security.simulation': 'Simulation access',
-    'section.cluster.security.editor': 'Editor access',
-    'section.cluster.security.simPlaceholder': 'Simulation password',
-    'section.cluster.security.editorPlaceholder': 'Editor password',
-    'section.cluster.security.unlock': 'Unlock',
-    'section.cluster.security.enable': 'Enable',
-    'section.cluster.security.locked': 'Locked',
-    'section.cluster.security.unlocked': 'Unlocked',
-    'section.cluster.security.viewOnly': 'View only',
-    'section.cluster.security.editMode': 'Edit mode',
-    'section.cluster.security.mainFirst': 'Unlock Cluster Analysis first',
-    'section.cluster.security.saved': 'Saved in this browser',
-    'section.cluster.security.simError': 'Incorrect simulation password.',
-    'section.cluster.security.editorError': 'Incorrect editor password.'
+    'section.geography.desc': "Bulgaria's industrial operator register, with main-activity filters, 2025 emissions and a separate view of the 2024 installation baseline.",
+    'section.geography.pill': 'Operator register · 2024–2025',
   },
   bg: {
     'page.title': 'Net-Zero Lab - декарбонизация на българската химическа и индустриална дейност',
     'brand.subtitle': 'Химическа индустрия BG',
     'nav.overview': 'Обзор',
     'nav.companies': 'Компании',
+    'nav.infographics': 'Инфографики',
+    'inventory.breakdown': 'Разбивка на емисиите от IPPU (2024)',
+    'inventory.historyTab': 'Исторически емисии от IPPU (2010–2024)',
+    'inventory.historyTitle': 'Общи емисии от IPPU за 2010–2024 г.',
+    'inventory.stackedTitle': 'Емисии по категории на IPPU — 2010–2024',
+    'inventory.stackedDesc': 'Kt CO₂eq · категории 2.A–2.H и отчетен общ сбор',
+    'inventory.tableTitle': 'Таблица с данни за IPPU за 2010–2024 г.',
+    'section.infographics.desc': 'Емисии, индустрия и пътища за преход в поредица от визуални обобщения.',
     'nav.pathways': 'Пътища',
     'nav.emissions': 'Емисии',
     'nav.policy': 'Политики',
@@ -750,11 +828,18 @@ const I18N = {
     'section.dashboard.desc': 'Декарбонизация на българската химическа индустрия - ключови показатели и напредък',
     'section.dashboard.pill': 'Последни налични данни · 2026',
     'section.companies.title': 'Профили на компании',
-    'section.companies.desc': 'Ключови предприятия в химическата индустрия и техният статус на декарбонизация',
+    'section.companies.desc': 'Профили на индустриалните участници, включени в клъстерния анализ',
+    'profile.unassessed': 'Без оценка',
+    'profile.notAvailable': 'Няма данни в текущия набор',
+    'profile.noInitiatives': 'В текущия набор няма допълнителни подробности за фирмените инициативи.',
+    'profile.sectorOptions': 'Възможни технологични пътища за сектора',
+    'profile.sectorOptionsNote': 'Това са секторни възможности, а не потвърдени ангажименти на компанията.',
+    'profile.limitations': 'Ограничения на данните',
+    'profile.sources': 'Източници',
     'section.pathways.title': 'Пътища за декарбонизация',
     'section.pathways.desc': 'Технологични лостове и преходни маршрути към нетни нулеви емисии',
     'section.emissions.title': 'Данни за емисиите',
-    'section.emissions.desc': 'Официален национален инвентар на ПГ на България · UNFCCC CRF · 2010-2023',
+    'section.emissions.desc': 'Национален инвентар на ПГ · IPPU 2010–2024 · индустриални под-сектори до 2023 г.',
     'section.emissions.pill': 'Официални · 2023',
     'section.dataset.title': 'Структуриран набор от данни',
     'section.dataset.desc': 'Табличен изглед на изходните данни, историческите редове и регистъра на компаниите зад таблото',
@@ -765,7 +850,7 @@ const I18N = {
     'section.netzerolab.desc': 'Изследователско звено към СУ, Стопански факултет, което превежда целите за климатична неутралност в решения, основани на данни',
     'section.roi.title': 'ROI анализ',
     'section.roi.desc': 'Как избегнатите ETS разходи компенсират инвестициите в декарбонизация - срокове на изплащане и кумулативен паричен поток 2026-2040',
-    'section.roi.pill': '9 компании · Официални данни',
+    'section.roi.pill': `${CALCULATOR_COMPANY_KEYS.length} компании · Официални данни`,
     'section.investments.title': 'Необходими технологични инвестиции',
     'section.investments.desc': 'Необходим CAPEX по компании и пътища за декарбонизация към нетна нула до 2050 г.',
     'section.investments.pill': 'Оценки · 2026',
@@ -779,52 +864,11 @@ const I18N = {
     'section.cluster.kicker': 'Модулът се подготвя',
     'section.cluster.placeholderTitle': 'Клъстерният анализ ще бъде добавен скоро.',
     'section.cluster.placeholderDesc': 'Тази секция е запазена за следващата фаза на таблото, където ще добавиш картиране на клъстери, връзки между компаниите, споделена инфраструктура и изводи за индустриалната екосистема.',
-    'section.cluster.lock.kicker': 'Предварителен достъп',
-    'section.cluster.lock.title': 'Секция в преглед',
-    'section.cluster.lock.desc': 'Този модул е в процес на завършване. Въведи дневния код за достъп, за да го видиш - той не е защитна мярка, а само временна врата, докато модулът бъде довършен. За текущия код се свържи с екипа на Net-Zero Lab.',
-    'section.cluster.lock.placeholder': 'Код за достъп',
-    'section.cluster.lock.button': 'Отключи',
-    'section.cluster.lock.error': 'Грешен код за достъп. Опитай отново.',
     'section.geography.title': 'Индустриална география',
-    'section.geography.desc': 'Териториално разпределение на индустриалните ETS Top 20 в България с отделен контекстен слой за електро-, топлоенергийни и топлофикационни инсталации.',
-    'section.geography.pill': '20 анализирани + 28 контекстни · EU ETS 2024',
-    'section.geography.lock.kicker': 'Предварителен достъп',
-    'section.geography.lock.title': 'Секция в преглед',
-    'section.geography.lock.desc': 'Този модул е в процес на завършване. Въведи дневния код за достъп, за да го видиш - той не е защитна мярка, а само временна врата, докато модулът бъде довършен. За текущия код се свържи с екипа на Net-Zero Lab.',
-    'section.geography.lock.placeholder': 'Код за достъп',
-    'section.geography.lock.button': 'Отключи',
-    'section.geography.lock.error': 'Грешен код за достъп. Опитай отново.',
-    'section.cluster.security.simulation': 'Достъп за симулация',
-    'section.cluster.security.editor': 'Достъп за редактор',
-    'section.cluster.security.simPlaceholder': 'Парола за симулация',
-    'section.cluster.security.editorPlaceholder': 'Парола за редактор',
-    'section.cluster.security.unlock': 'Отключи',
-    'section.cluster.security.enable': 'Активирай',
-    'section.cluster.security.locked': 'Заключен',
-    'section.cluster.security.unlocked': 'Отключен',
-    'section.cluster.security.viewOnly': 'Само преглед',
-    'section.cluster.security.editMode': 'Редакция',
-    'section.cluster.security.mainFirst': 'Първо отключи Cluster Analysis',
-    'section.cluster.security.saved': 'Запазено в този браузър',
-    'section.cluster.security.simError': 'Грешна парола за симулация.',
-    'section.cluster.security.editorError': 'Грешна парола за редактор.'
+    'section.geography.desc': 'Регистър на индустриалните оператори в България с филтри по основна дейност, емисии за 2025 г. и отделен изглед на базата с инсталации за 2024 г.',
+    'section.geography.pill': 'Регистър на операторите · 2024–2025',
   }
 };
-
-const CLUSTER_ACCESS_PASSWORD_BASE = 'Netzero';
-const CLUSTER_SIMULATION_PASSWORD_BASE = 'Simulation';
-const CLUSTER_EDITOR_PASSWORD_BASE = 'Editor';
-const CLUSTER_ACCESS_STORAGE_KEY = 'nzlClusterAccessUnlocked';
-const CLUSTER_SIMULATION_ACCESS_STORAGE_KEY = 'nzlClusterSimulationUnlocked';
-const CLUSTER_EDITOR_ACCESS_STORAGE_KEY = 'nzlClusterEditorUnlocked';
-const INDUSTRIAL_GEOGRAPHY_ACCESS_PASSWORD_BASE = 'Netzero';
-const INDUSTRIAL_GEOGRAPHY_ACCESS_STORAGE_KEY = 'nzlIndustrialGeographyAccessUnlocked';
-let clusterAccessUnlocked = false;
-let clusterSimulationUnlocked = false;
-let clusterEditorUnlocked = false;
-let clusterSimulationErrorVisible = false;
-let clusterEditorErrorVisible = false;
-let industrialGeographyAccessUnlocked = false;
 
 function getLanguage() {
   return document.documentElement.getAttribute('data-lang') || 'en';
@@ -835,327 +879,8 @@ function translate(key) {
   return I18N[lang]?.[key] || I18N.en[key] || key;
 }
 
-function getClusterAccessDayToken() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-
-function getCurrentClusterAccessPassword() {
-  return `${CLUSTER_ACCESS_PASSWORD_BASE}${new Date().getDate()}`;
-}
-
-function getCurrentIndustrialGeographyPassword() {
-  return `${INDUSTRIAL_GEOGRAPHY_ACCESS_PASSWORD_BASE}${new Date().getDate()}`;
-}
-
-function getCurrentClusterSimulationPassword() {
-  return `${CLUSTER_SIMULATION_PASSWORD_BASE}${new Date().getDate()}`;
-}
-
-function getCurrentClusterEditorPassword() {
-  return `${CLUSTER_EDITOR_PASSWORD_BASE}${new Date().getDate()}`;
-}
-
-function readClusterAccessState() {
-  try {
-    clusterAccessUnlocked = localStorage.getItem(CLUSTER_ACCESS_STORAGE_KEY) === getClusterAccessDayToken();
-  } catch (error) {
-    clusterAccessUnlocked = false;
-  }
-}
-
-function readIndustrialGeographyAccessState() {
-  try {
-    industrialGeographyAccessUnlocked = localStorage.getItem(INDUSTRIAL_GEOGRAPHY_ACCESS_STORAGE_KEY) === getClusterAccessDayToken();
-  } catch (error) {
-    industrialGeographyAccessUnlocked = false;
-  }
-}
-
-function readClusterSecondaryAccessState() {
-  try {
-    clusterSimulationUnlocked = localStorage.getItem(CLUSTER_SIMULATION_ACCESS_STORAGE_KEY) === getClusterAccessDayToken();
-    clusterEditorUnlocked = localStorage.getItem(CLUSTER_EDITOR_ACCESS_STORAGE_KEY) === getClusterAccessDayToken();
-    if (clusterEditorUnlocked) clusterSimulationUnlocked = true;
-  } catch (error) {
-    clusterSimulationUnlocked = false;
-    clusterEditorUnlocked = false;
-  }
-}
-
-function persistClusterAccessState(value) {
-  try {
-    if (value) {
-      localStorage.setItem(CLUSTER_ACCESS_STORAGE_KEY, getClusterAccessDayToken());
-    } else {
-      localStorage.removeItem(CLUSTER_ACCESS_STORAGE_KEY);
-    }
-  } catch (error) {
-    // Password persistence is optional.
-  }
-}
-
-function persistIndustrialGeographyAccessState(value) {
-  try {
-    if (value) {
-      localStorage.setItem(INDUSTRIAL_GEOGRAPHY_ACCESS_STORAGE_KEY, getClusterAccessDayToken());
-    } else {
-      localStorage.removeItem(INDUSTRIAL_GEOGRAPHY_ACCESS_STORAGE_KEY);
-    }
-  } catch (error) {
-    // Password persistence is optional.
-  }
-}
-
-function persistDailyClusterFlag(storageKey, value) {
-  try {
-    if (value) {
-      localStorage.setItem(storageKey, getClusterAccessDayToken());
-    } else {
-      localStorage.removeItem(storageKey);
-    }
-  } catch (error) {
-    // Access persistence is optional.
-  }
-}
-
-function isClusterAccessUnlocked() {
-  return clusterAccessUnlocked;
-}
-
-function isIndustrialGeographyUnlocked() {
-  return industrialGeographyAccessUnlocked;
-}
-
-function isClusterSimulationUnlocked() {
-  return clusterSimulationUnlocked;
-}
-
-function isClusterEditorUnlocked() {
-  return clusterEditorUnlocked;
-}
-
-function renderClusterSecurityPanel() {
-  const panel = document.getElementById('clusterSecurityPanel');
-  if (!panel) return;
-
-  const controlsEnabled = clusterAccessUnlocked;
-  const simulationStateLabel = clusterSimulationUnlocked ? translate('section.cluster.security.unlocked') : translate('section.cluster.security.locked');
-  const editorStateLabel = clusterEditorUnlocked ? translate('section.cluster.security.editMode') : translate('section.cluster.security.viewOnly');
-  const simError = clusterSimulationErrorVisible ? `<div class="cluster-security-error">${escapeHtml(translate('section.cluster.security.simError'))}</div>` : '';
-  const editorError = clusterEditorErrorVisible ? `<div class="cluster-security-error">${escapeHtml(translate('section.cluster.security.editorError'))}</div>` : '';
-  const note = controlsEnabled
-    ? translate('section.cluster.security.saved')
-    : translate('section.cluster.security.mainFirst');
-
-  panel.innerHTML = `
-    <div class="cluster-security-heading">${escapeHtml(translate('section.cluster.security.simulation'))}</div>
-    <form class="cluster-security-row" onsubmit="unlockClusterSimulation(); return false;">
-      <input
-        class="cluster-security-input"
-        id="clusterSimulationPasswordInput"
-        type="password"
-        autocomplete="current-password"
-        placeholder="${escapeHtml(translate('section.cluster.security.simPlaceholder'))}"
-        ${controlsEnabled ? '' : 'disabled'}
-      >
-      <button class="cluster-security-button" type="submit" ${controlsEnabled ? '' : 'disabled'}>${escapeHtml(translate('section.cluster.security.unlock'))}</button>
-      <span class="cluster-security-state ${clusterSimulationUnlocked ? 'unlocked' : 'locked'}">${escapeHtml(simulationStateLabel)}</span>
-    </form>
-    ${simError}
-    <div class="cluster-security-heading">${escapeHtml(translate('section.cluster.security.editor'))}</div>
-    <form class="cluster-security-row" onsubmit="unlockClusterEditor(); return false;">
-      <input
-        class="cluster-security-input"
-        id="clusterEditorPasswordInput"
-        type="password"
-        autocomplete="current-password"
-        placeholder="${escapeHtml(translate('section.cluster.security.editorPlaceholder'))}"
-        ${controlsEnabled ? '' : 'disabled'}
-      >
-      <button class="cluster-security-button" type="submit" ${controlsEnabled ? '' : 'disabled'}>${escapeHtml(translate('section.cluster.security.enable'))}</button>
-      <span class="cluster-security-state ${clusterEditorUnlocked ? 'unlocked' : 'locked'}">${escapeHtml(editorStateLabel)}</span>
-    </form>
-    ${editorError}
-    <div class="cluster-security-note">${escapeHtml(note)}</div>
-  `;
-}
-
-function renderClusterAccessState() {
-  const gate = document.getElementById('clusterAccessGate');
-  const content = document.getElementById('clusterProtectedContent');
-  const kicker = document.querySelector('.cluster-access-kicker');
-  const title = document.getElementById('clusterAccessTitle');
-  const desc = document.getElementById('clusterAccessDesc');
-  const input = document.getElementById('clusterAccessInput');
-  const button = document.getElementById('clusterAccessButton');
-  const error = document.getElementById('clusterAccessError');
-  if (!gate || !content) return;
-
-  if (kicker) kicker.textContent = translate('section.cluster.lock.kicker');
-  if (title) title.textContent = translate('section.cluster.lock.title');
-  if (desc) desc.textContent = translate('section.cluster.lock.desc');
-  if (input) {
-    input.placeholder = translate('section.cluster.lock.placeholder');
-    input.setAttribute('aria-label', translate('section.cluster.lock.placeholder'));
-  }
-  if (button) button.textContent = translate('section.cluster.lock.button');
-  if (error && error.dataset.visible === 'true') {
-    error.textContent = translate('section.cluster.lock.error');
-  }
-
-  gate.hidden = clusterAccessUnlocked;
-  content.hidden = !clusterAccessUnlocked;
-
-  if (clusterAccessUnlocked) {
-    if (input) input.value = '';
-    if (error) {
-      error.hidden = true;
-      error.dataset.visible = 'false';
-      error.textContent = '';
-    }
-  }
-
-  renderClusterSecurityPanel();
-}
-
-function renderIndustrialGeographyAccessState() {
-  const gate = document.getElementById('industrialGeographyAccessGate');
-  const content = document.getElementById('industrialGeographyProtectedContent');
-  const kicker = document.getElementById('industrialGeographyAccessKicker');
-  const title = document.getElementById('industrialGeographyAccessTitle');
-  const desc = document.getElementById('industrialGeographyAccessDesc');
-  const input = document.getElementById('industrialGeographyAccessInput');
-  const button = document.getElementById('industrialGeographyAccessButton');
-  const error = document.getElementById('industrialGeographyAccessError');
-  if (!gate || !content) return;
-
-  if (kicker) kicker.textContent = translate('section.geography.lock.kicker');
-  if (title) title.textContent = translate('section.geography.lock.title');
-  if (desc) desc.textContent = translate('section.geography.lock.desc');
-  if (input) {
-    input.placeholder = translate('section.geography.lock.placeholder');
-    input.setAttribute('aria-label', translate('section.geography.lock.placeholder'));
-  }
-  if (button) button.textContent = translate('section.geography.lock.button');
-  if (error && error.dataset.visible === 'true') {
-    error.textContent = translate('section.geography.lock.error');
-  }
-
-  gate.hidden = industrialGeographyAccessUnlocked;
-  content.hidden = !industrialGeographyAccessUnlocked;
-
-  if (industrialGeographyAccessUnlocked) {
-    if (input) input.value = '';
-    if (error) {
-      error.hidden = true;
-      error.dataset.visible = 'false';
-      error.textContent = '';
-    }
-  }
-}
-
-function unlockClusterAnalysis() {
-  const input = document.getElementById('clusterAccessInput');
-  const error = document.getElementById('clusterAccessError');
-  const value = input ? input.value.trim() : '';
-
-  if (value === getCurrentClusterAccessPassword()) {
-    clusterAccessUnlocked = true;
-    persistClusterAccessState(true);
-    renderClusterAccessState();
-    renderClusterAnalysis();
-    return;
-  }
-
-  if (error) {
-    error.hidden = false;
-    error.dataset.visible = 'true';
-    error.textContent = translate('section.cluster.lock.error');
-  }
-  if (input) {
-    input.focus();
-    input.select();
-  }
-}
-
-function unlockIndustrialGeography() {
-  const input = document.getElementById('industrialGeographyAccessInput');
-  const error = document.getElementById('industrialGeographyAccessError');
-  const value = input ? input.value.trim() : '';
-
-  if (value === getCurrentIndustrialGeographyPassword()) {
-    industrialGeographyAccessUnlocked = true;
-    persistIndustrialGeographyAccessState(true);
-    renderIndustrialGeographyAccessState();
-    renderIndustrialGeography();
-    return;
-  }
-
-  if (error) {
-    error.hidden = false;
-    error.dataset.visible = 'true';
-    error.textContent = translate('section.geography.lock.error');
-  }
-  if (input) {
-    input.focus();
-    input.select();
-  }
-}
-
-function unlockClusterSimulation() {
-  if (!clusterAccessUnlocked) {
-    renderClusterSecurityPanel();
-    return;
-  }
-
-  const input = document.getElementById('clusterSimulationPasswordInput');
-  const value = input ? input.value.trim() : '';
-
-  if (value === getCurrentClusterSimulationPassword()) {
-    clusterSimulationUnlocked = true;
-    clusterSimulationErrorVisible = false;
-    persistDailyClusterFlag(CLUSTER_SIMULATION_ACCESS_STORAGE_KEY, true);
-    renderClusterSecurityPanel();
-    renderClusterAnalysis();
-    return;
-  }
-
-  clusterSimulationErrorVisible = true;
-  renderClusterSecurityPanel();
-  document.getElementById('clusterSimulationPasswordInput')?.focus();
-}
-
-function unlockClusterEditor() {
-  if (!clusterAccessUnlocked) {
-    renderClusterSecurityPanel();
-    return;
-  }
-
-  const input = document.getElementById('clusterEditorPasswordInput');
-  const value = input ? input.value.trim() : '';
-
-  if (value === getCurrentClusterEditorPassword()) {
-    clusterEditorUnlocked = true;
-    clusterSimulationUnlocked = true;
-    clusterEditorErrorVisible = false;
-    clusterSimulationErrorVisible = false;
-    persistDailyClusterFlag(CLUSTER_EDITOR_ACCESS_STORAGE_KEY, true);
-    persistDailyClusterFlag(CLUSTER_SIMULATION_ACCESS_STORAGE_KEY, true);
-    renderClusterSecurityPanel();
-    renderClusterAnalysis();
-    return;
-  }
-
-  clusterEditorErrorVisible = true;
-  renderClusterSecurityPanel();
-  document.getElementById('clusterEditorPasswordInput')?.focus();
-}
-
 function setLanguage(lang) {
+  const previous = getLanguage();
   const next = lang === 'bg' ? 'bg' : 'en';
   document.documentElement.setAttribute('data-lang', next);
   document.documentElement.lang = next;
@@ -1183,19 +908,19 @@ function setLanguage(lang) {
     // Language persistence is optional; the switch still works when storage is blocked.
   }
 
-  renderClusterAccessState();
-  if (isClusterAccessUnlocked()) {
-    renderClusterAnalysis();
-  }
-  renderIndustrialGeographyAccessState();
-  if (isIndustrialGeographyUnlocked()) {
-    renderIndustrialGeography();
-  }
+  renderClusterAnalysis();
+  renderIndustrialGeography();
   if (document.getElementById('section-investments')?.classList.contains('active')) {
     window.IndustrialInvestment?.render?.();
   }
   renderDatasetTables();
+  renderCompanyGrid();
+  updateIppuCaptions();
+  if (activeCompanyProfileId) renderCompanyModalContent(companies.find((company) => company.id === activeCompanyProfileId));
+  if (document.getElementById('section-infographics')?.classList.contains('active')) window.NZLInfographics?.render();
   updateThemeIcons(document.documentElement.getAttribute('data-theme') || 'dark');
+  window.CoreI18n?.apply();
+  if (previous !== next && typeof Chart !== 'undefined') refreshChartsForTheme();
 }
 
 function initLanguageControl() {
@@ -1307,26 +1032,9 @@ function showSection(id) {
   // Lazy-init section charts
   if (id === 'emissions') { setTimeout(() => { buildIppuCharts(); updateDashboardWithDbData(); }, 50); }
   if (id === 'dataset') { setTimeout(renderDatasetTables, 50); }
-  if (id === 'cluster') {
-    setTimeout(() => {
-      renderClusterAccessState();
-      if (isClusterAccessUnlocked()) {
-        renderClusterAnalysis();
-      } else {
-        document.getElementById('clusterAccessInput')?.focus();
-      }
-    }, 50);
-  }
-  if (id === 'industrial-geography') {
-    setTimeout(() => {
-      renderIndustrialGeographyAccessState();
-      if (isIndustrialGeographyUnlocked()) {
-        renderIndustrialGeography();
-      } else {
-        document.getElementById('industrialGeographyAccessInput')?.focus();
-      }
-    }, 50);
-  }
+  if (id === 'cluster') { setTimeout(renderClusterAnalysis, 50); }
+  if (id === 'industrial-geography') { setTimeout(renderIndustrialGeography, 50); }
+  if (id === 'infographics') { setTimeout(() => window.NZLInfographics?.render(), 50); }
   if (id === 'cbam')      { if (cbamChartInstance) { cbamChartInstance.destroy(); cbamChartInstance = null; } setTimeout(() => { renderPriceChips(); calcCBAM(); }, 50); }
   if (id === 'investments') {
     setTimeout(() => window.IndustrialInvestment?.render?.(), 50);
@@ -1371,12 +1079,10 @@ function refreshChartsForTheme() {
     if (activeSection === 'section-investments') window.IndustrialInvestment?.render?.();
     if (activeSection === 'section-roi') initRoi();
     if (activeSection === 'section-cluster') {
-      renderClusterAccessState();
-      if (isClusterAccessUnlocked()) renderClusterAnalysis();
+      renderClusterAnalysis();
     }
     if (activeSection === 'section-industrial-geography') {
-      renderIndustrialGeographyAccessState();
-      if (isIndustrialGeographyUnlocked()) renderIndustrialGeography();
+      renderIndustrialGeography();
     }
     if (activeSection === 'section-emissions') {
       if (document.getElementById('emsp-ippu')?.classList.contains('active')) buildIppuCharts();
@@ -1515,6 +1221,10 @@ function normalizeRoiCompanyKey(name = '') {
     .replace('biovet/huvepharma', 'biovet');
 }
 
+function createDashboardChart(canvas, config) {
+  return new Chart(canvas, window.CoreI18n?.chartConfig(config) || config);
+}
+
 const chartDefaults = () => {
   const c = getChartColors();
   return {
@@ -1539,17 +1249,19 @@ let charts = {};
 
 function buildCharts() {
   const c = getChartColors();
+  const ippu = getIppuBreakdown();
+  updateIppuCaptions();
 
   // Emissions Trend — updated by updateDashboardWithDbData() after init
   const etCtx = document.getElementById('emissionsTrendChart');
   if (etCtx && !charts.emissionsTrend) {
     const trend = DB.chemical_industry_emissions_trend;
-    charts.emissionsTrend = new Chart(etCtx, {
+    charts.emissionsTrend = createDashboardChart(etCtx, {
       type: 'line',
       data: {
         labels: trend.map(d => String(d.year)),
         datasets: [{
-          label: 'Chemical Industry Emissions (Kt CO₂eq)',
+          label: 'IPPU Total (Kt CO₂eq)',
           data: trend.map(d => d.value),
           borderColor: c.semantic.chemical,
           backgroundColor: withChartAlpha(c.semantic.chemical, '18'),
@@ -1567,12 +1279,12 @@ function buildCharts() {
   // IPPU Breakdown Pie (dashboard) — updated by updateDashboardWithDbData()
   const ipuCtx = document.getElementById('ipuPieChart');
   if (ipuCtx && !charts.ipuPie) {
-    const labels = ['2.A Mineral Industry','2.B Chemical Industry','2.F ODS Substitutes','2.C Metal Industry','2.D Non-energy Products','2.G Other'];
-    charts.ipuPie = new Chart(ipuCtx, {
+    const labels = ippu.rows.map((row) => (row.legendLabel || row.label) + (row.notation ? ` · ${row.notation}` : ''));
+    charts.ipuPie = createDashboardChart(ipuCtx, {
       type: 'doughnut',
       data: {
         labels,
-        datasets: [{ data: [1967.87, 1033.67, 631.39, 158.11, 12.83, 51.78],
+        datasets: [{ data: ippu.rows.map((row) => row.value),
           backgroundColor: labels.map(getIppuColorForLabel),
           borderColor: c.segmentBorder, borderWidth: 2 }]
       },
@@ -1580,7 +1292,7 @@ function buildCharts() {
         plugins: { ...chartDefaults().plugins,
           legend: { ...chartDefaults().plugins.legend, position: 'right' },
           tooltip: { ...chartDefaults().plugins.tooltip,
-            callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed.toFixed(2)} Kt (${(ctx.parsed/3855.65*100).toFixed(1)}%)` } } } }
+            callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed.toFixed(2)} Kt (${(ctx.parsed/ippu.total*100).toFixed(1)}%)` } } } }
     });
   }
 
@@ -1590,7 +1302,7 @@ function buildCharts() {
 }
 
 // ── COMPANY DATA ─────────────────────────────
-const companies = [
+const COMPANY_PROFILE_DETAILS = [
   {
     id:'agropolychim', name:'Agropolychim AD', location:'Devnya (Varna region)',
     sector:'Nitrogen & phosphate fertilizers', maturity:'advanced',
@@ -1800,6 +1512,110 @@ const companies = [
   }
 ];
 
+function createBaselineCompanyProfile(company) {
+  const pathway = ClusterData.SECTOR_PATHWAYS.find((entry) => entry.id === company.sectorPathwayId);
+  const notAvailable = { en: 'Not available in the current dataset', bg: 'Няма данни в текущия набор' };
+  const amount = company.emissions2024Kt;
+  const sources = [
+    { name: company.provenance?.source, url: company.provenance?.url },
+    { name: company.provenance?.emissionsSource, url: company.provenance?.emissionsUrl },
+  ].filter((source) => source.name && /^https?:\/\//i.test(source.url || ''));
+  return {
+    id: company.id,
+    name: company.company,
+    location: company.cluster,
+    sector: company.specificSector || company.sector,
+    maturity: 'unassessed',
+    baselineOnly: true,
+    color: 'var(--info)', colorBg: 'var(--info-light)',
+    initials: company.company.split(/\s+/).slice(0, 2).map((word) => word[0]).join('').toUpperCase(),
+    description: company.indicator || notAvailable,
+    emissions: Number.isFinite(amount) ? {
+      en: `${amount.toFixed(3)} Kt CO₂eq · 2024 · Verified installation emissions`,
+      bg: `${new Intl.NumberFormat('bg-BG', { maximumFractionDigits: 3 }).format(amount)} хил. т CO₂eq · 2024 · Верифицирани емисии на инсталацията`,
+    } : notAvailable,
+    employees: notAvailable,
+    turnover: notAvailable,
+    crf: notAvailable,
+    initiatives: [],
+    pathways: pathway?.levers || [],
+    ets: company.registry2025Provided ? { en: 'EU ETS operator register · 2025.', bg: 'Регистър на операторите по EU ETS · 2025 г.' } : { en: 'See the available source data for installation coverage.', bg: 'Обхватът на инсталацията е описан в наличните източници.' },
+    tags: [{ en: company.registry2025Provided ? 'Operator register · 2025' : 'Company profile', bg: company.registry2025Provided ? 'Регистър на операторите · 2025' : 'Фирмен профил' }, company.specificSector || company.sector],
+    netZeroLab: { en: 'Participation is not documented in the available sources.', bg: 'Участието не е документирано в наличните източници.' },
+    challenge: company.provenance?.note || notAvailable,
+    sources,
+  };
+}
+
+// One shared roster keeps Company Profiles and Cluster Analysis in sync.
+const companies = (ClusterData.createCompanyRoster || ClusterData.createDefaultCompanies)().map((company) => {
+  const baseline = createBaselineCompanyProfile(company);
+  const details = COMPANY_PROFILE_DETAILS.find((profile) => normalizeRoiCompanyKey(profile.id) === company.id);
+  return {
+    ...baseline,
+    ...details,
+    id: company.id,
+    name: company.company,
+    nameBg: company.companyBg,
+    mainActivityId: company.mainActivityId,
+    mainActivity: company.mainActivity,
+    registryOperatorName: company.registryOperatorName,
+    registryInstallation: company.registryInstallation,
+    registry2025Provided: company.registry2025Provided,
+    verifiedEmissions2025T: company.verifiedEmissions2025T,
+    freeAllowances2025Eua: company.freeAllowances2025Eua,
+    emissions2024Kt: company.emissions2024Kt,
+    geography: company.geography,
+    baselineOnly: !details,
+    sources: baseline.sources,
+  };
+});
+
+function companyProfileText(value) {
+  const localized = value && typeof value === 'object' ? value[getLanguage()] || value.en || value.bg || '' : String(value ?? '');
+  return window.CoreI18n?.text(localized) || localized;
+}
+
+function companyProfileHtml(value) {
+  return escapeHtml(companyProfileText(value));
+}
+
+
+let currentCompanyProfileFilter = 'all';
+let currentCompanyActivityFilter = 'all';
+let companyProfileSearch = '';
+let activeCompanyProfileId = null;
+
+function registryCopy(en, bg) { return getLanguage() === 'bg' ? bg : en; }
+function companyDisplayName(co) { return getLanguage() === 'bg' && co.nameBg ? co.nameBg : co.name; }
+function registryNumber(value, digits = 0) {
+  return value == null || !Number.isFinite(value) ? registryCopy('Not available', 'Няма данни')
+    : new Intl.NumberFormat(getLanguage() === 'bg' ? 'bg-BG' : 'en-GB', { maximumFractionDigits: digits }).format(value);
+}
+function filterCompanyProfiles(activity, search) {
+  const searchFocused = document.activeElement?.id === 'companyProfileSearch';
+  const caret = searchFocused ? document.activeElement.selectionStart : null;
+  currentCompanyActivityFilter = activity;
+  companyProfileSearch = search;
+  renderCompanyGrid();
+  if (searchFocused) {
+    const input = document.getElementById('companyProfileSearch');
+    input?.focus();
+    if (caret != null) input?.setSelectionRange(caret, caret);
+  }
+}
+function companyRegistryTable(co) {
+  return `<div class="modal-section"><div class="modal-section-title">${registryCopy('Emissions and free allowances', 'Емисии и безплатни квоти')}</div>
+    <p class="modal-text"><strong>${registryCopy('Main activity', 'Основна дейност')}:</strong> ${companyProfileHtml(co.mainActivity || co.sector)}</p>
+    <div class="company-registry-scroll"><table class="company-registry-table"><thead><tr><th>${registryCopy('Year', 'Година')}</th><th>${registryCopy('Verified emissions (t CO₂e)', 'Верифицирани емисии (t CO₂e)')}</th><th>${registryCopy('Free allowances (EUA)', 'Безплатни квоти (EUA)')}</th></tr></thead><tbody>
+    ${Number.isFinite(co.emissions2024Kt) ? `<tr><th>2024</th><td>${registryNumber(co.emissions2024Kt * 1000, 3)}</td><td>${registryNumber(null)}</td></tr>` : ''}
+    <tr><th>2025</th><td>${registryNumber(co.verifiedEmissions2025T)}</td><td>${registryNumber(co.freeAllowances2025Eua)}</td></tr></tbody></table></div>
+    <p class="modal-text company-registry-note">${registryCopy('Source', 'Източник')}: <a href="${ClusterData.ETS_REGISTRY_URL}" target="_blank" rel="noopener noreferrer">${registryCopy('European Commission · EU ETS Union Registry', 'Европейска комисия · Регистър на Съюза по EU ETS')}</a> · 2025. ${registryCopy('Empty cells mean no data; reported zeros are retained. One EUA corresponds to one tonne CO₂e.', 'Празните клетки означават липса на данни; отчетените нули са запазени. Една EUA съответства на един тон CO₂e.')}</p>
+    ${co.registryOperatorName ? `<p class="modal-text">${registryCopy('Operator in the register', 'Оператор в регистъра')}: ${escapeHtml(co.registryOperatorName)}</p>` : ''}
+    ${co.registryInstallation ? `<p class="modal-text">${registryCopy('Installation in the register', 'Инсталация в регистъра')}: ${companyProfileHtml(co.registryInstallation)}</p>` : ''}
+    ${co.geography?.sourceUrl ? `<p class="modal-text"><a href="${escapeHtml(co.geography.sourceUrl)}" target="_blank" rel="noopener noreferrer">${registryCopy('Location source', 'Източник за местоположението')}</a></p>` : ''}
+    </div>`;
+}
 
 function filterCompanies(filter, btn) {
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -1807,64 +1623,88 @@ function filterCompanies(filter, btn) {
   renderCompanyGrid(filter);
 }
 
-function renderCompanyGrid(filter = 'all') {
+function renderCompanyGrid(filter = currentCompanyProfileFilter) {
+  currentCompanyProfileFilter = filter;
   const grid = document.getElementById('companyGrid');
   if (!grid) return;
-  const filtered = filter === 'all' ? companies : companies.filter(c => c.maturity === filter);
+  const controls = document.getElementById('companyRegistryFilters');
+  if (controls) {
+    const activities = [...new Map(companies.map(co => [co.mainActivityId, co.mainActivity || co.sector])).entries()]
+      .sort((a, b) => companyProfileText(a[1]).localeCompare(companyProfileText(b[1]), getLanguage()));
+    controls.innerHTML = `<label>${registryCopy('Main activity', 'Основна дейност')}<select onchange="filterCompanyProfiles(this.value, document.getElementById('companyProfileSearch').value)"><option value="all">${registryCopy('All activities', 'Всички дейности')}</option>${activities.map(([id, label]) => `<option value="${escapeHtml(id)}" ${currentCompanyActivityFilter === id ? 'selected' : ''}>${companyProfileHtml(label)}</option>`).join('')}</select></label><label>${registryCopy('Search companies', 'Търсене на компании')}<input id="companyProfileSearch" type="search" value="${escapeHtml(companyProfileSearch)}" oninput="filterCompanyProfiles(currentCompanyActivityFilter, this.value)"></label>`;
+  }
+  const query = companyProfileSearch.trim().toLocaleLowerCase();
+  const filtered = companies.filter(co => (filter === 'all' || co.maturity === filter)
+    && (currentCompanyActivityFilter === 'all' || co.mainActivityId === currentCompanyActivityFilter)
+    && (!query || `${co.name} ${co.nameBg || ''} ${companyProfileText(co.mainActivity)} ${companyProfileText(co.location)}`.toLocaleLowerCase().includes(query)));
   grid.innerHTML = filtered.map(co => `
     <div class="company-card" onclick="openCompanyModal('${co.id}')">
       <div class="co-header">
         <div class="co-logo" style="background:${co.colorBg};color:${co.color}">${co.initials}</div>
         <div class="co-maturity mat-${co.maturity}">${
           co.maturity === 'advanced' ? 'Advanced' :
-          co.maturity === 'progressing' ? 'Progressing' : 'Early Stage'
+          co.maturity === 'progressing' ? 'Progressing' :
+          co.maturity === 'early' ? 'Early Stage' : translate('profile.unassessed')
         }</div>
       </div>
-      <div class="co-name">${co.name}</div>
+      <div class="co-name">${companyProfileHtml(companyDisplayName(co))}</div>
       <div class="co-location">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        ${co.location}
+        ${companyProfileHtml(co.location || registryCopy('Site not yet identified', 'Площадката не е уточнена'))}
       </div>
-      <div class="co-sector">${co.sector}</div>
-      <div class="co-tags">${co.tags.slice(0,3).map(t=>`<span class="co-tag">${t}</span>`).join('')}</div>
+      <div class="co-sector">${companyProfileHtml(co.mainActivity || co.sector)}</div>
+      <div class="co-tags">${co.tags.slice(0,3).map(tag=>`<span class="co-tag">${companyProfileHtml(tag)}</span>`).join('')}</div>
       <div class="co-emissions">
-        <div class="co-ems-label">Annual CO₂ emissions</div>
-        <div class="co-ems-val">${co.emissions}</div>
+        <div class="co-ems-label">${registryCopy('Verified emissions · 2025 · t CO₂e', 'Верифицирани емисии · 2025 · t CO₂e')}</div>
+        <div class="co-ems-val">${registryNumber(co.verifiedEmissions2025T)}</div>
+        <div class="co-ems-label">${registryCopy('Free allowances · 2025 · EUA', 'Безплатни квоти · 2025 · EUA')}</div>
+        <div class="co-ems-val">${registryNumber(co.freeAllowances2025Eua)}</div>
       </div>
     </div>
-  `).join('');
+  `).join('') || `<p>${registryCopy('No companies match these filters.', 'Няма компании, които отговарят на тези филтри.')}</p>`;
+  window.CoreI18n?.apply(grid);
 }
 
 let companyModalTrigger = null;
 
 function openCompanyModal(id) {
-  const co = companies.find(c => c.id === id);
+  const co = companies.find(c => c.id === normalizeRoiCompanyKey(id));
   if (!co) return;
   companyModalTrigger = document.activeElement;
+  activeCompanyProfileId = co.id;
+  renderCompanyModalContent(co);
+  document.getElementById('companyModal').classList.add('open');
+  document.getElementById('modalContent')?.querySelector('.modal-close')?.focus();
+}
+
+function renderCompanyModalContent(co) {
+  if (!co) return;
   const body = document.getElementById('modalBody');
+  if (!body) return;
   body.innerHTML = `
     <div class="modal-co-header">
       <div class="modal-co-logo" style="background:${co.colorBg};color:${co.color}">${co.initials}</div>
       <div class="modal-co-main">
-        <div class="modal-co-name" id="modalCoName">${co.name}</div>
-        <div class="modal-co-meta">${co.location} · ${co.sector}</div>
+        <div class="modal-co-name" id="modalCoName">${companyProfileHtml(companyDisplayName(co))}</div>
+        <div class="modal-co-meta">${companyProfileHtml(co.location)} · ${companyProfileHtml(co.sector)}</div>
       </div>
-      <div class="modal-employee-pill"><span>Employees</span><strong>${co.employees}</strong></div>
+      <div class="modal-employee-pill"><span>Employees</span><strong>${companyProfileHtml(co.employees)}</strong></div>
     </div>
-    <div class="modal-section"><div class="modal-section-title">Overview</div><p class="modal-text">${co.description}</p></div>
+    ${companyRegistryTable(co)}
+    <div class="modal-section"><div class="modal-section-title">Overview</div><p class="modal-text">${companyProfileHtml(co.description)}</p></div>
     <div class="modal-kpi-row">
-      <div class="modal-kpi modal-kpi-wide"><div class="modal-kpi-val">${co.emissions}</div><div class="modal-kpi-label">Annual CO₂ emissions</div></div>
-      <div class="modal-kpi"><div class="modal-kpi-val">${co.turnover}</div><div class="modal-kpi-label">Turnover</div></div>
-      <div class="modal-kpi"><div class="modal-kpi-val">${co.crf}</div><div class="modal-kpi-label">CRF Sector Code</div></div>
+      <div class="modal-kpi modal-kpi-wide"><div class="modal-kpi-val">${companyProfileHtml(co.emissions)}</div><div class="modal-kpi-label">Annual CO₂ emissions</div></div>
+      <div class="modal-kpi"><div class="modal-kpi-val">${companyProfileHtml(co.turnover)}</div><div class="modal-kpi-label">Turnover</div></div>
+      <div class="modal-kpi"><div class="modal-kpi-val">${companyProfileHtml(co.crf)}</div><div class="modal-kpi-label">CRF Sector Code</div></div>
     </div>
-    <div class="modal-section" style="margin-top:1rem"><div class="modal-section-title">Decarbonization Initiatives</div><ul class="modal-initiatives">${co.initiatives.map(i=>`<li>${i}</li>`).join('')}</ul></div>
-    <div class="modal-section"><div class="modal-section-title">Key Pathways</div><div style="display:flex;gap:0.375rem;flex-wrap:wrap">${co.pathways.map(p=>`<span class="co-tag" style="background:var(--primary-light);color:var(--primary)">${p}</span>`).join('')}</div></div>
-    <div class="modal-section"><div class="modal-section-title">EU ETS Status</div><p class="modal-text">${co.ets}</p></div>
-    <div class="modal-section"><div class="modal-section-title">Net-Zero Lab</div><p class="modal-text">${co.netZeroLab}</p></div>
-    <div class="modal-section"><div class="modal-section-title">Key Challenges</div><p class="modal-text">${co.challenge}</p></div>
+    <div class="modal-section" style="margin-top:1rem"><div class="modal-section-title">Decarbonization Initiatives</div>${co.initiatives.length ? `<ul class="modal-initiatives">${co.initiatives.map(item=>`<li>${companyProfileHtml(item)}</li>`).join('')}</ul>` : `<p class="modal-text">${escapeHtml(translate('profile.noInitiatives'))}</p>`}</div>
+    <div class="modal-section"><div class="modal-section-title">${co.baselineOnly ? escapeHtml(translate('profile.sectorOptions')) : 'Key Pathways'}</div>${co.baselineOnly ? `<p class="modal-text">${escapeHtml(translate('profile.sectorOptionsNote'))}</p>` : ''}<div style="display:flex;gap:0.375rem;flex-wrap:wrap">${co.pathways.map(pathway=>`<span class="co-tag" style="background:var(--primary-light);color:var(--primary)">${companyProfileHtml(pathway)}</span>`).join('')}</div></div>
+    <div class="modal-section"><div class="modal-section-title">EU ETS Status</div><p class="modal-text">${companyProfileHtml(co.ets)}</p></div>
+    <div class="modal-section"><div class="modal-section-title">Net-Zero Lab</div><p class="modal-text">${companyProfileHtml(co.netZeroLab)}</p></div>
+    <div class="modal-section"><div class="modal-section-title">${co.baselineOnly ? escapeHtml(translate('profile.limitations')) : 'Key Challenges'}</div><p class="modal-text">${companyProfileHtml(co.challenge)}</p></div>
+    ${co.sources.length ? `<div class="modal-section"><div class="modal-section-title">${escapeHtml(translate('profile.sources'))}</div><ul class="modal-initiatives">${co.sources.map(source=>`<li><a href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">${companyProfileHtml(source.name)}</a></li>`).join('')}</ul></div>` : ''}
   `;
-  document.getElementById('companyModal').classList.add('open');
-  document.getElementById('modalContent')?.querySelector('.modal-close')?.focus();
+  window.CoreI18n?.apply(body);
 }
 
 function closeCompanyModal(event) {
@@ -1872,6 +1712,7 @@ function closeCompanyModal(event) {
     document.getElementById('companyModal').classList.remove('open');
     companyModalTrigger?.focus?.();
     companyModalTrigger = null;
+    activeCompanyProfileId = null;
   }
 }
 
@@ -1911,14 +1752,21 @@ function checkCdnHealth() {
 }
 
 // ── INIT ─────────────────────────────────────
+function applyCompanyVisibility() {
+  document.querySelectorAll('[data-company]').forEach(node => {
+    const visible = ClusterData.isCompanyVisible(node.dataset.company);
+    node.hidden = !visible;
+    if (node.tagName === 'OPTION') node.disabled = !visible;
+  });
+  document.querySelectorAll('[data-calculator-company-count]').forEach(node => {
+    node.textContent = CALCULATOR_COMPANY_KEYS.length;
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  readClusterAccessState();
-  readClusterSecondaryAccessState();
-  readIndustrialGeographyAccessState();
+  applyCompanyVisibility();
   initLanguageControl();
   initFontSizeControl();
-  renderClusterAccessState();
-  renderIndustrialGeographyAccessState();
   renderCompanyGrid();
   renderDatasetTables();
   animateKPIs();
@@ -1927,14 +1775,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setTimeout(updateDashboardWithDbData, 250);
 });
 
-window.unlockClusterAnalysis = unlockClusterAnalysis;
-window.unlockClusterSimulation = unlockClusterSimulation;
-window.unlockClusterEditor = unlockClusterEditor;
-window.unlockIndustrialGeography = unlockIndustrialGeography;
-window.isClusterAccessUnlocked = isClusterAccessUnlocked;
-window.isClusterSimulationUnlocked = isClusterSimulationUnlocked;
-window.isClusterEditorUnlocked = isClusterEditorUnlocked;
-window.isIndustrialGeographyUnlocked = isIndustrialGeographyUnlocked;
 
 /* ═══════════════════════════════════════════════
    CBAM CALCULATOR LOGIC
@@ -1983,11 +1823,12 @@ const PRODUCTS = [
   { co:'biovet',       name:'Pharmaceutical products', ef:0.18, cbam:false, volId:'vol-biovet-pharma' },
   // Orgachim
   { co:'orgachim',     name:'Paints & resins', ef:0.35, cbam:false, volId:'vol-orgachim-resins' },
-];
+].filter((product) => ClusterData.isCompanyVisible(product.co));
 
-// CBAM calculator company keys (9-company model)
-const CO_KEYS = ['agropolychim','neochim','solvay','lukoil','svilosa','heidelberg','holcim','biovet','orgachim'];
-const CBAM_CO_LABELS = ['Agropolychim','Neochim','Solvay Sodi','LUKOIL Neftohim Burgas','Svilosa','Heidelberg','Holcim','Biovet','Orgachim'];
+// CBAM and ROI use the same active-company selection.
+const CO_KEYS = CALCULATOR_COMPANY_KEYS;
+const CBAM_CO_LABELS = ['Agropolychim','Neochim','Solvay Sodi','LUKOIL Neftohim Burgas','Svilosa','Heidelberg','Holcim','Biovet','Orgachim']
+  .filter((name) => ClusterData.isCompanyVisible(normalizeRoiCompanyKey(name)));
 
 let currentScenario = 'base';
 let cbamChartInstance = null;
@@ -2094,11 +1935,11 @@ function updateCbamChart(results, totals) {
   if (!ctx) return;
 
   if (cbamChartInstance) {
-    cbamChartInstance.data.datasets = datasets;
+    cbamChartInstance.data.datasets = window.CoreI18n?.chartConfig({data: {datasets}}).data.datasets || datasets;
     cbamChartInstance.options.plugins.tooltip.backgroundColor = getChartColors().surface;
     cbamChartInstance.update();
   } else {
-    cbamChartInstance = new Chart(ctx, {
+    cbamChartInstance = createDashboardChart(ctx, {
       type: 'bar',
       data: { labels: YEARS, datasets },
       options: {
@@ -2222,6 +2063,12 @@ const ROI_ETS = {
   base: [85,95,105,115,126,130,135,140,145,150,155,160,165,170,175],
   high: [105,120,135,150,165,175,182,188,195,202,210,218,225,230,235]
 };
+
+// Infographics read the same data as the dashboards; no separate numeric dataset.
+window.getInfographicSourceData = () => ({
+  inventory: DB, roiPathways: ROI_PATHWAYS, etsPrices: ROI_ETS,
+  etsYears: ROI_YEARS, cbamFactors: CBAM_FACTORS, cbamYears: YEARS,
+});
 
 const ROI_SCENARIO_SNAPSHOT = [
   { year: 2026, investment: -389, lowEts: -380, lowNet: 9.1, baseEts: -376, baseNet: 13, highEts: -373, highNet: 16 },
@@ -2406,13 +2253,13 @@ const ROI_PATHWAYS = [
     capex_yr:{2026:0.5,2027:0.5},
     note:'Energy independence. Combined PV + battery storage.'
   },
-];
+].filter((pathway) => ClusterData.isCompanyVisible(normalizeRoiCompanyKey(pathway.co)));
 
 // Shared read-only project dataset used by the modular Cluster Analysis decision layer.
 window.NZL_ROI_PATHWAYS = ROI_PATHWAYS;
 
 // Company keys, display names, colors
-const ROI_CO_KEYS = ['agropolychim','neochim','solvay','lukoil','svilosa','heidelberg','holcim','biovet','orgachim'];
+const ROI_CO_KEYS = CALCULATOR_COMPANY_KEYS;
 const ROI_CO_NAMES = {
   agropolychim:'Agropolychim', neochim:'Neochim', solvay:'Solvay Sodi',
   lukoil:'LUKOIL Neftohim Burgas', svilosa:'Svilosa', heidelberg:'Heidelberg Materials',
@@ -2754,7 +2601,7 @@ function buildRoiEtsChart() {
     high: { label: 'High ROI_ETS', color: c.success, name: 'High' },
   };
 
-  roiEtsChartInst = new Chart(ctx, {
+  roiEtsChartInst = createDashboardChart(ctx, {
     type: 'line',
     data: {
       labels: ROI_YEARS,
@@ -2849,7 +2696,7 @@ function buildPaybackChart() {
   const wrapEl = document.getElementById('paybackChartWrap');
   if (wrapEl) wrapEl.style.height = Math.max(200, items.length * 28 + 40) + 'px';
 
-  paybackChartInst = new Chart(ctx, {
+  paybackChartInst = createDashboardChart(ctx, {
     type: 'bar',
     data: {
       labels: items.map(it => it.label),
@@ -2904,7 +2751,7 @@ function buildRoiScenarioSnapshotChart() {
   const baseColor = c.blue;
   const highColor = c.success;
 
-  roiScenarioSnapshotChartInst = new Chart(ctx, {
+  roiScenarioSnapshotChartInst = createDashboardChart(ctx, {
     type: 'bar',
     data: {
       labels: ROI_SCENARIO_SNAPSHOT.map(row => row.year),
@@ -3042,7 +2889,7 @@ function updateCashflowChart() {
   let cumulInv, cumulSav, cumulCbam, cumulNet;
 
   if (coId === 'all') {
-    // Sum across all 9 companies
+    // Sum across active companies.
     const zeros = new Array(15).fill(0);
     let totalInv = [...zeros], totalSav = [...zeros], totalCbam = [...zeros];
     ROI_CO_KEYS.forEach(key => {
@@ -3080,7 +2927,7 @@ function updateCashflowChart() {
 
   if (cashflowChartInst) { cashflowChartInst.destroy(); cashflowChartInst = null; }
 
-  cashflowChartInst = new Chart(ctx, {
+  cashflowChartInst = createDashboardChart(ctx, {
     type: 'line',
     data: {
       labels: ROI_YEARS,
@@ -3182,10 +3029,10 @@ function buildMacChart() {
     { name: 'LUKOIL Neftohim Burgas Eff.',       bep: 35e6/157e3,     color:c.companies.lukoil },
     { name: 'Solvay Coal',       bep: 75e6/165e3,     color:c.companies.solvay },
     { name: 'Neochim Eff.',      bep: 11.5e6/22.5e3,  color:c.companies.neochim },
-    { name: 'Svilosa BioTEC',    bep: 21e6/33e3,      color:c.companies.svilosa },
+    { co: 'svilosa', name: 'Svilosa BioTEC', bep: 21e6/33e3, color:c.companies.svilosa },
     { name: 'Agropol. Eff.',     bep: 45e6/65e3,      color:c.companies.agropolychim },
     { name: 'Agropol. Plant',    bep: 115e6/130e3,    color:c.companies.agropolychim },
-    { name: 'Svilosa Renew.',    bep: 22.5e6/19e3,    color:c.companies.svilosa },
+    { co: 'svilosa', name: 'Svilosa Renew.', bep: 22.5e6/19e3, color:c.companies.svilosa },
     { name: 'LUKOIL Neftohim Burgas Low-C H₂',  bep: 225e6/355e3,    color:c.companies.lukoil },
     { name: 'Solvay Electrif.',  bep: 90e6/88e3,      color:c.companies.solvay },
     { name: 'Neochim Blue NH₃', bep: 150e6/126e3,    color:c.companies.neochim },
@@ -3194,11 +3041,11 @@ function buildMacChart() {
     { name: 'LUKOIL Neftohim Burgas CCUS',      bep: 1100e6/1470e3,  color:c.companies.lukoil },
     { name: 'Green NH₃ (AP)',   bep: 1100e6/416e3,   color:c.companies.agropolychim },
     { name: 'Green NH₃ (NC)',   bep: 625e6/162e3,    color:c.companies.neochim },
-  ].sort((a,b) => a.bep - b.bep);
+  ].filter((item) => ClusterData.isCompanyVisible(item.co)).sort((a,b) => a.bep - b.bep);
   const etsPrices = ROI_ETS[currentRoiScenario];
   const ets2026 = etsPrices[0];
   const ets2030 = etsPrices[4];
-  macChartInst = new Chart(ctx, {
+  macChartInst = createDashboardChart(ctx, {
     type: 'bar',
     data: {
       labels: macItems.map(x => x.name),
@@ -3335,11 +3182,13 @@ function buildIppuCharts() {
   const c = getChartColors();
   const hist = DB.ippu_hist;
   const years = hist.map(d => d.year);
+  const ippu = getIppuBreakdown();
+  updateIppuCaptions();
 
   // 1. IPPU Total line chart
   const ctxTotal = document.getElementById('ippuTotalChart');
   if (ctxTotal && !ippuTotalChartInst) {
-    ippuTotalChartInst = new Chart(ctxTotal, {
+    ippuTotalChartInst = createDashboardChart(ctxTotal, {
       type: 'line',
       data: {
         labels: years,
@@ -3363,13 +3212,13 @@ function buildIppuCharts() {
     });
   }
 
-  // 2. IPPU 2023 Pie
+  // 2. Latest supplied IPPU breakdown (the legacy canvas ID is retained).
   const ctxPie = document.getElementById('ippu2023PieChart');
   if (ctxPie && !ippu2023PieInst) {
-    const labels = Object.keys(DB.ippu_2023);
-    const data   = Object.values(DB.ippu_2023);
+    const labels = ippu.rows.map((row) => (row.legendLabel || row.label) + (row.notation ? ` · ${row.notation}` : ''));
+    const data = ippu.rows.map((row) => row.value);
     const colors = labels.map(getIppuColorForLabel);
-    ippu2023PieInst = new Chart(ctxPie, {
+    ippu2023PieInst = createDashboardChart(ctxPie, {
       type: 'doughnut',
       data: {
         labels,
@@ -3381,7 +3230,7 @@ function buildIppuCharts() {
         plugins: { ...chartDefaults().plugins,
           legend: { ...chartDefaults().plugins.legend, position: 'right' },
           tooltip: { ...chartDefaults().plugins.tooltip,
-            callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed.toFixed(2)} Kt (${(ctx.parsed / 3855.65 * 100).toFixed(1)}%)` } } }
+            callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed.toFixed(2)} Kt (${(ctx.parsed / ippu.total * 100).toFixed(1)}%)` } } }
       }
     });
   }
@@ -3389,24 +3238,20 @@ function buildIppuCharts() {
   // 3. IPPU Stacked bar
   const ctxStack = document.getElementById('ippuStackedChart');
   if (ctxStack && !ippuStackedInst) {
-    const ds = [
-      { label: '2.A Mineral Industry', key: 'mineral', color: c.semantic.mineral },
-      { label: '2.B Chemical Industry', key: 'chemical', color: c.semantic.chemical },
-      { label: '2.C Metal Industry',   key: 'metal',    color: c.semantic.metal },
-      { label: '2.F ODS Substitutes',  key: 'ods',      color: c.semantic.ods },
-      { label: '2.G Other',            key: 'other',    color: c.semantic.other },
-    ];
-    ippuStackedInst = new Chart(ctxStack, {
+    const ds = IPPU_SECTORS.map((sector) => ({ ...sector, color: getIppuColorForLabel(sector.label) }));
+    ippuStackedInst = createDashboardChart(ctxStack, {
       type: 'bar',
       data: {
         labels: years,
-        datasets: ds.map(d => ({
-          label: d.label,
-          data: hist.map(h => h[d.key] || 0),
+        datasets: [...ds.map(d => ({
+          label: d.legendLabel || d.label,
+          data: hist.map(h => Number.isFinite(h[d.key]) ? h[d.key] : null),
           backgroundColor: withChartAlpha(d.color, 'cc'),
           borderColor: d.color,
           borderWidth: 1, borderRadius: 2, stack: 'a',
-        }))
+        })), { type: 'line', label: 'IPPU Total (Kt CO₂eq)', data: hist.map((row) => row.total),
+          borderColor: c.semantic.total, backgroundColor: 'transparent', borderWidth: 2,
+          pointRadius: 3, fill: false, stack: 'reported-total', order: 0 }]
       },
       options: {
         ...chartDefaults(), responsive: true, maintainAspectRatio: false,
@@ -3427,16 +3272,12 @@ function buildIppuCharts() {
 
 function buildIppuDataTable() {
   const tbl = document.getElementById('ippuDataTable');
-  if (!tbl || tbl.innerHTML) return;
-  const cols = ['Year','Total','2.A Mineral','2.B Chemical','2.C Metal','2.F ODS','2.G Other'];
+  if (!tbl) return;
+  const cols = [getLanguage() === 'bg' ? 'Година' : 'Year', getLanguage() === 'bg' ? 'Общо' : 'Total', ...IPPU_SECTORS.map((sector) => window.CoreI18n?.text(sector.label) || sector.label)];
   const head = `<thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>`;
   const body = '<tbody>' + DB.ippu_hist.map(d =>
-    `<tr><td><strong>${d.year}</strong></td><td style="font-family:var(--font-mono)">${d.total.toFixed(2)}</td>
-    <td style="font-family:var(--font-mono)">${(d.mineral||0).toFixed(2)}</td>
-    <td style="font-family:var(--font-mono)">${(d.chemical||0).toFixed(2)}</td>
-    <td style="font-family:var(--font-mono)">${(d.metal||0).toFixed(2)}</td>
-    <td style="font-family:var(--font-mono)">${(d.ods||0).toFixed(2)}</td>
-    <td style="font-family:var(--font-mono)">${(d.other||0).toFixed(2)}</td></tr>`
+    `<tr><td><strong>${d.year}</strong></td><td style="font-family:var(--font-mono)">${formatDatasetNumber(d.total)}</td>
+    ${IPPU_SECTORS.map((sector) => `<td style="font-family:var(--font-mono)">${escapeHtml(formatIppuValue(d[sector.key]))}</td>`).join('')}</tr>`
   ).join('') + '</tbody>';
   tbl.innerHTML = head + body;
 }
@@ -3453,7 +3294,7 @@ function buildSubsectorCharts() {
   // Energy combustion by key sub-sectors
   const ctxE = document.getElementById('energySubsecChart');
   if (ctxE && !energySubsecInst) {
-    energySubsecInst = new Chart(ctxE, {
+    energySubsecInst = createDashboardChart(ctxE, {
       type: 'line',
       data: {
         labels: years,
@@ -3462,7 +3303,7 @@ function buildSubsectorCharts() {
             borderColor: c.companies.lukoil, backgroundColor: 'transparent', borderWidth:2.5, tension:0.3, pointRadius:3 },
           { label: '1.A.2.c Chemical Industry', data: sh.map(d => d.chemicals_1a2c),
             borderColor: c.semantic.chemical, backgroundColor: 'transparent', borderWidth:2.5, tension:0.3, pointRadius:3 },
-          { label: '1.A.2.d Pulp & Paper (Svilosa)', data: sh.map(d => d.pulp_paper_1a2d),
+          { label: '1.A.2.d Pulp & Paper', data: sh.map(d => d.pulp_paper_1a2d),
             borderColor: c.companies.svilosa, backgroundColor: 'transparent', borderWidth:2, tension:0.3, pointRadius:3, borderDash:[4,2] },
         ]
       },
@@ -3480,7 +3321,7 @@ function buildSubsectorCharts() {
   // Chemical process emissions
   const ctxP = document.getElementById('processEmissionsChart');
   if (ctxP && !processEmsInst) {
-    processEmsInst = new Chart(ctxP, {
+    processEmsInst = createDashboardChart(ctxP, {
       type: 'bar',
       data: {
         labels: years,
@@ -3508,7 +3349,7 @@ function buildSubsectorCharts() {
   const ctxCo = document.getElementById('companyEmissionsChart');
   if (ctxCo && !companyEmsDbInst) {
     const last = DB.subsec_hist[DB.subsec_hist.length - 1]; // 2023
-    companyEmsDbInst = new Chart(ctxCo, {
+    companyEmsDbInst = createDashboardChart(ctxCo, {
       type: 'bar',
       data: {
         labels: [
@@ -3565,7 +3406,7 @@ function buildFuel2023Charts() {
 
   const ctxG = document.getElementById('fuelGroupChart');
   if (ctxG && !fuelGroupInst) {
-    fuelGroupInst = new Chart(ctxG, {
+    fuelGroupInst = createDashboardChart(ctxG, {
       type: 'doughnut',
       data: {
         labels: ['Energy Industries','Manufacturing','Transport','Other Sectors'],
@@ -3586,7 +3427,7 @@ function buildFuel2023Charts() {
   const mfgRows = fc.filter(r => r.group === 'Manufacturing');
   const ctxM = document.getElementById('mfgFuelChart');
   if (ctxM && !mfgFuelInst) {
-    mfgFuelInst = new Chart(ctxM, {
+    mfgFuelInst = createDashboardChart(ctxM, {
       type: 'bar',
       data: {
         labels: mfgRows.map(r => r.name.replace('Non-Metallic Minerals (incl. Cement)','Non-Met. Minerals').replace('Commercial/Institutional Services','Services')),
@@ -3667,6 +3508,10 @@ function formatDatasetNumber(value, digits = 2) {
   }).format(value);
 }
 
+function formatIppuValue(value) {
+  return Number.isFinite(value) ? formatDatasetNumber(value) : typeof value === 'string' ? value : '—';
+}
+
 function formatDatasetPercent(value, digits = 1) {
   if (!Number.isFinite(value)) return '—';
   return `${formatDatasetNumber(value, digits)}%`;
@@ -3691,17 +3536,17 @@ function getDatasetCopy() {
       },
       snapshot: {
         kicker: 'Снимка на данните',
-        title: 'Текущи стойности за 2023',
+        title: 'Национални данни 2023 и IPPU 2024',
         desc: 'Национален и IPPU срез на данните, използвани в таблото.',
         nationalTitle: 'Национален инвентар 2023',
         nationalSub: 'Основни категории емисии и дял от брутните положителни емисии.',
-        ippuTitle: 'IPPU разбивка 2023',
+        ippuTitle: 'IPPU разбивка 2024',
         ippuSub: 'Сектор 2 Industrial Processes and Product Use.',
         headers: ['Категория', 'Стойност (Kt CO2eq)', 'Дял']
       },
       historical: {
         kicker: 'Исторически редове',
-        title: 'Времеви серии 2010-2023',
+        title: 'IPPU 2010–2024 и индустриални под-сектори 2010–2023',
         desc: 'Пълни таблични серии за индустриалните емисии и под-секторите.',
         ippuTitle: 'IPPU история',
         ippuSub: 'Годишни тотали и под-сектори от националния инвентар.',
@@ -3750,7 +3595,7 @@ function getDatasetCopy() {
         transport: 'Транспорт',
         otherGroup: 'Други',
         shareIppu: 'Дял от IPPU',
-        sourceNote: 'Всички таблици се генерират директно от in-app dataset и фирмения регистър в app.js.'
+        sourceNote: 'Официални източници'
       }
     };
   }
@@ -3764,17 +3609,17 @@ function getDatasetCopy() {
     },
     snapshot: {
       kicker: 'Dataset snapshot',
-      title: 'Current values for 2023',
+      title: 'National data 2023 and IPPU 2024',
       desc: 'National and IPPU cuts of the data already used throughout the dashboard.',
       nationalTitle: 'National inventory 2023',
       nationalSub: 'Core emission categories and share of gross positive emissions.',
-      ippuTitle: 'IPPU breakdown 2023',
+      ippuTitle: 'IPPU breakdown 2024',
       ippuSub: 'Sector 2 Industrial Processes and Product Use.',
       headers: ['Category', 'Value (Kt CO2eq)', 'Share']
     },
     historical: {
       kicker: 'Historical series',
-      title: 'Time series 2010-2023',
+      title: 'IPPU 2010–2024 and industrial sub-sectors 2010–2023',
       desc: 'Full tabular series for industrial emissions and key sub-sectors.',
       ippuTitle: 'IPPU history',
       ippuSub: 'Annual totals and sub-sectors from the national inventory.',
@@ -3823,7 +3668,7 @@ function getDatasetCopy() {
       transport: 'Transport',
       otherGroup: 'Other',
       shareIppu: 'Share of IPPU',
-      sourceNote: 'All tables are generated directly from the in-app dataset and company registry in app.js.'
+      sourceNote: 'Official sources'
     }
   };
 }
@@ -3835,13 +3680,15 @@ function renderDatasetTables() {
 
   const copy = getDatasetCopy();
   const grossPositive = Object.values(DB.nat_2023).reduce((sum, value) => sum + (value > 0 ? value : 0), 0);
-  const ippuTotal = Object.values(DB.ippu_2023).reduce((sum, value) => sum + value, 0);
+  const ippu = getIppuBreakdown();
+  const ippuTotal = ippu.total;
   const firstYear = DB.ippu_hist[0]?.year;
   const lastYear = DB.ippu_hist[DB.ippu_hist.length - 1]?.year;
   const maturityLabels = {
     advanced: copy.labels.advanced,
     progressing: copy.labels.progressing,
-    early: copy.labels.early
+    early: copy.labels.early,
+    unassessed: translate('profile.unassessed')
   };
   const groupLabels = {
     Energy: copy.labels.energy,
@@ -3870,34 +3717,19 @@ function renderDatasetTables() {
     [copy.labels.lulucf, formatDatasetNumber(DB.nat_2023.lulucf), formatDatasetPercent((DB.nat_2023.lulucf / grossPositive) * 100)]
   ].map(row => row.map(cell => escapeHtml(cell)));
 
-  const ippuSnapshotRows = [
-    ['2.A', copy.labels.mineral, formatDatasetNumber(DB.ippu_2023['2.A Mineral Industry']), formatDatasetPercent((DB.ippu_2023['2.A Mineral Industry'] / ippuTotal) * 100)],
-    ['2.B', copy.labels.chemical, formatDatasetNumber(DB.ippu_2023['2.B Chemical Industry']), formatDatasetPercent((DB.ippu_2023['2.B Chemical Industry'] / ippuTotal) * 100)],
-    ['2.C', copy.labels.metal, formatDatasetNumber(DB.ippu_2023['2.C Metal Industry']), formatDatasetPercent((DB.ippu_2023['2.C Metal Industry'] / ippuTotal) * 100)],
-    ['2.D', copy.labels.nonenergy, formatDatasetNumber(DB.ippu_2023['2.D Non-energy Products']), formatDatasetPercent((DB.ippu_2023['2.D Non-energy Products'] / ippuTotal) * 100)],
-    ['2.F', copy.labels.ods, formatDatasetNumber(DB.ippu_2023['2.F ODS Substitutes']), formatDatasetPercent((DB.ippu_2023['2.F ODS Substitutes'] / ippuTotal) * 100)],
-    ['2.G', copy.labels.other, formatDatasetNumber(DB.ippu_2023['2.G Other']), formatDatasetPercent((DB.ippu_2023['2.G Other'] / ippuTotal) * 100)]
-  ].map(row => row.map(cell => escapeHtml(cell)));
+  const ippuSnapshotRows = ippu.rows.map((row) => [row.code, window.CoreI18n?.text(row.label) || row.label,
+    formatIppuValue(row.value ?? row.notation), row.value === null ? '—' : formatDatasetPercent(row.value / ippuTotal * 100)])
+    .map((row) => row.map((cell) => escapeHtml(cell)));
 
   const ippuHistoryHeaders = [
     copy.labels.year,
     copy.labels.total,
-    copy.labels.mineral,
-    copy.labels.chemical,
-    copy.labels.metal,
-    copy.labels.nonenergy,
-    copy.labels.ods,
-    copy.labels.other
+    ...IPPU_SECTORS.map((sector) => window.CoreI18n?.text(sector.label) || sector.label)
   ];
   const ippuHistoryRows = DB.ippu_hist.map(row => [
     escapeHtml(String(row.year)),
     escapeHtml(formatDatasetNumber(row.total)),
-    escapeHtml(formatDatasetNumber(row.mineral)),
-    escapeHtml(formatDatasetNumber(row.chemical)),
-    escapeHtml(formatDatasetNumber(row.metal)),
-    escapeHtml(formatDatasetNumber(row.nonenergy)),
-    escapeHtml(formatDatasetNumber(row.ods)),
-    escapeHtml(formatDatasetNumber(row.other))
+    ...IPPU_SECTORS.map((sector) => escapeHtml(formatIppuValue(row[sector.key])))
   ]);
 
   const subsectorHeaders = [
@@ -3928,12 +3760,12 @@ function renderDatasetTables() {
   ]);
 
   const companyRows = companies.map(company => [
-    escapeHtml(company.name),
-    escapeHtml(company.location),
-    escapeHtml(company.sector),
+    companyProfileHtml(company.name),
+    companyProfileHtml(company.location),
+    companyProfileHtml(company.sector),
     escapeHtml(maturityLabels[company.maturity] || company.maturity),
-    escapeHtml(company.employees),
-    escapeHtml(company.crf)
+    companyProfileHtml(company.employees),
+    companyProfileHtml(company.crf)
   ]);
 
   const fuelRows = DB.fuel_combustion_2023.map(row => [
@@ -3967,6 +3799,7 @@ function renderDatasetTables() {
           <div class="dataset-panel-title">${escapeHtml(copy.snapshot.ippuTitle)}</div>
           <div class="dataset-panel-sub">${escapeHtml(copy.snapshot.ippuSub)}</div>
           ${buildDatasetTable(['Code', copy.snapshot.headers[0], copy.snapshot.headers[1], copy.labels.shareIppu], ippuSnapshotRows, 'dataset-table-compact')}
+          <p class="dataset-note">${escapeHtml(getIppuReconciliationNote())}</p>
         </div>
       </div>
     </div>
@@ -4009,30 +3842,32 @@ function renderDatasetTables() {
         <div class="dataset-panel-sub">${escapeHtml(copy.operational.fuelSub)}</div>
         ${buildDatasetTable(copy.operational.fuelHeaders, fuelRows, 'dataset-table-wide')}
       </div>
-      <div class="dataset-note">${escapeHtml(copy.labels.sourceNote)}</div>
+      <div class="dataset-note">${escapeHtml(copy.labels.sourceNote)}: <a href="https://unfccc.int/documents/656446" target="_blank" rel="noopener noreferrer">UNFCCC · CRT</a> · <a href="${ClusterData.ETS_REGISTRY_URL}" target="_blank" rel="noopener noreferrer">EU ETS · Union Registry</a></div>
     </div>
   `;
 }
 
 function updateDashboardWithDbData() {
   const c = getChartColors();
+  const ippu = getIppuBreakdown();
+  updateIppuCaptions();
 
-  // Update IPPU pie on dashboard with official 2023 data
+  // Latest supplied IPPU breakdown. Reported totals and category sums stay distinct.
   if (charts.ipuPie) {
-    const labels = Object.keys(DB.ippu_2023);
-    charts.ipuPie.data.labels = labels;
-    charts.ipuPie.data.datasets[0].data = Object.values(DB.ippu_2023);
+    const labels = ippu.rows.map((row) => (row.legendLabel || row.label) + (row.notation ? ` · ${row.notation}` : ''));
+    charts.ipuPie.data.labels = labels.map(label => window.CoreI18n?.text(label) || label);
+    charts.ipuPie.data.datasets[0].data = ippu.rows.map((row) => row.value);
     charts.ipuPie.data.datasets[0].backgroundColor = labels.map(getIppuColorForLabel);
     charts.ipuPie.data.datasets[0].borderColor = c.segmentBorder;
     charts.ipuPie.update();
   }
 
-  // Update emissions trend chart with official 1.a.2.c data (chemical industry energy)
+  // Update total IPPU history including the supplied correction for 2023 and the 2024 total.
   if (charts.emissionsTrend) {
     const trend = DB.chemical_industry_emissions_trend;
     charts.emissionsTrend.data.labels = trend.map(d => String(d.year));
     charts.emissionsTrend.data.datasets[0].data = trend.map(d => d.value);
-    charts.emissionsTrend.data.datasets[0].label = 'Chemical Industry Emissions (Kt CO₂eq)';
+    charts.emissionsTrend.data.datasets[0].label = window.CoreI18n?.text('IPPU Total (Kt CO₂eq)') || 'IPPU Total (Kt CO₂eq)';
     charts.emissionsTrend.data.datasets[0].borderColor = c.semantic.chemical;
     charts.emissionsTrend.data.datasets[0].backgroundColor = withChartAlpha(c.semantic.chemical, '18');
     charts.emissionsTrend.options.plugins.title = { display:false };

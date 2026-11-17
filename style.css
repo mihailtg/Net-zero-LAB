@@ -292,10 +292,12 @@ svg { flex-shrink: 0; }
   font-size: 15px;
 }
 .sidebar-header { padding: 20px 17px 16px; border-bottom: 1px solid var(--divider); }
-.logo, .mobile-logo { display: flex; align-items: center; gap: 11px; font-weight: 700; }
-.logo-img { width: 42px; height: 42px; object-fit: contain; border-radius: 8px; }
+.logo { display: flex; flex-direction: column; align-items: stretch; gap: 8px; }
+.logo-mark { padding: 10px 8px; border-radius: 6px; background: #fff; }
+.logo-img { display: block; width: 100%; height: auto; object-fit: contain; }
+.mobile-logo { display: flex; align-items: center; gap: 11px; font-weight: 700; }
+.mobile-logo-mark { display: flex; align-items: center; justify-content: center; padding: 3px; border-radius: 5px; background: #fff; }
 .mobile-logo-img { width: 30px; height: 30px; object-fit: contain; }
-.logo-title { color: var(--primary); font-size: 16px; font-weight: 850; letter-spacing: 0; }
 .logo-sub { margin-top: 1px; color: var(--text-muted); font-size: 11px; font-weight: 700; }
 .nav { flex: 1; padding: 11px; overflow-y: auto; }
 .nav-item {
@@ -318,7 +320,6 @@ svg { flex-shrink: 0; }
 .nav-item.active { background: var(--primary); border-color: var(--primary); color: var(--on-primary); box-shadow: 0 8px 18px rgba(122, 0, 94, 0.18); }
 .nav-item[data-section="netzerolab"] { display: none; }
 .nav-item span[data-i18n] { flex: 1; }
-.nav-preview-badge { flex-shrink: 0; opacity: 0.55; }
 
 .cdn-failure-banner[hidden] { display: none; }
 .cdn-failure-banner {
@@ -374,6 +375,7 @@ svg { flex-shrink: 0; }
 .pill-amber, .badge-amber, .pb-coming, .pt-invited, .fund-policy, .mat-progressing { background: var(--amber-light); color: var(--amber); }
 .badge-blue, .pb-review, .fund-dev { background: var(--blue-light); color: var(--blue); }
 .badge-slate, .mat-early, .act-ongoing { background: var(--slate-light); color: var(--slate); }
+.mat-unassessed { background: var(--surface-offset); color: var(--text-muted); }
 .badge-cbam { background: var(--purple-light); color: var(--purple); }
 .badge-ets { background: var(--teal-light); color: var(--teal); }
 
@@ -1037,12 +1039,22 @@ svg { flex-shrink: 0; }
   .theme-toggle-sm,
   .cdn-failure-banner,
   .filter-row, .pathway-tabs, .scenario-pills, .rsb-pills, .payback-filter-row,
-  .inv-view-row, .ems-tabs, .ctc-pills, .price-preview-row,
-  #clusterSecurityPanel, #clusterAccessGate, #industrialGeographyAccessGate,
-  .nav-preview-badge {
+  .inv-view-row, .ems-tabs, .ctc-pills, .price-preview-row {
     display: none !important;
   }
   .main { margin: 0 !important; padding: 0 !important; }
   .card, .kpi-card { break-inside: avoid; box-shadow: none !important; }
   .table-wrap { overflow: visible !important; }
 }
+[data-company][hidden] {
+  display: none !important;
+}
+/* Shared operator register: keep year-specific figures readable on small screens. */
+.company-registry-filters { display:flex; flex-wrap:wrap; gap:1rem; margin-bottom:1.25rem; }
+.company-registry-filters label { display:grid; gap:.35rem; font-size:.8rem; color:var(--text-muted); flex:1 1 240px; }
+.company-registry-filters select,.company-registry-filters input { padding:.65rem; border:1px solid var(--border); border-radius:.5rem; background:var(--surface); color:var(--text); max-width:100%; }
+.company-registry-scroll { overflow-x:auto; }
+.company-registry-table { width:100%; border-collapse:collapse; font-size:.85rem; }
+.company-registry-table th,.company-registry-table td { text-align:left; padding:.7rem; border-bottom:1px solid var(--border); }
+.company-registry-table td { font-variant-numeric:tabular-nums; white-space:nowrap; }
+.company-registry-note { margin-top:.6rem; font-size:.75rem; }

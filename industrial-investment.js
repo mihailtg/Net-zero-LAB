@@ -791,11 +791,11 @@
     }
     if (capexNode) {
       const model = buildCapexChartModel(assessment, breakdown, theme);
-      root.Plotly.react(capexNode, model.traces, model.layout, chartConfig());
+      root.Plotly.react(capexNode, root.CoreI18n?.plotTraces(model.traces) || model.traces, model.layout, chartConfig());
     }
     if (emissionsNode) {
       const model = buildEmissionsChartModel(assessment, theme);
-      root.Plotly.react(emissionsNode, model.traces, model.layout, chartConfig());
+      root.Plotly.react(emissionsNode, root.CoreI18n?.plotTraces(model.traces) || model.traces, model.layout, chartConfig());
     }
   }
 

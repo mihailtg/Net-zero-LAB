@@ -45,7 +45,7 @@
       return false;
     }
     mount.classList.remove('cluster-chart-empty');
-    root.Plotly.react(mount, traces, layout, {
+    root.Plotly.react(mount, root.CoreI18n?.plotTraces(traces) || traces, layout, {
       displayModeBar: false,
       responsive: true,
       scrollZoom: false,

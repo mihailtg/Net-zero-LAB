@@ -1,7 +1,7 @@
 {
   "nat_2023": {
     "energy": 32853.46,
-    "ippu": 3855.65,
+    "ippu": 3925.62,
     "agri": 5941.62,
     "waste": 2714.19,
     "lulucf": -8601.07
@@ -14,6 +14,17 @@
     "2.F ODS Substitutes": 631.39,
     "2.G Other": 51.78
   },
+  "ippu_2024": {
+    "2.A Mineral Industry": 2039.82,
+    "2.B Chemical Industry": 1076.03,
+    "2.C Metal Industry": 200.08,
+    "2.D Non-energy products from fuels and solvent use": 14.17,
+    "2.E Electronic industry": "NO",
+    "2.F Product uses as substitutes for ODS": 713.86,
+    "2.G Other product manufacture and use": 52.29,
+    "2.H Other": "IE,NA"
+  },
+  "ippu_revision_source": "User-supplied correction: 2023 total and 2024 total/breakdown. Component sums are retained separately from reported totals.",
   "ippu_hist": [
     {
       "year": 2010,
@@ -147,13 +158,25 @@
     },
     {
       "year": 2023,
-      "total": 3855.65,
+      "total": 3925.62,
       "mineral": 1967.87,
       "chemical": 1033.67,
       "metal": 158.11,
       "nonenergy": 12.83,
       "ods": 631.39,
       "other": 51.78
+    },
+    {
+      "year": 2024,
+      "total": 4096.25,
+      "mineral": 2039.82,
+      "chemical": 1076.03,
+      "metal": 200.08,
+      "nonenergy": 14.17,
+      "electronics": "NO",
+      "ods": 713.86,
+      "other": 52.29,
+      "otherH": "IE,NA"
     }
   ],
   "chemical_industry_emissions_trend": [
@@ -175,7 +198,8 @@
     { "year": 2020, "value": 4280.67 },
     { "year": 2021, "value": 4562.2 },
     { "year": 2022, "value": 4554.75 },
-    { "year": 2023, "value": 3855.65 }
+    { "year": 2023, "value": 3925.62 },
+    { "year": 2024, "value": 4096.25 }
   ],
   "subsec_hist": [
     {
@@ -228,7 +252,7 @@
       "carbonate_desox_2a4d": 610.83,
       "ammonia_2b1": 802.18,
       "soda_ash_2b7": 538.76,
-      "nitric_acid_2b2": 108.65
+      "nitric_acid_2b2": 108.64999999999999
     },
     {
       "year": 2014,
@@ -293,7 +317,7 @@
       "carbonate_desox_2a4d": 748.22,
       "ammonia_2b1": 784.0,
       "soda_ash_2b7": 550.78,
-      "nitric_acid_2b2": 103.35
+      "nitric_acid_2b2": 103.35000000000001
     },
     {
       "year": 2019,
@@ -319,7 +343,7 @@
       "carbonate_desox_2a4d": 572.19,
       "ammonia_2b1": 592.92,
       "soda_ash_2b7": 442.62,
-      "nitric_acid_2b2": 71.55
+      "nitric_acid_2b2": 71.55000000000001
     },
     {
       "year": 2021,
@@ -374,7 +398,7 @@
       "energy": "1.A.2.c",
       "process": "2.B.7"
     },
-    "Lukoil": {
+    "LUKOIL Neftohim Burgas": {
       "energy": "1.A.1.b",
       "process": null
     },

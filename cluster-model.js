@@ -40,7 +40,7 @@
     const index = (sortedValues.length - 1) * percentile;
     const lower = Math.floor(index);
     const upper = Math.ceil(index);
-    if (lower === upper) return sortedValues[lower];
+    if (lower === upper || sortedValues[lower] === sortedValues[upper]) return sortedValues[lower];
     const weight = index - lower;
     return sortedValues[lower] * (1 - weight) + sortedValues[upper] * weight;
   }

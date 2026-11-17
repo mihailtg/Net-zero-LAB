@@ -58,14 +58,38 @@
   });
 
   let clusterMode = 'sector';
+  let displayYear = 2025;
+  let activityFilter = 'all';
+  const copy = (en, bg) => I18n?.getLanguage?.() === 'bg' ? bg : en;
   let includeContextInClusters = false;
+  let contextVisible = true;
   let mapResizeObserver = null;
   let observedMapNode = null;
   let observedMapWidth = 0;
   let observedMapHeight = 0;
   let mapResizeFrame = null;
+  const pendingPlots = new WeakMap();
 
   function t(key, variables = {}) {
+    if (displayYear === 2025) {
+      const labels = {
+        'geo.installations': copy('mapped operators', 'оператори на картата'),
+        'geo.mtEmissions2024': copy('Mt CO₂e · 2025 · mapped records', 'млн. t CO₂e · 2025 · записи на картата'),
+        'geo.mapDesc': copy('Operators from the expanded register. Circle sizes use available 2025 emissions; energy context remains dated 2024.', 'Оператори от разширения регистър. Размерът на кръговете използва наличните емисии за 2025 г.; енергийният контекст остава за 2024 г.'),
+        'geo.mapAria': copy('Map of industrial operators in Bulgaria', 'Карта на индустриалните оператори в България'),
+        'geo.legendTitle': copy('Main sector groups', 'Основни секторни групи'),
+        'geo.sectors': copy('main sector groups', 'основни секторни групи'),
+        'geo.contextLayerDesc': copy(`The ${variables.count || 28} pale markers show the 2024 energy context only. They are excluded from operator emission totals, KPIs and scenario calculations. By default they are excluded from emission clusters and can be shown for visual comparison.`, `Тези ${variables.count || 28} светли маркера показват само енергийния контекст за 2024 г. Те са изключени от емисионните сборове на операторите, KPI и сценарийните изчисления. По подразбиране са изключени от емисионните клъстери и могат да се покажат само за визуално сравнение.`),
+        'geo.verifiedEmissions': copy('2025 verified emissions', 'Верифицирани емисии за 2025 г.'),
+        'geo.approximateNote': copy('Approximate settlement or industrial-zone locations, not cadastral boundaries. Numbering identifies records, not a ranking. Small open circles indicate missing emissions; zero emissions remain zero.', 'Приблизителни местоположения на населени места или промишлени зони, а не кадастрални граници. Номерата обозначават записи, а не класация. Малки празни кръгове означават липса на данни за емисии; нулевите емисии са запазени като 0.'),
+        'geo.bubbleDesc': copy('Bubbles use available 2025 emissions. Filter by main activity or group the operators by activity, sector or region.', 'Кръговете използват наличните емисии за 2025 г. Филтрирайте по основна дейност или групирайте операторите по дейност, сектор или регион.'),
+        'geo.bubbleAria': copy('Operator clusters using 2025 emissions', 'Клъстери на операторите с емисии за 2025 г.'),
+        'geo.sizeKey': copy('Size reflects available 2025 emissions; minimum size for zero or missing values', 'Размер според наличните емисии за 2025 г.; минимален размер при нула или липса на данни'),
+        'geo.regionalDistributionDesc': copy('Available 2025 emissions of mapped operators in the current filter.', 'Налични емисии за 2025 г. на операторите на картата според текущия филтър.'),
+        'geo.nuts2024': 'NUTS 2 · 2025',
+      };
+      if (labels[key]) return labels[key];
+    }
     return I18n?.t ? I18n.t(key, variables) : key;
   }
 
@@ -138,8 +162,14 @@
     };
   }
 
-  function getCompanies() {
+  function getCompanies(year = 2024) {
     if (!Data?.createDefaultCompanies) return [];
+    if (Number(year) === 2025 && Data.createCompanyRoster) {
+      return Data.createCompanyRoster().filter(company => company.geography).map((company, index) => ({
+        ...company, displayYear: 2025, displayOrder: index + 1,
+        displayEmissionsKt: company.verifiedEmissions2025T == null ? null : company.verifiedEmissions2025T / 1000,
+      }));
+    }
     return Data.createDefaultCompanies()
       .filter((company) => Number.isFinite(Number(company.etsRank2024)) && company.geography)
       .sort((a, b) => Number(a.etsRank2024) - Number(b.etsRank2024));
@@ -185,8 +215,24 @@
   }
 
   function sumEmissions(companies) {
-    return companies.reduce((sum, company) => sum + Number(company.emissions2024Kt || company.emissionsKt || 0), 0);
+    return companies.reduce((sum, company) => sum + emissionsValue(company), 0);
   }
+
+  function emissionsValue(company) {
+    return company.displayYear === 2025 ? Number(company.displayEmissionsKt || 0) : Number(company.emissions2024Kt || company.emissionsKt || 0);
+  }
+  function emissionsLabel(company) {
+    return company.displayYear === 2025 && company.displayEmissionsKt == null ? copy('Not available', 'Няма данни') : formatKt(emissionsValue(company), 3);
+  }
+  function emissionsSummary(companies) {
+    const missing = companies.filter(company => company.displayYear === 2025 && company.displayEmissionsKt == null).length;
+    if (missing && missing === companies.length) return copy('Not available', 'Няма данни');
+    return `${formatKt(sumEmissions(companies))} kt${missing ? copy(` · ${missing} missing`, ` · ${missing} без данни`) : ''}`;
+  }
+  function operatorName(company) {
+    return I18n?.getLanguage?.() === 'bg' && company.companyBg ? company.companyBg : company.installationName || company.company;
+  }
+  function recordNumber(company) { return company.displayYear === 2025 ? company.displayOrder : company.etsRank2024; }
 
   function sectorSummary(companies) {
     return SECTOR_ORDER.map((sector) => {
@@ -251,7 +297,7 @@
   }
 
   function markerSize(company, maxEmissions, min = 17, range = 11) {
-    const emissions = Number(company.emissions2024Kt || company.emissionsKt || 0);
+    const emissions = emissionsValue(company);
     return min + range * Math.sqrt(emissions / Math.max(maxEmissions, 1));
   }
 
@@ -370,7 +416,7 @@
   }
 
   function mapTraces(companies, theme = getTheme(), contextInstallations = getContextInstallations(), viewport = {}) {
-    const maxEmissions = Math.max(...companies.map((company) => Number(company.emissions2024Kt || 0)), 1);
+    const maxEmissions = Math.max(...companies.map((company) => emissionsValue(company)), 1);
     const analysisMapItems = companies.map((company) => ({
       id: company.id,
       longitude: company.geography.longitude,
@@ -446,7 +492,7 @@
           contextEmissionsLabel(installation),
           t('geo.contextHoverNote'),
         ]),
-        hovertemplate: `<b>%{customdata[0]}</b><br>${t('geo.location')}: %{customdata[1]}, %{customdata[2]}<br>${t('geo.region')}: %{customdata[3]}<br>${t('geo.contextCategory')}: %{customdata[4]}<br>${t('geo.verifiedEmissions')}: %{customdata[5]}<br><b>%{customdata[6]}</b><extra></extra>`,
+        hovertemplate: `<b>%{customdata[0]}</b><br>${t('geo.location')}: %{customdata[1]}, %{customdata[2]}<br>${t('geo.region')}: %{customdata[3]}<br>${t('geo.contextCategory')}: %{customdata[4]}<br>${I18n.t('geo.verifiedEmissions')}: %{customdata[5]}<br><b>%{customdata[6]}</b><extra></extra>`,
         name: getContextCategoryName(category),
         showlegend: false,
         meta: { layer: 'context', contextOnly: true, analysisIncluded: false, category },
@@ -460,23 +506,24 @@
         mode: 'markers+text',
         x: members.map((company) => placements.get(company.id).x),
         y: members.map((company) => placements.get(company.id).y),
-        text: members.map((company) => String(company.etsRank2024)),
+        text: members.map((company) => String(recordNumber(company))),
         textposition: 'middle center',
         textfont: { color: readableTextColor(theme.sectors[sector]), size: 9, family: 'DM Sans, sans-serif' },
         marker: {
           size: members.map((company) => markerSize(company, maxEmissions)),
+          symbol: members.map(company => company.displayYear === 2025 && company.displayEmissionsKt == null ? 'circle-open' : 'circle'),
           color: theme.sectors[sector],
           opacity: 0.94,
           line: { color: theme.surface, width: 2 },
         },
         customdata: members.map((company) => [
-          company.etsRank2024,
-          company.installationName || company.company,
+          recordNumber(company),
+          operatorName(company),
           company.geography.locality,
           company.geography.district,
           getRegionName(company.geography.regionId),
           company.specificSector,
-          formatKt(company.emissions2024Kt, 3),
+          emissionsLabel(company),
         ]),
         hovertemplate: `<b>#%{customdata[0]} %{customdata[1]}</b><br>${t('geo.location')}: %{customdata[2]}, %{customdata[3]}<br>${t('geo.region')}: %{customdata[4]}<br>${t('geo.specificSector')}: %{customdata[5]}<br>${t('geo.verifiedEmissions')}: %{customdata[6]} kt CO2e<extra></extra>`,
         name: getSectorName(sector),
@@ -505,7 +552,7 @@
   }
 
   function bubbleDiameter(item, maxEmissions) {
-    const emissions = Number(item.emissions2024Kt || item.emissionsKt || 0);
+    const emissions = emissionsValue(item);
     if (emissions <= 0) return 12;
     return 18 + 66 * Math.sqrt(emissions / Math.max(maxEmissions, 1));
   }
@@ -517,23 +564,33 @@
       : [];
     const allItems = analyticalCompanies.concat(contextItems);
     const withContext = contextItems.length > 0;
-    const groupKeys = mode === 'region'
+    const activityColumns = Number(root.innerWidth) > 0 && Number(root.innerWidth) < 700 ? 2 : 3;
+    const groupKey = item => mode === 'region' ? item.geography.regionId : mode === 'activity' ? (item.mainActivityId || item.clusterSector) : item.clusterSector;
+    const groupKeys = mode === 'activity' ? [...new Set(allItems.map(groupKey))] : mode === 'region'
       ? getRegions().map((region) => region.id)
       : SECTOR_ORDER.filter((sector) => analyticalCompanies.some((company) => company.clusterSector === sector))
         .concat(CONTEXT_ORDER
           .filter((category) => contextItems.some((item) => item.category === category))
           .map(contextGroupKey));
     const positions = new Map();
+    const definitionFor = key => {
+      if (mode !== 'activity') return clusterDefinition(mode, key, withContext);
+      const index = groupKeys.indexOf(key);
+      const rows = Math.ceil(groupKeys.length / activityColumns);
+      const step = 94 / rows;
+      const labelY = 94 - step * Math.floor(index / activityColumns);
+      return { x: (index % activityColumns + .5) * 100 / activityColumns, y: labelY - step * .4, radius: Math.min(7, step * .28), labelY };
+    };
 
     groupKeys.forEach((key) => {
       const members = allItems
-        .filter((item) => mode === 'region' ? item.geography.regionId === key : item.clusterSector === key)
-        .sort((a, b) => Number(b.emissions2024Kt) - Number(a.emissions2024Kt) || String(a.id).localeCompare(String(b.id)));
-      const definition = clusterDefinition(mode, key, withContext);
+        .filter((item) => groupKey(item) === key)
+        .sort((a, b) => emissionsValue(b) - emissionsValue(a) || String(a.id).localeCompare(String(b.id)));
+      const definition = definitionFor(key);
       members.forEach((item, index) => positions.set(item.id, clusteredPosition(index, members.length, definition)));
     });
 
-    const maxEmissions = Math.max(...allItems.map((item) => Number(item.emissions2024Kt || 0)), 1);
+    const maxEmissions = Math.max(...allItems.map((item) => emissionsValue(item)), 1);
     const analysisTraces = sectorSummary(analyticalCompanies).map(({ sector }) => {
       const members = analyticalCompanies.filter((company) => company.clusterSector === sector);
       return {
@@ -541,24 +598,25 @@
         mode: 'markers+text',
         x: members.map((company) => positions.get(company.id).x),
         y: members.map((company) => positions.get(company.id).y),
-        text: members.map((company) => String(company.etsRank2024)),
+        text: members.map((company) => String(recordNumber(company))),
         textposition: 'middle center',
         textfont: { color: readableTextColor(theme.sectors[sector]), size: 10, family: 'DM Sans, sans-serif' },
         marker: {
           sizemode: 'diameter',
-          size: members.map((company) => bubbleDiameter(company, maxEmissions)),
+          size: members.map((company) => bubbleDiameter(company, maxEmissions) * (mode === 'activity' ? .72 : 1)),
+          symbol: members.map(company => company.displayYear === 2025 && company.displayEmissionsKt == null ? 'circle-open' : 'circle'),
           color: theme.sectors[sector],
           opacity: 0.88,
           line: { color: theme.surface, width: 2 },
         },
         customdata: members.map((company) => [
-          company.etsRank2024,
-          company.installationName || company.company,
+          recordNumber(company),
+          operatorName(company),
           getSectorName(company.clusterSector),
           getRegionName(company.geography.regionId),
           company.geography.locality,
-          formatKt(company.emissions2024Kt, 3),
-          numberFormat(Number(company.industrialShare2024 || 0), { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+          emissionsLabel(company),
+          numberFormat(company.displayYear === 2025 ? emissionsValue(company) / Math.max(sumEmissions(analyticalCompanies), 1) * 100 : Number(company.industrialShare2024 || 0), { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
         ]),
         hovertemplate: `<b>#%{customdata[0]} %{customdata[1]}</b><br>${t('general.sector')}: %{customdata[2]}<br>${t('geo.region')}: %{customdata[3]}<br>${t('geo.location')}: %{customdata[4]}<br>${t('geo.verifiedEmissions')}: %{customdata[5]} kt CO2e<br>${t('geo.industryShare')}: %{customdata[6]}%<extra></extra>`,
         name: getSectorName(sector),
@@ -592,7 +650,7 @@
           item.emissionsLabel,
           t('geo.contextHoverNote'),
         ]),
-        hovertemplate: `<b>%{customdata[0]}</b><br>${t('geo.contextCategory')}: %{customdata[1]}<br>${t('geo.region')}: %{customdata[2]}<br>${t('geo.location')}: %{customdata[3]}<br>${t('geo.verifiedEmissions')}: %{customdata[4]}<br><b>%{customdata[5]}</b><extra></extra>`,
+        hovertemplate: `<b>%{customdata[0]}</b><br>${t('geo.contextCategory')}: %{customdata[1]}<br>${t('geo.region')}: %{customdata[2]}<br>${t('geo.location')}: %{customdata[3]}<br>${I18n.t('geo.verifiedEmissions')}: %{customdata[4]}<br><b>%{customdata[5]}</b><extra></extra>`,
         name: getContextCategoryName(category),
         showlegend: false,
         meta: { layer: 'context', contextOnly: true, analysisIncluded: false, category },
@@ -602,17 +660,21 @@
     const traces = analysisTraces.concat(contextTraces);
 
     const groups = groupKeys.map((key) => {
-      const members = allItems.filter((item) => mode === 'region' ? item.geography.regionId === key : item.clusterSector === key);
-      const definition = clusterDefinition(mode, key, withContext);
+      const members = allItems.filter((item) => groupKey(item) === key);
+      const definition = definitionFor(key);
       const contextOnly = members.length > 0 && members.every((item) => item.contextOnly === true);
+      const year = contextOnly ? 2024 : analyticalCompanies.some(company => company.displayYear === 2025) ? 2025 : 2024;
+      const emissionsMembers = year === 2025 ? members.filter(item => !item.contextOnly) : members;
       return {
         key,
         definition,
         count: members.length,
-        emissionsKt: sumEmissions(members),
+        emissionsKt: sumEmissions(emissionsMembers),
+        emissionsText: emissionsSummary(emissionsMembers),
+        year,
         contextCount: members.filter((item) => item.contextOnly === true).length,
         contextOnly,
-        name: mode === 'region'
+        name: mode === 'activity' && !contextOnly ? localize(members[0]?.mainActivity || members[0]?.sector || key) : mode === 'region'
           ? getRegionName(key)
           : contextOnly
             ? getContextCategoryName(key.slice('context:'.length))
@@ -643,11 +705,11 @@
         xref: 'x',
         yref: 'y',
         xanchor: 'center',
-        yanchor: 'middle',
+        yanchor: mode === 'activity' ? 'bottom' : 'middle',
         showarrow: false,
         align: 'center',
-        text: `<b>${escapeHtml(group.name)}</b><br><span style="font-size:10px">${group.count} ${escapeHtml(t('geo.installationsShort'))} · ${formatKt(group.emissionsKt)} kt</span>${contextNote}`,
-        font: { color: theme.muted, size: 12, family: 'DM Sans, sans-serif' },
+        text: `<b>${mode === 'activity' ? escapeHtml(group.name).replace(/((?:\S+\s+){2}\S+)\s/g, '$1<br>') : escapeHtml(group.name)}</b><br><span style="font-size:10px">${group.count} ${escapeHtml(t('geo.installationsShort'))} · ${escapeHtml(group.emissionsText)} · ${group.year}</span>${group.year === 2025 && group.contextCount ? `<br>${group.contextCount} ${escapeHtml(copy('context sites · 2024', 'контекстни площадки · 2024'))}` : ''}${contextNote}`,
+        font: { color: theme.muted, size: mode === 'activity' ? 10 : 12, family: 'DM Sans, sans-serif' },
       };
     });
 
@@ -681,7 +743,7 @@
         }
         const rerender = () => {
           mapResizeFrame = null;
-          renderMap(getCompanies());
+          renderMap(getCompanies(displayYear).filter(company => activityFilter === 'all' || company.mainActivityId === activityFilter));
         };
         mapResizeFrame = typeof root.requestAnimationFrame === 'function'
           ? root.requestAnimationFrame(rerender)
@@ -707,10 +769,11 @@
     const theme = getTheme();
     const plotHeight = Math.max(430, Number(node.clientHeight) || 500);
     const plotWidth = Math.max(320, Number(node.clientWidth) || 900);
-    root.Plotly.react(node, mapTraces(companies, theme, getContextInstallations(), {
+    const traces = mapTraces(companies, theme, contextVisible ? getContextInstallations() : [], {
       width: plotWidth,
       height: plotHeight,
-    }), {
+    });
+    const drawing = root.Plotly.react(node, root.CoreI18n?.plotTraces(traces) || traces, {
       autosize: true,
       height: plotHeight,
       margin: { l: 12, r: 12, t: 8, b: 8 },
@@ -721,6 +784,7 @@
       yaxis: { range: [MAP_BOUNDS.yMin, MAP_BOUNDS.yMax], visible: false, fixedrange: true, zeroline: false, scaleanchor: 'x', scaleratio: MAP_Y_SCALE_RATIO },
       showlegend: false,
     }, plotConfig());
+    if (drawing?.then) pendingPlots.set(node, drawing);
     observeMapSize(node);
   }
 
@@ -733,12 +797,12 @@
     }
     const theme = getTheme();
     const model = bubbleModel(companies, clusterMode, theme, {
-      includeContext: includeContextInClusters,
+      includeContext: contextVisible && includeContextInClusters,
       contextInstallations: getContextInstallations(),
     });
-    root.Plotly.react(node, model.traces, {
+    const drawing = root.Plotly.react(node, root.CoreI18n?.plotTraces(model.traces) || model.traces, {
       autosize: true,
-      height: Math.max(500, Number(node.clientHeight) || 560),
+      height: clusterMode === 'activity' ? Math.max(720, Math.ceil(model.groups.length / (Number(root.innerWidth) < 700 ? 2 : 3)) * 220) : Math.max(500, Number(node.clientHeight) || 560),
       margin: { l: 8, r: 8, t: 14, b: 8 },
       paper_bgcolor: 'rgba(0,0,0,0)',
       plot_bgcolor: 'rgba(0,0,0,0)',
@@ -749,6 +813,7 @@
       annotations: model.annotations,
       showlegend: false,
     }, plotConfig());
+    if (drawing?.then) pendingPlots.set(node, drawing);
   }
 
   function legendHtml(companies, theme) {
@@ -795,7 +860,13 @@
     if (!root.Plotly?.purge || !root.document) return;
     ['industrialGeoMap', 'industrialGeoBubbles'].forEach((id) => {
       const node = root.document.getElementById(id);
-      if (node) root.Plotly.purge(node);
+      if (!node) return;
+      const drawing = pendingPlots.get(node);
+      // A replaced plot may still be calculating margins. Dispose after it settles.
+      if (drawing) {
+        pendingPlots.delete(node);
+        drawing.then(() => root.Plotly?.purge?.(node), () => root.Plotly?.purge?.(node));
+      } else root.Plotly.purge(node);
     });
     root.IndustrialInfrastructure?.purge?.();
   }
@@ -803,15 +874,24 @@
   function render() {
     const container = root.document?.getElementById('industrialGeographyGrid');
     if (!container) return;
-    const companies = getCompanies();
+    const roster = (Data.createCompanyRoster || Data.createDefaultCompanies)();
+    const activities = [...new Map(roster.map(company => [company.mainActivityId, company.mainActivity || company.sector])).entries()];
+    const companies = getCompanies(displayYear).map(company => ({ ...roster.find(entry => entry.id === company.id), ...company }))
+      .filter(company => activityFilter === 'all' || company.mainActivityId === activityFilter);
+    const directory = roster.filter(company => activityFilter === 'all' || company.mainActivityId === activityFilter);
     const contextInstallations = getContextInstallations();
     const contextCounts = Object.fromEntries(contextSummary(contextInstallations).map((item) => [item.category, item.count]));
     const totalEmissions = sumEmissions(companies);
-    const largest = companies.reduce((best, company) => Number(company.emissions2024Kt) > Number(best?.emissions2024Kt || 0) ? company : best, null);
+    const largest = companies.reduce((best, company) => emissionsValue(company) > (best ? emissionsValue(best) : -1) ? company : best, null);
     const theme = getTheme();
     purgePlots();
 
     container.innerHTML = `
+      <div class="company-registry-filters">
+        <label>${escapeHtml(copy('Reporting year', 'Отчетна година'))}<select data-geo-year><option value="2025" ${displayYear === 2025 ? 'selected' : ''}>2025</option><option value="2024" ${displayYear === 2024 ? 'selected' : ''}>2024 · Top 20</option></select></label>
+        <label>${escapeHtml(copy('Main activity', 'Основна дейност'))}<select data-geo-activity><option value="all">${escapeHtml(copy('All activities', 'Всички дейности'))}</option>${activities.map(([id, label]) => `<option value="${escapeHtml(id)}" ${activityFilter === id ? 'selected' : ''}>${escapeHtml(localize(label))}</option>`).join('')}</select></label>
+      </div>
+      <p class="industrial-geo-note">${escapeHtml(copy('2025 emissions and free allowances', 'Емисии и безплатни квоти за 2025 г.'))}: <a href="${Data.ETS_REGISTRY_URL}" target="_blank" rel="noopener noreferrer">${escapeHtml(copy('European Commission · EU ETS Union Registry', 'Европейска комисия · Регистър на Съюза по EU ETS'))}</a>. ${escapeHtml(copy('Missing values are excluded from emission totals. Profiles retain the available 2024 data.', 'Липсващите стойности не участват в сумите на емисиите. Профилите запазват наличните данни за 2024 г.'))}</p>
       <div class="industrial-geo-kpis" aria-label="${escapeHtml(t('geo.summary'))}">
         <div><strong>${companies.length}</strong><span>${escapeHtml(t('geo.installations'))}</span></div>
         <div><strong>${formatMt(totalEmissions)}</strong><span>${escapeHtml(t('geo.mtEmissions2024'))}</span></div>
@@ -827,6 +907,10 @@
             <span>${escapeHtml(t('geo.contextBadge'))}</span>
           </div>
           <p>${escapeHtml(t('geo.contextLayerDesc', { count: contextInstallations.length, power: contextCounts.power_heat || 0, heat: contextCounts.district_heating || 0 }))}</p>
+          <label class="industrial-geo-context-visibility">
+            <input type="checkbox" data-geo-context-visible ${contextVisible ? 'checked' : ''}>
+            <span><strong>${escapeHtml(t('geo.showContext'))}</strong><small>${escapeHtml(t('geo.showContextDesc'))}</small></span>
+          </label>
         </div>
       </div>
 
@@ -838,7 +922,7 @@
           </div>
           <div class="industrial-geo-panel-stat">
             <span>${escapeHtml(t('geo.largestEmitter'))}</span>
-            <strong>#${escapeHtml(largest?.etsRank2024 || '')} ${escapeHtml(largest?.installationName || largest?.company || '')}</strong>
+            <strong>${escapeHtml(largest ? operatorName(largest) : '—')}</strong>
           </div>
         </header>
         <div class="industrial-geo-plot industrial-geo-map" id="industrialGeoMap" role="img" aria-label="${escapeHtml(t('geo.mapAria'))}"></div>
@@ -846,13 +930,13 @@
           <div class="industrial-geo-legend-title">${escapeHtml(t('geo.legendTitle'))}</div>
           ${legendHtml(companies, theme)}
         </div>
-        <div class="industrial-geo-context-legend" aria-label="${escapeHtml(t('geo.contextLegendTitle'))}">
+        ${contextVisible ? `<div class="industrial-geo-context-legend" aria-label="${escapeHtml(t('geo.contextLegendTitle'))}">
           <div class="industrial-geo-context-legend-title">
             <strong>${escapeHtml(t('geo.contextLegendTitle'))}</strong>
             <span>${escapeHtml(t('geo.contextNotAnalysedLong'))}</span>
           </div>
           ${contextLegendHtml(contextInstallations, theme)}
-        </div>
+        </div>` : ''}
         <p class="industrial-geo-note">${escapeHtml(t('geo.approximateNote'))}</p>
       </section>
 
@@ -868,10 +952,11 @@
               <div>
                 <button type="button" data-geo-cluster-mode="sector" class="${clusterMode === 'sector' ? 'active' : ''}" aria-pressed="${clusterMode === 'sector'}">${escapeHtml(t('geo.bySector'))}</button>
                 <button type="button" data-geo-cluster-mode="region" class="${clusterMode === 'region' ? 'active' : ''}" aria-pressed="${clusterMode === 'region'}">${escapeHtml(t('geo.byRegion'))}</button>
+                <button type="button" data-geo-cluster-mode="activity" class="${clusterMode === 'activity' ? 'active' : ''}" aria-pressed="${clusterMode === 'activity'}">${escapeHtml(copy('Main activity', 'Основна дейност'))}</button>
               </div>
             </div>
             <label class="industrial-geo-cluster-context-toggle">
-              <input type="checkbox" data-geo-context-clusters ${includeContextInClusters ? 'checked' : ''}>
+              <input type="checkbox" data-geo-context-clusters ${includeContextInClusters ? 'checked' : ''} ${contextVisible ? '' : 'disabled'}>
               <span>
                 <strong>${escapeHtml(t('geo.includeContextClusters'))}</strong>
                 <small>${escapeHtml(t('geo.includeContextClustersDesc'))}</small>
@@ -879,7 +964,7 @@
             </label>
           </div>
         </header>
-        <div class="industrial-geo-plot industrial-geo-bubbles" id="industrialGeoBubbles" role="img" aria-label="${escapeHtml(t('geo.bubbleAria'))}"></div>
+        <div class="industrial-geo-plot industrial-geo-bubbles" id="industrialGeoBubbles" style="${clusterMode === 'activity' ? 'height:auto;min-height:800px' : ''}" role="img" aria-label="${escapeHtml(t('geo.bubbleAria'))}"></div>
         <div class="industrial-geo-size-key"><i></i><i></i><i></i><span>${escapeHtml(t('geo.sizeKey'))}</span></div>
       </section>
 
@@ -894,14 +979,18 @@
         <div class="industrial-geo-region-grid">${regionSummaryHtml(companies, totalEmissions)}</div>
       </section>
 
+      <section class="industrial-geo-panel"><header class="industrial-geo-panel-head"><div><h2>${escapeHtml(copy('Operator directory', 'Регистър на операторите'))} · ${directory.length}</h2><p>${escapeHtml(copy('All profiles, including operators whose site is not uniquely identified. Use the company name to open its profile.', 'Всички профили, включително операторите с неуточнена площадка. Отворете профил чрез името на компанията.'))}</p></div></header>
+        <div class="company-registry-scroll"><table class="company-registry-table"><thead><tr><th>${escapeHtml(copy('Operator', 'Оператор'))}</th><th>${escapeHtml(copy('Main activity', 'Основна дейност'))}</th><th>${escapeHtml(copy('Location', 'Местоположение'))}</th><th>2025 · t CO₂e</th><th>2025 · EUA</th></tr></thead><tbody>${directory.map(company => `<tr><th><button class="cluster-table-link" type="button" data-geo-profile="${escapeHtml(company.id)}">${escapeHtml(operatorName(company))}</button></th><td>${escapeHtml(localize(company.mainActivity))}</td><td>${escapeHtml(company.geography ? localize(I18n?.getLanguage?.() === 'bg' ? company.geography.localityBg || company.geography.locality : company.geography.locality) : copy('Site to be confirmed', 'Площадка за уточняване'))}</td><td>${company.verifiedEmissions2025T == null ? escapeHtml(copy('Not available', 'Няма данни')) : numberFormat(company.verifiedEmissions2025T)}</td><td>${company.freeAllowances2025Eua == null ? escapeHtml(copy('Not available', 'Няма данни')) : numberFormat(company.freeAllowances2025Eua)}</td></tr>`).join('')}</tbody></table></div>
+      </section>
+      <p class="industrial-geo-note">${escapeHtml(copy('Infrastructure planning below retains its assessed 2024 baseline.', 'Инфраструктурното планиране по-долу запазва оценената си база за 2024 г.'))}</p>
       <div id="industrialInfrastructurePlanning"></div>
 
       <div class="industrial-geo-sources">
         <span>${escapeHtml(t('general.source'))}:</span>
         <a href="https://www.nsi.bg/nrnm/special/ekatte/areas-level-two" target="_blank" rel="noopener noreferrer">${escapeHtml(t('geo.sourceNsi'))}</a>
-        <a href="https://climate.ec.europa.eu/eu-action/carbon-markets/eu-emissions-trading-system-eu-ets/union-registry_en" target="_blank" rel="noopener noreferrer">EU ETS</a>
+        <a href="${Data.ETS_REGISTRY_URL}" target="_blank" rel="noopener noreferrer">EU ETS · Union Registry</a>
         <a href="https://eea.government.bg/verificirani-godishni-dokladi-2024-1" target="_blank" rel="noopener noreferrer">${escapeHtml(t('geo.sourceIaos'))}</a>
-        <a href="https://github.com/glynnbird/countriesgeojson" target="_blank" rel="noopener noreferrer">${escapeHtml(t('geo.sourceGeometry'))}</a>
+        <a href="https://www.naturalearthdata.com/downloads/110m-cultural-vectors/110m-admin-0-countries/" target="_blank" rel="noopener noreferrer">${escapeHtml(t('geo.sourceGeometry'))}</a>
         <span>${escapeHtml(t('geo.nutsNote'))}</span>
       </div>
     `;
@@ -912,18 +1001,24 @@
     container.querySelector?.('[data-geo-context-clusters]')?.addEventListener('change', (event) => {
       setIncludeContextInClusters(event.currentTarget.checked);
     });
+    container.querySelector?.('[data-geo-context-visible]')?.addEventListener('change', (event) => {
+      setContextVisible(event.currentTarget.checked);
+    });
+    container.querySelector?.('[data-geo-year]')?.addEventListener('change', event => { displayYear = Number(event.target.value) === 2024 ? 2024 : 2025; render(); });
+    container.querySelector?.('[data-geo-activity]')?.addEventListener('change', event => { activityFilter = event.target.value; render(); });
+    container.querySelectorAll('[data-geo-profile]').forEach(button => button.addEventListener('click', () => root.openCompanyModal?.(button.dataset.geoProfile)));
     renderMap(companies);
     renderBubbles(companies);
     root.IndustrialInfrastructure?.render?.({
       containerId: 'industrialInfrastructurePlanning',
-      companies,
-      contextInstallations,
+      companies: getCompanies(2024),
+      contextInstallations: contextVisible ? contextInstallations : [],
       theme,
     });
   }
 
   function setClusterMode(mode) {
-    clusterMode = mode === 'region' ? 'region' : 'sector';
+    clusterMode = ['region', 'activity'].includes(mode) ? mode : 'sector';
     render();
   }
 
@@ -940,12 +1035,23 @@
     return includeContextInClusters;
   }
 
+  function setContextVisible(value) {
+    contextVisible = value === true;
+    render();
+  }
+
+  function getContextVisible() {
+    return contextVisible;
+  }
+
   return Object.freeze({
     render,
     setClusterMode,
     getClusterMode,
     setIncludeContextInClusters,
     getIncludeContextInClusters,
+    setContextVisible,
+    getContextVisible,
     getCompanies,
     getContextInstallations,
     mapTraces,
