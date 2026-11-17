@@ -302,7 +302,9 @@ test('section is placed after Cluster Analysis and opens directly without an acc
   assert.ok(html.indexOf('section-industrial-geography') > html.indexOf('section-cluster'));
   assert.match(html, /data-section="industrial-geography"/);
   assert.match(html, /<div id="industrialGeographyContent">/);
-  assert.doesNotMatch(html, /industrialGeographyAccessGate|type="password"/);
+  assert.doesNotMatch(html, /industrialGeographyAccessGate/);
+  const geographySection = html.match(/<section class="section" id="section-industrial-geography">[\s\S]*?<\/section>/)[0];
+  assert.doesNotMatch(geographySection, /type="password"/);
   assert.doesNotMatch(app, /INDUSTRIAL_GEOGRAPHY_ACCESS_PASSWORD_BASE|nzlIndustrialGeographyAccessUnlocked/);
   assert.match(app, /Индустриална география/);
 

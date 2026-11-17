@@ -1991,3 +1991,16 @@
   .cluster-table-wrap { overflow: visible; }
   .cluster-chart { break-inside: avoid; }
 }
+/* Static-site access gate: the verifier never contains a plaintext password. */
+#clusterContent[hidden], #clusterMainTabs[hidden], #clusterAccessGate[hidden], #clusterLockButton[hidden] { display: none !important; }
+.cluster-access-gate { max-width: 620px; margin: 1rem auto 2rem; padding: clamp(1.25rem, 4vw, 2.5rem); border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+.cluster-access-symbol { display: inline-flex; padding: .8rem; border-radius: 10px; color: var(--primary); background: var(--primary-light); }
+.cluster-access-gate h2 { margin: 1rem 0 .5rem; font-size: 1.35rem; color: var(--text); }
+.cluster-access-gate p { color: var(--text-muted); font-size: .86rem; line-height: 1.6; }
+.cluster-access-gate form { margin-top: 1.4rem; }
+.cluster-access-gate label { display: block; margin-bottom: .4rem; font-size: .8rem; color: var(--text); }
+.cluster-access-fields { display: flex; flex-wrap: wrap; gap: .6rem; }
+.cluster-access-fields input { flex: 1 1 180px; min-width: 0; padding: .7rem; border: 1px solid var(--border); border-radius: 6px; background: var(--surface-2); color: var(--text); font: inherit; }
+.cluster-access-fields button,.cluster-access-lock { padding: .7rem 1rem; border: 1px solid var(--primary); border-radius: 6px; background: var(--primary); color: var(--text-inverse, #fff); font: inherit; cursor: pointer; }
+.cluster-access-fields button:disabled { cursor: wait; opacity: .65; }
+.cluster-access-gate .cluster-access-error { color: var(--danger); margin-bottom: 0; }

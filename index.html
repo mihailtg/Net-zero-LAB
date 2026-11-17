@@ -2009,10 +2009,21 @@
         <h1 class="section-title" data-i18n="section.cluster.title">Cluster Analysis</h1>
         <p class="section-desc" data-i18n="section.cluster.desc">Scenario matrix showing how each policy scenario changes the model inputs.</p>
       </div>
+      <button type="button" id="clusterLockButton" class="cluster-access-lock" data-i18n="access.cluster.lock" hidden>Lock section</button>
     </div>
 
     <div class="cluster-workspace-shell">
-      <div id="clusterContent">
+      <div id="clusterAccessGate" class="cluster-access-gate" aria-labelledby="clusterAccessTitle" data-core-i18n-ignore>
+        <div class="cluster-access-symbol" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4"/><path d="M12 14v3"/></svg></div>
+        <h2 id="clusterAccessTitle" data-i18n="access.cluster.title">Password required</h2>
+        <p data-i18n="access.cluster.description">Enter the access password to open Cluster Analysis. Access remains unlocked until you reload this page.</p>
+        <form id="clusterAccessForm">
+          <label for="clusterPassword" data-i18n="access.cluster.password">Password</label>
+          <div class="cluster-access-fields"><input id="clusterPassword" type="password" autocomplete="current-password" maxlength="256" required aria-describedby="clusterAccessError" data-i18n-aria="access.cluster.password" aria-label="Password"><button id="clusterUnlockSubmit" type="submit" data-i18n="access.cluster.unlock">Unlock</button></div>
+          <p id="clusterAccessError" class="cluster-access-error" role="alert" aria-live="polite" hidden></p>
+        </form>
+      </div>
+      <div id="clusterContent" hidden>
         <div class="cluster-workspace-head">
           <div>
             <div class="cluster-workspace-title" id="clusterMatrixTitle">Scenario comparison</div>
@@ -2057,6 +2068,7 @@
 <script src="core-i18n-bg.js"></script>
 <script src="core-i18n.js"></script>
 <script src="app.js"></script>
+<script src="cluster-access.js"></script>
 <script src="cluster-i18n.js"></script>
 <script src="cluster-model.js"></script>
 <script src="cluster-simulation.js"></script>

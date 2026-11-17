@@ -15,6 +15,7 @@ test('Plotly is served locally so protected charts do not depend on a CDN', () =
 
 test('browser modules register in dependency order', () => {
   let currentLanguage = 'en';
+  let clusterUnlocked = false;
   const listeners = new Map();
   const nodes = new Map();
   const grid = { id: 'clusterScenarioGrid', innerHTML: '' };
@@ -43,6 +44,7 @@ test('browser modules register in dependency order', () => {
     },
   };
   const context = {
+    ClusterAccess: { isUnlocked: () => clusterUnlocked, render() {} },
     console,
     document,
     location: { href: 'http://127.0.0.1:8765/index.html', hash: '' },
@@ -108,6 +110,11 @@ test('browser modules register in dependency order', () => {
   assert.equal(migrated.hydrogenToAmmoniaShare, 50);
 
   context.ClusterAnalysis.render();
+  assert.equal(grid.innerHTML, '');
+  assert.equal(context.ClusterAnalysis.setActiveMainTab('simulation'), false);
+  assert.equal(context.ClusterAnalysis.exportDecisionCsv(), false);
+  clusterUnlocked = true;
+  context.ClusterAnalysis.render();
   const roster = () => grid.innerHTML.match(/<ul class="cluster-roster-list">([\s\S]*?)<\/ul>/)[1];
   const rosterIds = () => [...roster().matchAll(/data-scenario-id="([^"]+)"/g)].map((match) => match[1]);
   const expectedScenarioOrder = Array.from(context.ClusterSimulation.getState().scenarios, (scenario) => scenario.id);
@@ -159,7 +166,7 @@ test('browser modules register in dependency order', () => {
   assert.equal((grid.innerHTML.match(/data-company-id=/g) || []).length, 20);
   assert.doesNotMatch(grid.innerHTML, /undefined|NaN/);
 
-  // Fresh visitors can use simulations and editors without access flags or prompts.
+  // Once unlocked, visitors can use simulations and editors without additional prompts.
   context.ClusterSimulation.setMonteCarloOptions({ iterations: 100, uncertainty20: 0 });
   assert.equal(context.ClusterAnalysis.setActiveMainTab('simulation'), true);
   assert.match(grid.innerHTML, /cluster-sim-workspace/);

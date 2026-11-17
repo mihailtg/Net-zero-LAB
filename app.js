@@ -780,6 +780,14 @@ const I18N = {
     'section.cbam.desc': 'Estimate 2026–2034 carbon cost exposure from CBAM-linked free allocation phaseout and EU ETS assumptions, by company and product',
     'section.cbam.pill': 'Live Formula · 2026',
     'section.cluster.title': 'Cluster Analysis',
+    'access.cluster.title': 'Password required',
+    'access.cluster.description': 'Enter the access password to open Cluster Analysis. Access remains unlocked until you reload this page.',
+    'access.cluster.password': 'Password',
+    'access.cluster.unlock': 'Unlock',
+    'access.cluster.lock': 'Lock section',
+    'access.cluster.checking': 'Checking…',
+    'access.cluster.invalid': 'Incorrect password. Try again.',
+    'access.cluster.unavailable': 'Password verification is unavailable in this browser. Open the site over HTTPS in a current browser.',
     'section.cluster.desc': 'Integrated scenario, company, network, and decision analysis on a consistent 0-20 scale.',
     'section.cluster.pill': '7 scenarios · apply_scenario()',
     'section.cluster.cardTitle': 'Cluster analysis module',
@@ -864,6 +872,14 @@ const I18N = {
     'section.cbam.desc': 'Оценка на въглеродната експозиция 2026-2034 от CBAM-свързаното намаляване на безплатните квоти и ETS допускания, по компания и продукт',
     'section.cbam.pill': 'Жива формула · 2026',
     'section.cluster.title': 'Клъстерен анализ',
+    'access.cluster.title': 'Необходима е парола',
+    'access.cluster.description': 'Въведете паролата за достъп до Клъстерен анализ. Секцията остава отключена до презареждане на страницата.',
+    'access.cluster.password': 'Парола',
+    'access.cluster.unlock': 'Отключи',
+    'access.cluster.lock': 'Заключи секцията',
+    'access.cluster.checking': 'Проверка…',
+    'access.cluster.invalid': 'Невалидна парола. Опитайте отново.',
+    'access.cluster.unavailable': 'Проверката на паролата не е достъпна в този браузър. Отворете сайта през HTTPS в актуален браузър.',
     'section.cluster.desc': 'Интегриран анализ на сценарии, компании, мрежи и решения по единна скала 0-20.',
     'section.cluster.pill': '7 сценария · apply_scenario()',
     'section.cluster.cardTitle': 'Модул за клъстерен анализ',
@@ -915,6 +931,7 @@ function setLanguage(lang) {
   }
 
   renderClusterAnalysis();
+  window.ClusterAccess?.render?.();
   renderIndustrialGeography();
   if (document.getElementById('section-investments')?.classList.contains('active')) {
     window.IndustrialInvestment?.render?.();

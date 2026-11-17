@@ -1684,12 +1684,18 @@
   function renderClusterAnalysis() {
     const grid = root.document.getElementById('clusterScenarioGrid');
     if (!grid) return;
+    root.ClusterAccess?.render?.();
+    if (root.ClusterAccess?.isUnlocked() !== true) {
+      Charts.purge(CLUSTER_CHART_IDS);
+      grid.innerHTML = '';
+      return;
+    }
     ensureMainTabs();
     updateSectionMeta();
     Charts.purge(CLUSTER_CHART_IDS);
     grid.innerHTML = `${renderActiveView(getState())}<div id="clusterToast" class="cluster-toast" role="status" aria-live="polite" hidden></div>`;
     root.requestAnimationFrame?.(() => {
-      if (root.document.getElementById('clusterScenarioGrid')) renderCharts();
+      if (root.ClusterAccess?.isUnlocked() === true && root.document.getElementById('clusterScenarioGrid')) renderCharts();
     });
   }
 
@@ -1720,6 +1726,7 @@
   }
 
   function exportDecisionCsv() {
+    if (root.ClusterAccess?.isUnlocked() !== true) return false;
     const state = getState();
     const decision = Model.getDecisionLayer(getSelectedScenario(), state.companies, { pathways: getPathways() });
     const headers = ['company', 'cluster', 'sector', 'priority_0_20', 'primary_bottleneck', 'bottleneck_0_20', 'capex_m_eur', 'abatement_kt_year', 'first_start_year', 'confidence_0_20'];
@@ -1937,18 +1944,21 @@
   }
 
   root.document.addEventListener('click', (event) => {
+    if (root.ClusterAccess?.isUnlocked() !== true) return;
     const button = event.target.closest('[data-cluster-action]');
     if (!button || !root.document.getElementById('section-cluster')?.contains(button)) return;
     handleAction(button);
   });
 
   root.document.addEventListener('change', (event) => {
+    if (root.ClusterAccess?.isUnlocked() !== true) return;
     const control = event.target.closest('[data-cluster-change]');
     if (!control || !root.document.getElementById('section-cluster')?.contains(control)) return;
     handleChange(control);
   });
 
   root.document.addEventListener('input', (event) => {
+    if (root.ClusterAccess?.isUnlocked() !== true) return;
     const control = event.target.closest('[data-cluster-input]');
     if (!control || !root.document.getElementById('section-cluster')?.contains(control)) return;
     handleInput(control);
@@ -1962,6 +1972,7 @@
   root.ClusterAnalysis = Object.freeze({
     render: renderClusterAnalysis,
     setActiveMainTab(tabId) {
+      if (root.ClusterAccess?.isUnlocked() !== true) return false;
       if (!MAIN_TABS.includes(tabId)) return false;
       activeMainTab = tabId;
       renderClusterAnalysis();
