@@ -239,6 +239,8 @@ test('Company Profiles contains the exact active cluster roster and opens a sour
   context.renderCompanyGrid();
   assert.equal((grid.innerHTML.match(/class="company-card"/g) || []).length, 56);
   assert.doesNotMatch(grid.innerHTML, /\[object Object\]|undefined|svilosa/i);
+  assert.doesNotMatch(grid.innerHTML, /co-maturity|mat-advanced|mat-early|Not assessed|Best-in-class/);
+  assert.ok(profiles.every(profile => !Object.hasOwn(profile, 'maturity')));
   for (const profile of profiles) {
     context.openCompanyModal(profile.id);
     assert.ok(decode(modal.innerHTML).includes(profile.name), profile.id);
@@ -251,12 +253,11 @@ test('Company Profiles contains the exact active cluster roster and opens a sour
       assert.ok(modal.innerHTML.includes(participant.provenance.url), profile.id);
       assert.ok(modal.innerHTML.includes(participant.provenance.emissionsUrl), profile.id);
       assert.match(modal.innerHTML, /sector-level options, not confirmed company commitments/);
-      assert.equal(profile.maturity, 'unassessed');
     }
   }
 });
 
-test('new company profiles translate both ways while keeping the open profile and maturity filter', () => {
+test('company employment translates both ways while preserving the open profile and activity filter', () => {
   const { context, nodes, run } = environment();
   ['cluster-data.js', 'app.js'].forEach((name) => run(read(name)));
   const grid = { id: 'companyGrid', innerHTML: '' };
@@ -267,20 +268,30 @@ test('new company profiles translate both ways while keeping the open profile an
   nodes.set('companyModal', { classList: { add: (value) => modalClasses.add(value), remove: (value) => modalClasses.delete(value) } });
   nodes.set('datasetStats', { innerHTML: '' });
   nodes.set('datasetContent', { innerHTML: '' });
-  context.renderCompanyGrid('unassessed');
+  context.filterCompanyProfiles('glass', '');
   context.openCompanyModal('rubin');
   context.setLanguage('bg');
-  assert.equal((grid.innerHTML.match(/class="company-card"/g) || []).length, 47);
-  assert.match(grid.innerHTML, /Без оценка/);
+  assert.equal((grid.innerHTML.match(/class="company-card"/g) || []).length, 6);
+  assert.doesNotMatch(grid.innerHTML, /Без оценка|Напреднал етап|Начален етап|co-maturity/);
+  assert.match(grid.innerHTML, /Пряко ангажирани служители · 2025/);
+  assert.match(modal.innerHTML, /<strong>586<\/strong>/);
   assert.match(modal.innerHTML, /Рубин АД/);
   assert.match(modal.innerHTML, /Възможни технологични пътища за сектора/);
   assert.match(modal.innerHTML, /Няма данни в текущия набор/);
   assert.doesNotMatch(nodes.get('datasetContent').innerHTML, /\[object Object\]/);
+  assert.doesNotMatch(nodes.get('datasetContent').innerHTML, /Зрялост|Без оценка/);
+  assert.match(nodes.get('datasetContent').innerHTML, /Пряко ангажирани служители · 2025/);
   assert.equal(run('activeCompanyProfileId'), 'rubin');
   assert.ok(modalClasses.has('open'));
   context.setLanguage('en');
   assert.match(modal.innerHTML, /Rubin Trading EAD/);
   assert.match(modal.innerHTML, /Sector transition options/);
-  assert.equal(run('currentCompanyProfileFilter'), 'unassessed');
+  assert.equal(run('currentCompanyActivityFilter'), 'glass');
   assert.equal(run('activeCompanyProfileId'), 'rubin');
+  assert.match(modal.innerHTML, /Direct employees · 2025/);
+  context.openCompanyModal('ba-glass-plovdiv');
+  assert.match(modal.innerHTML, /<strong>592<\/strong>/);
+  assert.match(modal.innerHTML, /Operator total · not allocated by site/);
+  context.openCompanyModal('industrial-solutions');
+  assert.match(modal.innerHTML, /Direct employees · 2025<\/span><strong>Not available<\/strong>/);
 });

@@ -126,6 +126,26 @@
     'casting-forging': ['RADOMIR METAL INDUSTRIES', 'Радомир Метал Индъстрийз'],
     'keram-invest': ['KERAM INVEST AD — Sliven', 'Керам Инвест АД — Сливен'],
   };
+  // Employment is an operator-level figure, separate from installation-level ETS data.
+  const DIRECT_EMPLOYEES_2025 = Object.freeze({
+    solvay: 412, lukoil: 1176, heidelberg: 287, neochim: 625, holcim: 367,
+    'zlatna-panega': 274, kcm: 1324, 'trakya-glass': 597, 'ba-glass': 592,
+    'ognyanovo-k': 189, stomana: 1168, rubin: 586, pasabahce: 899,
+    agropolychim: 752, calcit: 98, 'han-asparuh': 781, aurubis: 1074,
+    'promet-steel': 471, alcomet: 1353, 'han-omurtag': 447, knauf: 251,
+    wienerberger: 131, fibran: 179, 'sofia-med': 768, 'novo-staklo': 244,
+    'villeroy-boch': 2604, keros: 174, 'keramika-burgas': 93, roca: 322,
+    svilosa: 13, 'insa-oil': 218, claires: 59, 'bulgarian-petroleum-refinery': 41,
+    'sma-mineral': 46, trud: 67, 'velpa-91': 169, progress: 486, keramat: 13,
+    'keramik-gt': 10, 'mondi-stambolijski': 29, 'vmv-metal': 26,
+    'industrial-solutions': null, polysan: 1, 'tamara-2009': null,
+    'belovo-paper': null, keraminzhenering: null, 'casting-forging': 51,
+    'vos-ceramics': 33, 'keram-invest': null, 'rodna-industria-91': 2, 'nikom-97': 4,
+  });
+  const STAFF_OPERATOR_IDS = Object.freeze({
+    'ba-glass-plovdiv': 'ba-glass', 'ba-glass-sofia': 'ba-glass',
+    'znhv-puklina': 'ognyanovo-k', 'ognyanovo-k': 'ognyanovo-k',
+  });
   const records = rows.map(([id, registryOperatorName, companyBg, mainActivityId, verifiedEmissions2025T, freeAllowances2025Eua]) => {
     const [en, bg, clusterSector] = ACTIVITIES[mainActivityId];
     const location = LOCATIONS[id];
@@ -133,6 +153,9 @@
     return Object.freeze({ id, company: registryOperatorName + suffix, companyBg, registryOperatorName,
       mainActivityId, mainActivity: Object.freeze({ en, bg }), clusterSector,
       verifiedEmissions2025T, freeAllowances2025Eua, registry2025Provided: true,
+      staffOperatorId: STAFF_OPERATOR_IDS[id] || id,
+      directEmployees2025: DIRECT_EMPLOYEES_2025[STAFF_OPERATOR_IDS[id] || id],
+      staffSharedAcrossSites: Object.hasOwn(STAFF_OPERATOR_IDS, id),
       registryInstallation: Object.freeze({ en: INSTALLATIONS[id]?.[0] || registryOperatorName + suffix, bg: INSTALLATIONS[id]?.[1] || companyBg }),
       geography: location ? Object.freeze({ locality: location[0], localityBg: location[1], district: location[2], regionId: location[3], latitude: location[4], longitude: location[5], sourceUrl: location[6] }) : undefined,
     });
@@ -140,5 +163,5 @@
   const nameTranslations = Object.fromEntries(records.map((row) => [row.company, row.companyBg]));
   Object.values(ACTIVITIES).forEach(([en, bg]) => { nameTranslations[en] = bg; });
   Object.values(LOCATIONS).forEach((location) => { nameTranslations[location[0]] = location[1]; });
-  return Object.freeze({ records: Object.freeze(records), activities: Object.freeze(ACTIVITIES), nameTranslations: Object.freeze(nameTranslations) });
+  return Object.freeze({ records: Object.freeze(records), directEmployees2025ByOperator: DIRECT_EMPLOYEES_2025, activities: Object.freeze(ACTIVITIES), nameTranslations: Object.freeze(nameTranslations) });
 });

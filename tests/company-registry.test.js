@@ -5,6 +5,34 @@ const Data = require('../cluster-data.js');
 require('../cluster-i18n.js');
 const Geography = require('../industrial-geography.js');
 
+test('2025 direct employment preserves operator totals, shared-site scope and empty cells', () => {
+  const staff = Registry.directEmployees2025ByOperator;
+  assert.equal(Object.keys(staff).length, 51);
+  assert.equal(Object.values(staff).filter(value => value != null).length, 46);
+  assert.equal(Object.values(staff).reduce((sum, value) => sum + (value ?? 0), 0), 19506);
+  assert.deepEqual(Object.entries(staff).filter(([, value]) => value === null).map(([id]) => id), [
+    'industrial-solutions', 'tamara-2009', 'belovo-paper', 'keraminzhenering', 'keram-invest',
+  ]);
+  const roster = Data.createCompanyRoster();
+  for (const [ids, count, operator] of [
+    [['ba-glass-plovdiv', 'ba-glass-sofia'], 592, 'ba-glass'],
+    [['znhv-puklina', 'ognyanovo-k'], 189, 'ognyanovo-k'],
+  ]) {
+    ids.forEach(id => {
+      const row = roster.find(company => company.id === id);
+      assert.equal(row.directEmployees2025, count);
+      assert.equal(row.staffOperatorId, operator);
+      assert.equal(row.staffSharedAcrossSites, true);
+    });
+  }
+  assert.equal(roster.find(company => company.id === 'polysan').directEmployees2025, 1);
+  assert.equal(roster.find(company => company.id === 'villeroy-boch').directEmployees2025, 2604);
+  assert.equal(roster.find(company => company.id === 'lukoil').directEmployees2025, 1176);
+  assert.equal(Registry.records.find(company => company.id === 'svilosa').directEmployees2025, 13);
+  assert.ok(!roster.some(company => company.id === 'svilosa'));
+  assert.ok(Registry.records.every(company => company.directEmployees2025 === null || Number.isInteger(company.directEmployees2025)));
+});
+
 test('the full supplied table is retained with exact totals, null cells and reported zeros', () => {
   assert.equal(Registry.records.length, 53);
   assert.equal(new Set(Registry.records.map(row => row.id)).size, 53);

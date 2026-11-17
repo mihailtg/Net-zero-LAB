@@ -1305,7 +1305,7 @@ function buildCharts() {
 const COMPANY_PROFILE_DETAILS = [
   {
     id:'agropolychim', name:'Agropolychim AD', location:'Devnya (Varna region)',
-    sector:'Nitrogen & phosphate fertilizers', maturity:'advanced',
+    sector:'Nitrogen & phosphate fertilizers',
     color:'var(--success)', colorBg:'var(--success-light)', initials:'AP',
     description:'Leading producer of nitrogen and phosphorus fertilizers in the region. The company has eliminated local ammonia production, reducing natural gas consumption by 98% and shifting entirely to imported ammonia via its own terminal. Scope 1 emissions now arise mainly from combustion processes and N₂O from nitric acid production.',
     emissions:'Scope 1: combustion + N₂O from HNO₃ · Natural gas –98% · Major Scope 3 exposure via imported ammonia',
@@ -1326,7 +1326,7 @@ const COMPANY_PROFILE_DETAILS = [
   },
   {
     id:'solvaysodi', name:'Solvay Sodi Bulgaria AD', location:'Devnya (Varna region)',
-    sector:'Soda ash (synthetic) & sodium bicarbonate', maturity:'advanced',
+    sector:'Soda ash (synthetic) & sodium bicarbonate',
     color:'var(--info)', colorBg:'var(--info-light)', initials:'SS',
     description:'Largest soda ash and sodium bicarbonate producer in Europe. Located in Devnya industrial cluster. Total direct emissions approximately 2 million tonnes CO₂/year. Currently scaling biomass co-firing from 30% to 50% in CFB steam generators. Testing revolutionary e.Solvay electrochemical process that cuts CO₂ by 50%.',
     emissions:'~2 Mt CO₂/yr total direct (Scope 1) · Official process 2.B.7: 460 Kt CO₂eq · Biomass co-firing already at 30%',
@@ -1348,7 +1348,7 @@ const COMPANY_PROFILE_DETAILS = [
   },
   {
     id:'lukoil', name:'LUKOIL Neftohim Burgas', location:'Burgas',
-    sector:'Petroleum refining & petrochemicals', maturity:'progressing',
+    sector:'Petroleum refining & petrochemicals',
     color:'var(--danger)', colorBg:'var(--danger-light)', initials:'LN',
     description:'Largest integrated petrochemical complex in the Balkans. Refining capacity 9.5 million tonnes crude oil/year. Covers over 50% of Bulgaria\u2019s domestic fuel consumption. Investment decisions for 2026–2031 still pending. Group target: 20% reduction in controlled Scope 1+2 emissions by 2030 vs. 2017.',
     emissions:'955.79 Kt CO₂eq official (1.A.1.b) · ~9.5 Mt/yr crude processing · Covers >50% of Bulgaria domestic fuel needs',
@@ -1369,7 +1369,7 @@ const COMPANY_PROFILE_DETAILS = [
   },
   {
     id:'heidelberg', name:'Heidelberg Materials Bulgaria', location:'Devnya (Devnya Cement) + Zlatna Panega (Vulkan Cement)',
-    sector:'Cement & cementitious materials', maturity:'advanced',
+    sector:'Cement & cementitious materials',
     color:'var(--primary)', colorBg:'var(--primary-light)', initials:'HM',
     description:'Operates two cement plants: Devnya Cement (site of ANRAV CCUS project) and Vulkan Cement. Specific net emissions 2024: 527 kg CO₂/t cementitious material. Target: 400 kg CO₂/t by 2030 (24% reduction vs. 2020). ANRAV is the first full CCUS chain in Eastern Europe.',
     emissions:'Specific: 527 kg CO₂/t (2024) → target 400 kg CO₂/t (2030) · ANRAV: 800,000 t CO₂/yr captured from 2028',
@@ -1390,7 +1390,7 @@ const COMPANY_PROFILE_DETAILS = [
   },
   {
     id:'holcim', name:'Holcim Bulgaria AD', location:'Beli Izvor (Vratsa region)',
-    sector:'Cement', maturity:'advanced',
+    sector:'Cement',
     color:'#a0608f', colorBg:'rgba(160, 96, 143, 0.13)', initials:'HC',
     description:'Beli Izvor cement plant, capacity 1.1 million tonnes/year. Net specific emissions 2023: 443 kg CO₂/t cement — lowest in the entire global Holcim Group. Close to 90% fossil fuel substitution with alternative fuels in clinker burning. Target: below 420 kg CO₂/t by 2030.',
     emissions:'443 kg CO₂/t cement (2023) — lowest in global Holcim Group · ~90% alternative fuel substitution achieved',
@@ -1405,13 +1405,13 @@ const COMPANY_PROFILE_DETAILS = [
     ],
     pathways:['Alternative fuels (90% subst.)','Waste heat recovery','Own PV','CCUS (Beli Net Zero)','CO₂ storage research'],
     ets:'Full ETS coverage. Already at best-in-class specific emissions globally within Holcim Group.',
-    tags:['ETS-covered','2.A.1','Best-in-class','~90% alt fuels','CCUS research'],
+    tags:['ETS-covered','2.A.1','~90% alt fuels','CCUS research'],
     netZeroLab:'Engaged in Bulgarian industrial decarbonization context.',
     challenge:'Already near technical optimum for alternative fuels. Next step (CCUS) is capital-intensive. CO₂ geological storage in Bulgaria needs further research.'
   },
   {
     id:'svilosa', name:'Svilosa AD', location:'Svishtov (Central Bulgaria)',
-    sector:'Bleached sulphate cellulose (pulp)', maturity:'advanced',
+    sector:'Bleached sulphate cellulose (pulp)',
     color:'var(--teal)', colorBg:'var(--teal-light)', initials:'SV',
     description:'Only producer of bleached sulfate cellulose in Bulgaria. Decarbonization integrated as a core strategy pillar for over two decades. Pioneer: Svilosa Biomass project registered under Kyoto Protocol (Gold Standard GS3379). Target: 62% reduction in EU ETS sectors by 2030 vs. 2005.',
     emissions:'64.53 Kt CO₂eq · 2023 · Official (1.A.2.d)',
@@ -1431,7 +1431,7 @@ const COMPANY_PROFILE_DETAILS = [
   },
   {
     id:'biovet', name:'Biovet AD (Huvepharma)', location:'Peshtera, Razgrad, Botevgrad',
-    sector:'Veterinary pharmaceuticals & active ingredients', maturity:'advanced',
+    sector:'Veterinary pharmaceuticals & active ingredients',
     color:'#52a582', colorBg:'rgba(82, 165, 130, 0.13)', initials:'BV',
     description:'Part of Huvepharma group. Plants in Peshtera, Razgrad, and Botevgrad. Achieved 30% absolute carbon emissions reduction and 44% carbon intensity reduction in 2020–2023. Largest private BESS installation in the EU (13.416 MW / 26.832 MWh) at Razgrad. Total ~€300M decarbonization programme by 2030. Target: full carbon neutrality (Scope 1+2) by 2030.',
     emissions:'30% absolute CO₂ reduction achieved 2020–2023 · Target: carbon neutral Scope 1+2 by 2030',
@@ -1452,7 +1452,7 @@ const COMPANY_PROFILE_DETAILS = [
   },
   {
     id:'neochim', name:'Neochim AD', location:'Dimitrovgrad (South-Central Bulgaria)',
-    sector:'Ammonia & nitric acid', maturity:'early',
+    sector:'Ammonia & nitric acid',
     color:'var(--primary)', colorBg:'var(--primary-light)', initials:'NC',
     description:'Producer of ammonia, nitric acid, and nitrogen-based compounds at Dimitrovgrad. Faced significant economic stress during the 2022–2023 European gas price crisis with production halts.',
     emissions:'~150 Kt est. · 2.B.1+2.B.2 share from official sector totals',
@@ -1471,7 +1471,7 @@ const COMPANY_PROFILE_DETAILS = [
   },
   {
     id:'orgachim', name:'Orgachim AD', location:'Ruse (North Bulgaria)',
-    sector:'Paints, varnishes, resins & specialty chemicals', maturity:'progressing',
+    sector:'Paints, varnishes, resins & specialty chemicals',
     color:'var(--danger)', colorBg:'var(--danger-light)', initials:'OC',
     description:'Over 120 years of history. Part of Polycolor-Orgachim Group. Based in Ruse. Products: paints, varnishes, synthetic resins, phthalic and maleic anhydrides. Process temperatures up to 260°C (resins) and 380°C–400°C (anhydrides). New €7M factory in Bucharest (2019).',
     emissions:'Estimated <50 Kt · 1.A.2.c share · 2.D.3 (non-energy products)',
@@ -1492,7 +1492,7 @@ const COMPANY_PROFILE_DETAILS = [
   },
   {
     id:'agria', name:'Agria AD', location:'Plovdiv (Central Bulgaria)',
-    sector:'Plant protection products & agrochemicals', maturity:'early',
+    sector:'Plant protection products & agrochemicals',
     color:'var(--success)', colorBg:'var(--success-light)', initials:'AG',
     description:'Only Bulgarian producer of plant protection products (herbicides, fungicides, biocides). Located in Plovdiv. Member of Responsible Care global initiative. Targeting EU Fit for 55 compliance.',
     emissions:'Not separately disclosed · 1.A.2.c share',
@@ -1525,7 +1525,6 @@ function createBaselineCompanyProfile(company) {
     name: company.company,
     location: company.cluster,
     sector: company.specificSector || company.sector,
-    maturity: 'unassessed',
     baselineOnly: true,
     color: 'var(--info)', colorBg: 'var(--info-light)',
     initials: company.company.split(/\s+/).slice(0, 2).map((word) => word[0]).join('').toUpperCase(),
@@ -1566,6 +1565,9 @@ const companies = (ClusterData.createCompanyRoster || ClusterData.createDefaultC
     freeAllowances2025Eua: company.freeAllowances2025Eua,
     emissions2024Kt: company.emissions2024Kt,
     geography: company.geography,
+    directEmployees2025: company.directEmployees2025 ?? null,
+    staffOperatorId: company.staffOperatorId,
+    staffSharedAcrossSites: company.staffSharedAcrossSites === true,
     baselineOnly: !details,
     sources: baseline.sources,
   };
@@ -1581,7 +1583,6 @@ function companyProfileHtml(value) {
 }
 
 
-let currentCompanyProfileFilter = 'all';
 let currentCompanyActivityFilter = 'all';
 let companyProfileSearch = '';
 let activeCompanyProfileId = null;
@@ -1590,7 +1591,7 @@ function registryCopy(en, bg) { return getLanguage() === 'bg' ? bg : en; }
 function companyDisplayName(co) { return getLanguage() === 'bg' && co.nameBg ? co.nameBg : co.name; }
 function registryNumber(value, digits = 0) {
   return value == null || !Number.isFinite(value) ? registryCopy('Not available', 'Няма данни')
-    : new Intl.NumberFormat(getLanguage() === 'bg' ? 'bg-BG' : 'en-GB', { maximumFractionDigits: digits }).format(value);
+    : new Intl.NumberFormat(getLanguage() === 'bg' ? 'bg-BG' : 'en-GB', { maximumFractionDigits: digits, useGrouping: 'always' }).format(value);
 }
 function filterCompanyProfiles(activity, search) {
   const searchFocused = document.activeElement?.id === 'companyProfileSearch';
@@ -1617,14 +1618,11 @@ function companyRegistryTable(co) {
     </div>`;
 }
 
-function filterCompanies(filter, btn) {
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderCompanyGrid(filter);
+function employeeScopeNote(co) {
+  return co.staffSharedAcrossSites ? registryCopy('Operator total · not allocated by site', 'Общо за оператора · без разпределение по площадки') : '';
 }
 
-function renderCompanyGrid(filter = currentCompanyProfileFilter) {
-  currentCompanyProfileFilter = filter;
+function renderCompanyGrid() {
   const grid = document.getElementById('companyGrid');
   if (!grid) return;
   const controls = document.getElementById('companyRegistryFilters');
@@ -1634,18 +1632,13 @@ function renderCompanyGrid(filter = currentCompanyProfileFilter) {
     controls.innerHTML = `<label>${registryCopy('Main activity', 'Основна дейност')}<select onchange="filterCompanyProfiles(this.value, document.getElementById('companyProfileSearch').value)"><option value="all">${registryCopy('All activities', 'Всички дейности')}</option>${activities.map(([id, label]) => `<option value="${escapeHtml(id)}" ${currentCompanyActivityFilter === id ? 'selected' : ''}>${companyProfileHtml(label)}</option>`).join('')}</select></label><label>${registryCopy('Search companies', 'Търсене на компании')}<input id="companyProfileSearch" type="search" value="${escapeHtml(companyProfileSearch)}" oninput="filterCompanyProfiles(currentCompanyActivityFilter, this.value)"></label>`;
   }
   const query = companyProfileSearch.trim().toLocaleLowerCase();
-  const filtered = companies.filter(co => (filter === 'all' || co.maturity === filter)
-    && (currentCompanyActivityFilter === 'all' || co.mainActivityId === currentCompanyActivityFilter)
+  const filtered = companies.filter(co => (currentCompanyActivityFilter === 'all' || co.mainActivityId === currentCompanyActivityFilter)
     && (!query || `${co.name} ${co.nameBg || ''} ${companyProfileText(co.mainActivity)} ${companyProfileText(co.location)}`.toLocaleLowerCase().includes(query)));
   grid.innerHTML = filtered.map(co => `
     <div class="company-card" onclick="openCompanyModal('${co.id}')">
       <div class="co-header">
         <div class="co-logo" style="background:${co.colorBg};color:${co.color}">${co.initials}</div>
-        <div class="co-maturity mat-${co.maturity}">${
-          co.maturity === 'advanced' ? 'Advanced' :
-          co.maturity === 'progressing' ? 'Progressing' :
-          co.maturity === 'early' ? 'Early Stage' : translate('profile.unassessed')
-        }</div>
+        <div class="co-employees"><span>${registryCopy('Direct employees · 2025', 'Пряко ангажирани служители · 2025')}</span><strong>${registryNumber(co.directEmployees2025)}</strong>${co.staffSharedAcrossSites ? `<small>${escapeHtml(employeeScopeNote(co))}</small>` : ''}</div>
       </div>
       <div class="co-name">${companyProfileHtml(companyDisplayName(co))}</div>
       <div class="co-location">
@@ -1688,7 +1681,7 @@ function renderCompanyModalContent(co) {
         <div class="modal-co-name" id="modalCoName">${companyProfileHtml(companyDisplayName(co))}</div>
         <div class="modal-co-meta">${companyProfileHtml(co.location)} · ${companyProfileHtml(co.sector)}</div>
       </div>
-      <div class="modal-employee-pill"><span>Employees</span><strong>${companyProfileHtml(co.employees)}</strong></div>
+      <div class="modal-employee-pill"><span>${registryCopy('Direct employees · 2025', 'Пряко ангажирани служители · 2025')}</span><strong>${registryNumber(co.directEmployees2025)}</strong>${co.staffSharedAcrossSites ? `<small>${escapeHtml(employeeScopeNote(co))}</small>` : ''}</div>
     </div>
     ${companyRegistryTable(co)}
     <div class="modal-section"><div class="modal-section-title">Overview</div><p class="modal-text">${companyProfileHtml(co.description)}</p></div>
@@ -3558,10 +3551,10 @@ function getDatasetCopy() {
         title: 'Фирми и горивни профили',
         desc: 'Структурирана справка за компаниите в приложението и горивното разбиване за 2023.',
         companyTitle: 'Фирмен регистър',
-        companySub: 'Локация, сектор, зрялост и CRF привързване.',
+        companySub: 'Локация, сектор, пряко ангажирани служители за 2025 г. и CRF привързване.',
         fuelTitle: 'Горивно горене 2023',
         fuelSub: 'Редовете от Сектор 1.A с разбивка по вид гориво.',
-        companyHeaders: ['Компания', 'Локация', 'Сектор', 'Зрялост', 'Служители', 'CRF'],
+        companyHeaders: ['Компания', 'Локация', 'Сектор', 'Пряко ангажирани служители · 2025', 'CRF'],
         fuelHeaders: ['Код', 'Под-сектор', 'Група', 'Общо', 'Течни', 'Твърди', 'Газ', 'Отпадък', 'Биомаса']
       },
       labels: {
@@ -3595,7 +3588,7 @@ function getDatasetCopy() {
         transport: 'Транспорт',
         otherGroup: 'Други',
         shareIppu: 'Дял от IPPU',
-        sourceNote: 'Официални източници'
+        sourceNote: 'Източник за националната инвентаризация'
       }
     };
   }
@@ -3631,10 +3624,10 @@ function getDatasetCopy() {
       title: 'Companies and fuel profiles',
       desc: 'Structured reference for the companies in the app and the 2023 fuel-combustion breakdown.',
       companyTitle: 'Company registry',
-      companySub: 'Location, sector, maturity, and CRF mapping.',
+      companySub: 'Location, sector, direct employees for 2025, and CRF mapping.',
       fuelTitle: 'Fuel combustion 2023',
       fuelSub: 'Sector 1.A rows with fuel-type breakdown.',
-      companyHeaders: ['Company', 'Location', 'Sector', 'Maturity', 'Employees', 'CRF'],
+      companyHeaders: ['Company', 'Location', 'Sector', 'Direct employees · 2025', 'CRF'],
       fuelHeaders: ['Code', 'Sub-sector', 'Group', 'Total', 'Liquid', 'Solid', 'Gas', 'Waste', 'Biomass']
     },
     labels: {
@@ -3668,7 +3661,7 @@ function getDatasetCopy() {
       transport: 'Transport',
       otherGroup: 'Other',
       shareIppu: 'Share of IPPU',
-      sourceNote: 'Official sources'
+      sourceNote: 'National inventory source'
     }
   };
 }
@@ -3684,12 +3677,6 @@ function renderDatasetTables() {
   const ippuTotal = ippu.total;
   const firstYear = DB.ippu_hist[0]?.year;
   const lastYear = DB.ippu_hist[DB.ippu_hist.length - 1]?.year;
-  const maturityLabels = {
-    advanced: copy.labels.advanced,
-    progressing: copy.labels.progressing,
-    early: copy.labels.early,
-    unassessed: translate('profile.unassessed')
-  };
   const groupLabels = {
     Energy: copy.labels.energy,
     Manufacturing: copy.labels.manufacturing,
@@ -3763,8 +3750,7 @@ function renderDatasetTables() {
     companyProfileHtml(company.name),
     companyProfileHtml(company.location),
     companyProfileHtml(company.sector),
-    escapeHtml(maturityLabels[company.maturity] || company.maturity),
-    companyProfileHtml(company.employees),
+    `${escapeHtml(registryNumber(company.directEmployees2025))}${company.staffSharedAcrossSites ? `<small class="company-staff-scope">${escapeHtml(employeeScopeNote(company))}</small>` : ''}`,
     companyProfileHtml(company.crf)
   ]);
 
@@ -3842,7 +3828,7 @@ function renderDatasetTables() {
         <div class="dataset-panel-sub">${escapeHtml(copy.operational.fuelSub)}</div>
         ${buildDatasetTable(copy.operational.fuelHeaders, fuelRows, 'dataset-table-wide')}
       </div>
-      <div class="dataset-note">${escapeHtml(copy.labels.sourceNote)}: <a href="https://unfccc.int/documents/656446" target="_blank" rel="noopener noreferrer">UNFCCC · CRT</a> · <a href="${ClusterData.ETS_REGISTRY_URL}" target="_blank" rel="noopener noreferrer">EU ETS · Union Registry</a></div>
+      <div class="dataset-note">${escapeHtml(copy.labels.sourceNote)}: <a href="https://unfccc.int/documents/656446" target="_blank" rel="noopener noreferrer">UNFCCC · CRT</a> · ${registryCopy('Emissions and allowances', 'Емисии и квоти')}: <a href="${ClusterData.ETS_REGISTRY_URL}" target="_blank" rel="noopener noreferrer">EU ETS · Union Registry</a></div>
     </div>
   `;
 }

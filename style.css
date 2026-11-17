@@ -360,7 +360,7 @@ svg { flex-shrink: 0; }
 .section-title { margin: 0; color: var(--text); font-size: 2rem; font-weight: 850; line-height: 1.12; letter-spacing: 0; }
 .section-desc { margin: 0.42rem 0 0; max-width: 820px; color: var(--text-muted); font-size: 0.98rem; }
 
-.pill, .badge, .co-tag, .cic-badge, .policy-badge, .fund-type, .pt-status, .act-status, .pw-readiness, .icc-badge, .co-maturity {
+.pill, .badge, .co-tag, .cic-badge, .policy-badge, .fund-type, .pt-status, .act-status, .pw-readiness, .icc-badge {
   display: inline-flex;
   align-items: center;
   width: fit-content;
@@ -371,11 +371,10 @@ svg { flex-shrink: 0; }
   font-weight: 800;
   line-height: 1.1;
 }
-.pill-green, .badge-green, .pb-active, .pt-engaged, .act-done, .mat-advanced, .fund-eu { background: var(--success-light); color: var(--success); }
-.pill-amber, .badge-amber, .pb-coming, .pt-invited, .fund-policy, .mat-progressing { background: var(--amber-light); color: var(--amber); }
+.pill-green, .badge-green, .pb-active, .pt-engaged, .act-done, .fund-eu { background: var(--success-light); color: var(--success); }
+.pill-amber, .badge-amber, .pb-coming, .pt-invited, .fund-policy { background: var(--amber-light); color: var(--amber); }
 .badge-blue, .pb-review, .fund-dev { background: var(--blue-light); color: var(--blue); }
-.badge-slate, .mat-early, .act-ongoing { background: var(--slate-light); color: var(--slate); }
-.mat-unassessed { background: var(--surface-offset); color: var(--text-muted); }
+.badge-slate, .act-ongoing { background: var(--slate-light); color: var(--slate); }
 .badge-cbam { background: var(--purple-light); color: var(--purple); }
 .badge-ets { background: var(--teal-light); color: var(--teal); }
 
@@ -462,6 +461,10 @@ svg { flex-shrink: 0; }
 .company-card:hover { transform: translateY(-2px); border-color: rgba(122, 0, 94, 0.28); box-shadow: var(--shadow-md); }
 .co-header, .modal-co-header, .cic-header, .icc-header { display: flex; align-items: center; gap: 0.8rem; }
 .co-header, .cic-header { justify-content: space-between; }
+.co-employees { display: grid; gap: .15rem; max-width: 75%; text-align: right; font-variant-numeric: tabular-nums; }
+.co-employees span { color: var(--text-muted); font-size: .68rem; line-height: 1.4; }
+.co-employees strong { color: var(--text); font-size: 1.1rem; font-weight: 800; }
+.co-employees small,.modal-employee-pill small,.company-staff-scope { display: block; color: var(--text-muted); font-size: .65rem; line-height: 1.4; }
 .co-logo, .modal-co-logo, .cic-logo, .icc-logo { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 8px; font-weight: 850; }
 .co-name, .modal-co-name, .icc-name, .cic-name { color: var(--text); font-size: 1rem; font-weight: 850; }
 .co-name { margin-top: 0.8rem; }
@@ -480,11 +483,13 @@ svg { flex-shrink: 0; }
   display: grid;
   grid-template-columns: 44px minmax(0, 1fr) auto;
   align-items: start;
+  padding-right: 2.2rem;
 }
 .modal-co-main {
   min-width: 0;
 }
 .modal-employee-pill {
+  max-width: 225px;
   align-self: start;
   padding: 0.45rem 0.6rem;
   border: 1px solid var(--divider);
