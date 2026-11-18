@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" data-lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
@@ -179,7 +179,7 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         </div>
         <div class="kpi-val" id="dashboardEmployeesValue" data-target="19493">19,493</div>
-        <div class="kpi-unit"></div>
+        <div class="kpi-unit" id="dashboardEmployeesUnit">number</div>
         <div class="kpi-label" data-i18n="dashboard.employees.label">Direct employees (2025)</div>
         <div class="kpi-sub" id="dashboardEmployeesCoverage" data-i18n="dashboard.employees.coverage">45 operators with data · 9 without data</div>
       </div>
@@ -188,8 +188,8 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
         </div>
         <div class="kpi-val" data-target="634">0</div>
-        <div class="kpi-unit"></div>
-        <div class="kpi-label">Active Companies</div>
+        <div class="kpi-unit">number</div>
+        <div class="kpi-label">Active Companies in chemical industry</div>
         <div class="kpi-sub">4.5% of industrial output</div>
       </div>
     </div>
@@ -199,7 +199,7 @@
       <div class="card">
         <div class="card-head">
           <div>
-            <div class="card-title">Total IPPU Emissions</div>
+            <div class="card-title">Total Industrial Processes and Product Use (IPPU) Emissions</div>
             <div class="card-sub">Kt CO₂ equivalent · Sector 2 Industrial Processes and Product Use</div>
           </div>
         </div>
@@ -210,7 +210,7 @@
       <div class="card">
         <div class="card-head">
           <div>
-            <div class="card-title" data-i18n="inventory.breakdown">IPPU Sector Breakdown (2024)</div>
+            <div class="card-title" data-i18n="inventory.breakdown">Industrial Processes and Product Use (IPPU) Sector Breakdown (2024)</div>
             <div class="card-sub">Industrial Processes &amp; Product Use emissions</div>
           </div>
         </div>
@@ -247,7 +247,7 @@
         </div>
         <div class="progress-item">
           <div class="progress-label">
-            <span>Chemical sector share of IPPU emissions</span>
+            <span>Chemical sector share of Industrial Processes and Product Use (IPPU) emissions</span>
             <span class="progress-val-text" id="chemicalIppuShare">26.3%</span>
           </div>
           <div class="progress-bar-wrap"><div class="progress-bar pb-amber" id="chemicalIppuShareBar" style="width:26.3%"></div></div>
@@ -304,6 +304,7 @@
           </div>
         </div>
       </div>
+      <div class="card-sub" style="margin-top:1rem">Source: Net-Zero Lab</div>
     </div>
   </section>
 
@@ -749,7 +750,7 @@
     <div class="section-head">
       <div>
         <h1 class="section-title" data-i18n="section.emissions.title">Emissions Data</h1>
-        <p class="section-desc" data-i18n="section.emissions.desc">National GHG inventory · IPPU 2010–2024 · industrial sub-sectors through 2023</p>
+        <p class="section-desc" data-i18n="section.emissions.desc">National GHG inventory · Industrial Processes and Product Use (IPPU) 2010–2024 · industrial sub-sectors through 2023</p>
       </div>
       <div class="pill pill-green" data-i18n="section.emissions.pill">Official · 2023</div>
     </div>
@@ -767,14 +768,14 @@
       <div class="chart-grid-2">
         <div class="card">
           <div class="card-head">
-            <div class="card-title" data-i18n="inventory.historyTitle">IPPU Total Emissions 2010–2024</div>
+            <div class="card-title" data-i18n="inventory.historyTitle">Industrial Processes and Product Use (IPPU) Total Emissions 2010–2024</div>
             <div class="card-sub">CRF Sector 2 · Kt CO₂eq · Official national inventory</div>
           </div>
           <div class="chart-wrap" style="height:240px"><canvas id="ippuTotalChart"></canvas></div>
         </div>
         <div class="card">
           <div class="card-head">
-            <div class="card-title" data-i18n="inventory.breakdown">IPPU Sector Breakdown (2024)</div>
+            <div class="card-title" data-i18n="inventory.breakdown">Industrial Processes and Product Use (IPPU) Sector Breakdown (2024)</div>
             <div class="card-sub" id="ippuBreakdownTotal"></div>
           </div>
           <div class="chart-wrap" style="height:240px"><canvas id="ippu2023PieChart"></canvas></div>
@@ -782,7 +783,7 @@
       </div>
       <div class="card mt-4">
         <div class="card-head">
-          <div class="card-title" data-i18n="inventory.stackedTitle">IPPU Sub-sectors Stacked — 2010–2024</div>
+          <div class="card-title" data-i18n="inventory.stackedTitle">Industrial Processes and Product Use (IPPU) Sub-sectors Stacked — 2010–2024</div>
           <div class="card-sub" data-i18n="inventory.stackedDesc">Kt CO₂eq · categories 2.A–2.H and reported total</div>
         </div>
         <div class="chart-wrap" style="height:260px"><canvas id="ippuStackedChart"></canvas></div>
@@ -790,7 +791,7 @@
       </div>
       <div class="card mt-4">
         <div class="card-head">
-          <div class="card-title" data-i18n="inventory.tableTitle">IPPU Data Table 2010–2024</div>
+          <div class="card-title" data-i18n="inventory.tableTitle">Industrial Processes and Product Use (IPPU) Data Table 2010–2024</div>
           <div class="card-sub">Kt CO₂eq · CRF Sector 2</div>
         </div>
         <div class="table-wrap"><table class="data-table" id="ippuDataTable"></table></div>
