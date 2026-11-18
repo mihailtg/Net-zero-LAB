@@ -298,10 +298,10 @@
       // Same theme-aware tokens the KPI/scope/status badges use (see
       // --investment-* in industrial-investment.css) so charts and badges
       // always show matching colors for the same category, in both themes.
-      direct: cssVar('--chart-chemical', '#15803d'),
-      shared: cssVar('--chart-mineral', '#2563eb'),
-      system: cssVar('--infra-ammonia', '#b45309'),
-      emerging: cssVar('--chart-ods', '#7c3aed'),
+      direct: cssVar('--investment-direct', '#7a005e'),
+      shared: cssVar('--investment-shared', '#3d8664'),
+      system: cssVar('--investment-system', '#a8508f'),
+      emerging: cssVar('--investment-emerging', '#6fb08f'),
       // Reference/threshold line color, not a scope category - already theme-aware.
       baseline: cssVar('--danger', '#dc2626'),
     };
