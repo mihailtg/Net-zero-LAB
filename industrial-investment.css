@@ -1,10 +1,19 @@
+/* Brand palette (purple + green), read by both the badges and the Plotly charts. */
+:root {
+  --investment-direct: #7a005e;
+  --investment-shared: #3d8664;
+  --investment-system: #a8508f;
+  --investment-emerging: #6fb08f;
+}
+
+html[data-theme='dark'] {
+  --investment-direct: #d08bbd;
+  --investment-shared: #52a582;
+  --investment-system: #b86aa3;
+  --investment-emerging: #7fc0a0;
+}
+
 .investment-outlook-shell {
-  /* Reuse the app-wide, theme-aware chart/infra tokens (already correct in both
-     themes) instead of local hardcoded hex values that never adapted to dark mode. */
-  --investment-direct: var(--chart-chemical);
-  --investment-shared: var(--chart-mineral);
-  --investment-system: var(--infra-ammonia);
-  --investment-emerging: var(--chart-ods);
   display: grid;
   gap: 1.25rem;
 }
@@ -37,20 +46,21 @@
   margin-bottom: 0.35rem;
   color: var(--text-muted);
   font-size: 0.68rem;
-  font-weight: 700;
+  font-weight: 600;
   text-transform: uppercase;
 }
 
 .investment-kpi-strip strong {
   display: block;
-  color: var(--text);
-  font-family: var(--font-condensed);
-  font-size: 1.55rem;
-  line-height: 1.05;
+  color: var(--primary);
+  font-family: var(--font-sans);
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1.1;
 }
 
 .investment-kpi-strip .primary strong {
-  color: var(--investment-direct);
+  color: var(--primary);
 }
 
 .investment-kpi-strip small {
@@ -163,8 +173,9 @@
 .investment-portfolio-band h2 {
   margin: 0;
   color: var(--text);
-  font-family: var(--font-condensed);
-  font-size: 1.15rem;
+  font-family: var(--font-sans);
+  font-size: 1.02rem;
+  font-weight: 700;
 }
 
 .investment-chart-panel header p,
@@ -218,8 +229,9 @@
   display: block;
   margin-bottom: 0.6rem;
   color: var(--text);
-  font-family: var(--font-condensed);
-  font-size: 0.96rem;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  font-weight: 700;
 }
 
 .investment-time-column > span {
@@ -382,31 +394,31 @@
   padding: 0.28rem 0.42rem;
   border-radius: 4px;
   font-size: 0.65rem;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.25;
 }
 
 .investment-scope.direct,
 .investment-status.ready {
-  background: rgba(21, 128, 61, 0.12);
+  background: rgba(122, 0, 94, 0.09);
   color: var(--investment-direct);
 }
 
 .investment-scope.shared,
 .investment-status.scaling {
-  background: rgba(37, 99, 235, 0.12);
+  background: rgba(61, 134, 100, 0.12);
   color: var(--investment-shared);
 }
 
 .investment-scope.system,
 .investment-status.system,
 .investment-status.conditional {
-  background: rgba(180, 83, 9, 0.13);
+  background: rgba(168, 80, 143, 0.12);
   color: var(--investment-system);
 }
 
 .investment-status.emerging {
-  background: rgba(124, 58, 237, 0.12);
+  background: rgba(111, 176, 143, 0.16);
   color: var(--investment-emerging);
 }
 
@@ -461,7 +473,7 @@
 }
 
 .investment-sources a {
-  color: var(--investment-shared);
+  color: var(--primary);
   text-decoration: none;
 }
 
@@ -471,27 +483,6 @@
 
 html[data-theme='dark'] .investment-segments button.active {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.38);
-}
-
-html[data-theme='dark'] .investment-scope.direct,
-html[data-theme='dark'] .investment-status.ready {
-  color: #6ee7a1;
-}
-
-html[data-theme='dark'] .investment-scope.shared,
-html[data-theme='dark'] .investment-status.scaling,
-html[data-theme='dark'] .investment-sources a {
-  color: #8bb7ff;
-}
-
-html[data-theme='dark'] .investment-scope.system,
-html[data-theme='dark'] .investment-status.system,
-html[data-theme='dark'] .investment-status.conditional {
-  color: #f5b66f;
-}
-
-html[data-theme='dark'] .investment-status.emerging {
-  color: #c4a2ff;
 }
 
 @media (max-width: 1280px) {
