@@ -72,10 +72,10 @@ test('dataset tables preserve notations and update values and category labels in
   const { context, nodes, language } = environment();
   nodes.set('datasetStats', { innerHTML: '' }); nodes.set('datasetContent', { innerHTML: '' });
   context.renderDatasetTables();
-  assert.match(nodes.get('datasetContent').innerHTML, /IPPU breakdown 2024/);
+  assert.match(nodes.get('datasetContent').innerHTML, /Industrial Processes and Product Use \(IPPU\) breakdown 2024/);
   assert.match(nodes.get('datasetContent').innerHTML, /NO/); assert.match(nodes.get('datasetContent').innerHTML, /IE,NA/);
   language('bg'); context.renderDatasetTables();
-  assert.match(nodes.get('datasetContent').innerHTML, /IPPU разбивка 2024/);
+  assert.match(nodes.get('datasetContent').innerHTML, /Разбивка на индустриални процеси и използване на продукти \(IPPU\) 2024/);
   assert.match(nodes.get('datasetContent').innerHTML, /Електронна промишленост/);
   assert.match(nodes.get('datasetContent').innerHTML, /4096,25|4\s096,25/);
   assert.match(nodes.get('datasetStats').innerHTML, /2010-2024/);
