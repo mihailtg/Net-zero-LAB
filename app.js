@@ -712,12 +712,12 @@ const I18N = {
     'nav.overview': 'Overview',
     'nav.companies': 'Companies',
     'nav.infographics': 'Infographics',
-    'inventory.breakdown': 'IPPU Sector Breakdown (2024)',
+    'inventory.breakdown': 'Industrial Processes and Product Use (IPPU) Sector Breakdown (2024)',
     'inventory.historyTab': 'IPPU Historical (2010–2024)',
-    'inventory.historyTitle': 'IPPU Total Emissions 2010–2024',
-    'inventory.stackedTitle': 'IPPU Sub-sectors Stacked — 2010–2024',
+    'inventory.historyTitle': 'Industrial Processes and Product Use (IPPU) Total Emissions 2010–2024',
+    'inventory.stackedTitle': 'Industrial Processes and Product Use (IPPU) Sub-sectors Stacked — 2010–2024',
     'inventory.stackedDesc': 'Kt CO₂eq · categories 2.A–2.H and reported total',
-    'inventory.tableTitle': 'IPPU Data Table 2010–2024',
+    'inventory.tableTitle': 'Industrial Processes and Product Use (IPPU) Data Table 2010–2024',
     'section.infographics.desc': 'Emissions, industry and transition pathways in a visual series.',
     'nav.pathways': 'Pathways',
     'nav.emissions': 'Emissions',
@@ -747,6 +747,7 @@ const I18N = {
     'section.dashboard.desc': 'Bulgarian chemical industry decarbonization - key indicators and progress',
     'section.dashboard.pill': 'Latest available data · 2026',
     'dashboard.employees.label': 'Direct employees (2025)',
+    'dashboard.employees.unit': 'number',
     'dashboard.employees.coverage': '{known} operators with data · {missing} without data',
     'dashboard.employees.note': 'Available 2025 employment figures from Company Profiles, counting each operator once. Missing data and hidden companies are excluded.',
     'section.companies.title': 'Company Profiles',
@@ -761,7 +762,7 @@ const I18N = {
     'section.pathways.title': 'Decarbonization Pathways',
     'section.pathways.desc': 'Technology levers and transition routes toward net-zero',
     'section.emissions.title': 'Emissions Data',
-    'section.emissions.desc': 'National GHG inventory · IPPU 2010–2024 · industrial sub-sectors through 2023',
+    'section.emissions.desc': 'National GHG inventory · Industrial Processes and Product Use (IPPU) 2010–2024 · industrial sub-sectors through 2023',
     'section.emissions.pill': 'Official · 2023',
     'section.dataset.title': 'Structured Dataset',
     'section.dataset.desc': "Tabular views of the dashboard's source data, history series, and company registry",
@@ -804,12 +805,12 @@ const I18N = {
     'nav.overview': 'Обзор',
     'nav.companies': 'Компании',
     'nav.infographics': 'Инфографики',
-    'inventory.breakdown': 'Разбивка на емисиите от IPPU (2024)',
+    'inventory.breakdown': 'Индустриални процеси и използване на продукти (IPPU): разбивка на емисиите (2024)',
     'inventory.historyTab': 'Исторически емисии от IPPU (2010–2024)',
-    'inventory.historyTitle': 'Общи емисии от IPPU за 2010–2024 г.',
-    'inventory.stackedTitle': 'Емисии по категории на IPPU — 2010–2024',
+    'inventory.historyTitle': 'Общи емисии от индустриални процеси и използване на продукти (IPPU) за 2010–2024 г.',
+    'inventory.stackedTitle': 'Емисии по категории на индустриални процеси и използване на продукти (IPPU) — 2010–2024',
     'inventory.stackedDesc': 'Kt CO₂eq · категории 2.A–2.H и отчетен общ сбор',
-    'inventory.tableTitle': 'Таблица с данни за IPPU за 2010–2024 г.',
+    'inventory.tableTitle': 'Таблица с данни за индустриални процеси и използване на продукти (IPPU) за 2010–2024 г.',
     'section.infographics.desc': 'Емисии, индустрия и пътища за преход в поредица от визуални обобщения.',
     'nav.pathways': 'Пътища',
     'nav.emissions': 'Емисии',
@@ -839,6 +840,7 @@ const I18N = {
     'section.dashboard.desc': 'Декарбонизация на българската химическа индустрия - ключови показатели и напредък',
     'section.dashboard.pill': 'Последни налични данни · 2026',
     'dashboard.employees.label': 'Пряко ангажирани служители (2025)',
+    'dashboard.employees.unit': 'брой',
     'dashboard.employees.coverage': '{known} оператора с данни · {missing} без данни',
     'dashboard.employees.note': 'Налични данни за служителите през 2025 г. от фирмените профили, като всеки оператор се брои веднъж. Липсващите стойности и скритите компании са изключени.',
     'section.companies.title': 'Профили на компании',
@@ -853,7 +855,7 @@ const I18N = {
     'section.pathways.title': 'Пътища за декарбонизация',
     'section.pathways.desc': 'Технологични лостове и преходни маршрути към нетни нулеви емисии',
     'section.emissions.title': 'Данни за емисиите',
-    'section.emissions.desc': 'Национален инвентар на ПГ · IPPU 2010–2024 · индустриални под-сектори до 2023 г.',
+    'section.emissions.desc': 'Национален инвентар на ПГ · индустриални процеси и използване на продукти (IPPU) 2010–2024 · индустриални под-сектори до 2023 г.',
     'section.emissions.pill': 'Официални · 2023',
     'section.dataset.title': 'Структуриран набор от данни',
     'section.dataset.desc': 'Табличен изглед на изходните данни, историческите редове и регистъра на компаниите зад таблото',
@@ -1138,6 +1140,8 @@ function updateEmploymentKpi() {
   const summary = getEmploymentSummary2025();
   value.setAttribute('data-target', String(summary.total));
   value.textContent = registryNumber(summary.total);
+  const unit = document.getElementById('dashboardEmployeesUnit');
+  if (unit) unit.textContent = translate('dashboard.employees.unit');
   const coverage = document.getElementById('dashboardEmployeesCoverage');
   if (coverage) coverage.textContent = translate('dashboard.employees.coverage')
     .replace('{known}', summary.knownOperators).replace('{missing}', summary.missingOperators);
