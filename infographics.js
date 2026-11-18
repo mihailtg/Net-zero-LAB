@@ -4,7 +4,9 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function (Data, Model, Geography) {
   'use strict';
 
-  const COLORS = ['#7a005e', '#277753', '#346a9d', '#a66523', '#78569b', '#337d82'];
+  const COLORS = ['#7a005e', '#a8508f', '#cf9dc1', '#52003f', '#93307a', '#bf7aab'];
+  // Official Net-Zero Lab mark (assets/net-zero-lab-icon.png), embedded so exported SVG/PNG files stay self-contained.
+  const LOGO_URI = 'data:image/png;base64,'+LOGO+'';
   // Installation allowances only: the reports' aviation amounts and combined totals are excluded.
   const AUCTION_REVENUE = Object.freeze([
     { year: 2012, revenueEur: 22137930, report: 'Allowance_auctioning_201228b3a0b01f7058112c41f28a161d21f6.pdf' },
@@ -267,7 +269,7 @@
   }
   function svgText(value, x, y, size = 22, options = {}) {
     const lines = wrap(value, options.wrap || 200);
-    return `<text x="${x}" y="${y}" font-size="${size}" fill="${options.fill || '#273c37'}" font-weight="${options.bold ? 700 : 400}"${options.anchor ? ` text-anchor="${options.anchor}"` : ''}>${lines.map((line, i) => `<tspan x="${x}" dy="${i ? options.lineHeight || size * 1.28 : 0}">${esc(line)}</tspan>`).join('')}</text>`;
+    return `<text x="${x}" y="${y}" font-size="${size}" fill="${options.fill || '#2b2230'}" font-weight="${options.bold ? 700 : 400}"${options.anchor ? ` text-anchor="${options.anchor}"` : ''}>${lines.map((line, i) => `<tspan x="${x}" dy="${i ? options.lineHeight || size * 1.28 : 0}">${esc(line)}</tspan>`).join('')}</text>`;
   }
   function bars(rows, maximum, stacked = false) {
     const max = maximum || Math.max(...rows.map((row) => row.value));
@@ -281,51 +283,51 @@
       const closure = stacked ? width * row.closure / max : 0;
       const labels = `${svgText(row.label, 58, y, gap < 58 ? 20 : 24, { wrap: 72 })}${svgText(row.display, 1130, y, 22, { anchor: 'end', bold: true })}`;
       if (row.value === null) return labels;
-      return `${labels}<rect x="58" y="${barY}" width="${width}" height="${gap < 58 ? 9 : 17}" rx="4" fill="#e5e9df"/><rect x="58" y="${barY}" width="${technical}" height="${gap < 58 ? 9 : 17}" rx="4" fill="${stacked ? COLORS[1] : COLORS[index % COLORS.length]}"/>${closure > 0 ? `<rect x="${58 + technical}" y="${barY}" width="${closure}" height="9" fill="${COLORS[3]}"/>` : ''}`;
+      return `${labels}<rect x="58" y="${barY}" width="${width}" height="${gap < 58 ? 9 : 17}" rx="4" fill="#ece0e8"/><rect x="58" y="${barY}" width="${technical}" height="${gap < 58 ? 9 : 17}" rx="4" fill="${stacked ? COLORS[1] : COLORS[index % COLORS.length]}"/>${closure > 0 ? `<rect x="${58 + technical}" y="${barY}" width="${closure}" height="9" fill="${COLORS[3]}"/>` : ''}`;
     }).join('');
   }
 
   function revenueColumns(rows, lang, n, summary) {
     const L = (en, bg) => lang === 'bg' ? bg : en;
     const last = rows.at(-1);
-    let chart = `<rect x="58" y="264" width="420" height="112" rx="12" fill="#e5ece0"/>${svgText(L('Total revenue · 2012–2025', 'Общ приход · 2012–2025 г.'), 78, 290, 17)}${svgText(L(`€${n(summary.total / 1e9, 3)}bn`, `${n(summary.total / 1e9, 3)} млрд. €`), 78, 330, 36, { bold: true })}${svgText(`${n(summary.total, 0)} €`, 78, 356, 18, { fill: '#526458' })}
+    let chart = `<rect x="58" y="264" width="420" height="112" rx="12" fill="#efe2ec"/>${svgText(L('Total revenue · 2012–2025', 'Общ приход · 2012–2025 г.'), 78, 290, 17)}${svgText(L(`€${n(summary.total / 1e9, 3)}bn`, `${n(summary.total / 1e9, 3)} млрд. €`), 78, 330, 36, { bold: true })}${svgText(`${n(summary.total, 0)} €`, 78, 356, 18, { fill: '#5d4a58' })}
       <rect x="496" y="264" width="314" height="112" rx="12" fill="#ece4eb"/>${svgText(L(`Peak year · ${summary.peak.year}`, `Най-силна година · ${summary.peak.year}`), 516, 290, 17)}${svgText(`${n(summary.peak.value / 1e6, 1)} ${L('€m', 'млн. €')}`, 516, 330, 29, { bold: true, fill: '#7a005e' })}${svgText(L('Highest annual revenue', 'Най-висок годишен приход'), 516, 356, 16, { fill: '#675767' })}
-      <rect x="828" y="264" width="314" height="112" rx="12" fill="#f6ecd8"/>${svgText(L('Full-year forecast · 2026', 'Годишна прогноза · 2026'), 848, 290, 17)}${svgText(`≈ ${n(summary.forecast.annualInstallationRevenueEur / 1e6, 1)} ${L('€m', 'млн. €')}`, 848, 330, 29, { bold: true, fill: '#8c5718' })}${svgText(L('Excluding aviation · conditional', 'Без авиация · условна оценка'), 848, 356, 16, { fill: '#735329' })}`;
+      <rect x="828" y="264" width="314" height="112" rx="12" fill="#f5e6f0"/>${svgText(L('Full-year forecast · 2026', 'Годишна прогноза · 2026'), 848, 290, 17)}${svgText(`≈ ${n(summary.forecast.annualInstallationRevenueEur / 1e6, 1)} ${L('€m', 'млн. €')}`, 848, 330, 29, { bold: true, fill: '#93307a' })}${svgText(L('Excluding aviation · conditional', 'Без авиация · условна оценка'), 848, 356, 16, { fill: '#6b2a5a' })}`;
     const patternId = `ig-title-bulgaria-auction-revenue-${lang}-forecast-pattern`;
-    chart += `<defs><pattern id="${patternId}" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#fbf1dc"/><path d="M-2 2L2 -2M0 8L8 0M6 10L10 6" stroke="#b77923" stroke-width="2"/></pattern></defs>`;
+    chart += `<defs><pattern id="${patternId}" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#f5e6f0"/><path d="M-2 2L2 -2M0 8L8 0M6 10L10 6" stroke="#c58bb4" stroke-width="2"/></pattern></defs>`;
     const plotRows = [...rows, { year: 2026, value: summary.forecast.annualInstallationRevenueEur, forecast: true, display: L('Conditional full-year forecast', 'Условна прогноза за цялата година') }];
     const left = 102, right = 1142, bottom = 698, height = 250;
     const maximum = Math.ceil(Math.max(...plotRows.map((row) => row.value)) / 300000000) * 300000000;
     const y = (value) => bottom - value / maximum * height;
     const width = (right - left) / plotRows.length;
     const barWidth = Math.min(46, width * .64);
-    chart += svgText(L('Annual revenue · € million', 'Годишни приходи · млн. евро'), left - 12, 414, 18, { fill: '#526458' });
+    chart += svgText(L('Annual revenue · € million', 'Годишни приходи · млн. евро'), left - 12, 414, 18, { fill: '#5d4a58' });
     for (let value = 0; value <= maximum; value += 300000000) {
-      chart += `<path d="M${left} ${y(value)}H${right}" stroke="#d7ded2" stroke-width="${value === 0 ? 2 : 1}"/>${svgText(n(value / 1000000, 0), left - 18, y(value) + 6, 16, { anchor: 'end', fill: '#526458' })}`;
+      chart += `<path d="M${left} ${y(value)}H${right}" stroke="#e3d3dd" stroke-width="${value === 0 ? 2 : 1}"/>${svgText(n(value / 1000000, 0), left - 18, y(value) + 6, 16, { anchor: 'end', fill: '#5d4a58' })}`;
     }
     plotRows.forEach((row, index) => {
       const center = left + width * (index + .5);
       const highlighted = row.year === summary.peak.year || row.year === last.year || row.forecast;
-      const color = row.forecast ? '#8c5718' : row.year === summary.peak.year ? '#7a005e' : row.year === last.year ? '#277753' : '#648c75';
+      const color = row.forecast ? '#93307a' : row.year === summary.peak.year ? '#7a005e' : row.year === last.year ? '#a8508f' : '#cf9dc1';
       const barHeight = bottom - y(row.value);
       const radius = Math.min(4, barHeight / 2);
-      chart += `<rect ${row.forecast ? 'data-revenue-forecast-year' : 'data-revenue-year'}="${row.year}" x="${center - barWidth / 2}" y="${y(row.value)}" width="${barWidth}" height="${barHeight}" rx="${radius}" fill="${row.forecast ? `url(#${patternId})` : color}"${row.forecast ? ' stroke="#8c5718" stroke-width="2" stroke-dasharray="5 3"' : ''}><title>${esc(`${row.year}: ${row.display}`)}</title></rect>${row.forecast ? '' : `<path d="M${center - barWidth / 2} ${bottom - radius}V${bottom}H${center + barWidth / 2}V${bottom - radius}" fill="${color}"/>`}<rect x="${center - width * .47}" y="${y(row.value) - 29}" width="${width * .94}" height="23" fill="#f8f6ed"/>${svgText(n(row.value / 1e6, 1), center, y(row.value) - 12, 16, { anchor: 'middle', bold: highlighted, fill: highlighted ? color : '#273c37' })}${svgText(`${row.year}${row.forecast ? L('F', 'П') : ''}`, center, 726, 16, { anchor: 'middle', bold: highlighted, fill: highlighted ? color : '#526458' })}`;
+      chart += `<rect ${row.forecast ? 'data-revenue-forecast-year' : 'data-revenue-year'}="${row.year}" x="${center - barWidth / 2}" y="${y(row.value)}" width="${barWidth}" height="${barHeight}" rx="${radius}" fill="${row.forecast ? `url(#${patternId})` : color}"${row.forecast ? ' stroke="#93307a" stroke-width="2" stroke-dasharray="5 3"' : ''}><title>${esc(`${row.year}: ${row.display}`)}</title></rect>${row.forecast ? '' : `<path d="M${center - barWidth / 2} ${bottom - radius}V${bottom}H${center + barWidth / 2}V${bottom - radius}" fill="${color}"/>`}<rect x="${center - width * .47}" y="${y(row.value) - 29}" width="${width * .94}" height="23" fill="#f8f6ed"/>${svgText(n(row.value / 1e6, 1), center, y(row.value) - 12, 16, { anchor: 'middle', bold: highlighted, fill: highlighted ? color : '#2b2230' })}${svgText(`${row.year}${row.forecast ? L('F', 'П') : ''}`, center, 726, 16, { anchor: 'middle', bold: highlighted, fill: highlighted ? color : '#5d4a58' })}`;
     });
-    chart += svgText(L('F = conditional full-year forecast. Hatched column is excluded from the 2012–2025 total.', 'П = условна прогноза за цялата година. Щрихованата колона е извън сбора за 2012–2025 г.'), 102, 761, 16, { fill: '#526458' });
+    chart += svgText(L('F = conditional full-year forecast. Hatched column is excluded from the 2012–2025 total.', 'П = условна прогноза за цялата година. Щрихованата колона е извън сбора за 2012–2025 г.'), 102, 761, 16, { fill: '#5d4a58' });
     return chart;
   }
 
   function auctionMarketTable(rows, snapshot, total, lang, n) {
     const L = (en, bg) => lang === 'bg' ? bg : en;
     let result = svgText(L('Price, auction volume and revenue by year', 'Цена, продадени квоти и приходи по години'), 58, 810, 24, { bold: true });
-    result += `<rect x="58" y="830" width="1084" height="50" rx="6" fill="#e5ece0"/>${svgText(L('Year', 'Година'), 78, 860, 18, { bold: true })}${svgText(L('Weighted price', 'Среднопретеглена цена'), 196, 851, 17, { bold: true })}${svgText(L('€/allowance · total market', '€/квота · общо'), 196, 872, 15, { fill: '#526458' })}${svgText(L('Total allowances sold', 'Продадени общо квоти'), 444, 851, 17, { bold: true })}${svgText(L('Including aviation', 'Включително авиация'), 444, 872, 15, { fill: '#526458' })}${svgText(L('Revenue excluding aviation', 'Приход без авиация'), 1122, 851, 17, { bold: true, anchor: 'end' })}${svgText(L('Euros · reported', 'Евро · отчетен'), 1122, 872, 15, { fill: '#526458', anchor: 'end' })}`;
+    result += `<rect x="58" y="830" width="1084" height="50" rx="6" fill="#efe2ec"/>${svgText(L('Year', 'Година'), 78, 860, 18, { bold: true })}${svgText(L('Weighted price', 'Среднопретеглена цена'), 196, 851, 17, { bold: true })}${svgText(L('€/allowance · total market', '€/квота · общо'), 196, 872, 15, { fill: '#5d4a58' })}${svgText(L('Total allowances sold', 'Продадени общо квоти'), 444, 851, 17, { bold: true })}${svgText(L('Including aviation', 'Включително авиация'), 444, 872, 15, { fill: '#5d4a58' })}${svgText(L('Revenue excluding aviation', 'Приход без авиация'), 1122, 851, 17, { bold: true, anchor: 'end' })}${svgText(L('Euros · reported', 'Евро · отчетен'), 1122, 872, 15, { fill: '#5d4a58', anchor: 'end' })}`;
     const tableRows = [...rows, { ...snapshot, value: null }];
     tableRows.forEach((row, index) => {
       const y = 884 + index * 31;
-      const color = row.year === 2023 ? '#7a005e' : '#273c37';
-      result += `<g data-auction-table-year="${row.year}"><rect x="58" y="${y}" width="1084" height="31" fill="${row.year === 2026 ? '#f6ecd8' : index % 2 ? '#eeeee4' : '#f8f6ed'}"/>${svgText(`${row.year}${row.year === 2026 ? '*' : ''}`, 78, y + 22, 18, { bold: row.year >= 2023, fill: color })}${svgText(n(row.priceEur, 2), 396, y + 22, 18, { anchor: 'end' })}${svgText(n(row.totalAllowances, 0), 674, y + 22, 18, { anchor: 'end' })}${svgText(row.value === null ? L('Not separately reported', 'Не е посочен отделно') : n(row.value, 0), 1122, y + 22, row.value === null ? 16 : 18, { anchor: 'end', bold: row.year === 2023, fill: color })}</g>`;
+      const color = row.year === 2023 ? '#7a005e' : '#2b2230';
+      result += `<g data-auction-table-year="${row.year}"><rect x="58" y="${y}" width="1084" height="31" fill="${row.year === 2026 ? '#f5e6f0' : index % 2 ? '#f1e9ef' : '#f8f6ed'}"/>${svgText(`${row.year}${row.year === 2026 ? '*' : ''}`, 78, y + 22, 18, { bold: row.year >= 2023, fill: color })}${svgText(n(row.priceEur, 2), 396, y + 22, 18, { anchor: 'end' })}${svgText(n(row.totalAllowances, 0), 674, y + 22, 18, { anchor: 'end' })}${svgText(row.value === null ? L('Not separately reported', 'Не е посочен отделно') : n(row.value, 0), 1122, y + 22, row.value === null ? 16 : 18, { anchor: 'end', bold: row.year === 2023, fill: color })}</g>`;
     });
-    result += `<rect x="58" y="1358" width="1084" height="46" rx="6" fill="#e5ece0"/>${svgText(L('Total 2012–2025 · excludes 2026 forecast', 'Общо 2012–2025 г. · без прогнозата за 2026 г.'), 78, 1387, 18, { bold: true })}${svgText(`${n(total, 0)} €`, 1122, 1389, 23, { anchor: 'end', bold: true })}`;
+    result += `<rect x="58" y="1358" width="1084" height="46" rx="6" fill="#efe2ec"/>${svgText(L('Total 2012–2025 · excludes 2026 forecast', 'Общо 2012–2025 г. · без прогнозата за 2026 г.'), 78, 1387, 18, { bold: true })}${svgText(`${n(total, 0)} €`, 1122, 1389, 23, { anchor: 'end', bold: true })}`;
     return result;
   }
   function tiles(items, columns) {
@@ -337,7 +339,7 @@
       const y = 266 + Math.floor(index / columns) * (height + 18);
       const numeric = /^\d|^€/.test(item.heading);
       const titleSize = numeric ? (columns === 4 ? 35 : 38) : 26;
-      return `<rect x="${x}" y="${y}" width="${width}" height="${height}" rx="14" fill="#fffef8" stroke="#d9dfd1"/><rect x="${x}" y="${y + 18}" width="5" height="32" rx="2" fill="${COLORS[index % COLORS.length]}"/>${svgText(item.heading, x + 20, y + 49, titleSize, { bold: true, wrap: columns === 4 ? 17 : 22 })}${svgText(item.text, x + 20, y + (numeric ? 88 : 120), columns === 4 ? 19 : 21, { wrap: columns === 4 ? 21 : 26 })}`;
+      return `<rect x="${x}" y="${y}" width="${width}" height="${height}" rx="14" fill="#fffef8" stroke="#dccbd6"/><rect x="${x}" y="${y + 18}" width="5" height="32" rx="2" fill="${COLORS[index % COLORS.length]}"/>${svgText(item.heading, x + 20, y + 49, titleSize, { bold: true, wrap: columns === 4 ? 17 : 22 })}${svgText(item.text, x + 20, y + (numeric ? 88 : 120), columns === 4 ? 19 : 21, { wrap: columns === 4 ? 21 : 26 })}`;
     }).join('');
   }
   function lineChart(series, years, n, unit) {
@@ -349,7 +351,7 @@
     let result = svgText(unit, left, 276, 20, { bold: true });
     for (let i = 0; i <= 4; i++) {
       const value = max * i / 4;
-      result += `<path d="M${left},${y(value)}H${left + width}" stroke="#d7ded2"/>${svgText(n(value, 0), left - 18, y(value) + 6, 18, { anchor: 'end' })}`;
+      result += `<path d="M${left},${y(value)}H${left + width}" stroke="#e3d3dd"/>${svgText(n(value, 0), left - 18, y(value) + 6, 18, { anchor: 'end' })}`;
     }
     years.forEach((year, index) => {
       if (index === 0 || index === years.length - 1 || year % 5 === 0) result += svgText(year, x(index), 706, 20, { anchor: 'middle' });
@@ -374,7 +376,7 @@
     const maximum = Math.max(...regions.map((region) => region.value));
     const color = (value) => {
       const amount = maximum > 0 ? value / maximum : 0;
-      return `rgb(${[225, 238, 230].map((start, index) => Math.round(start + ([25, 106, 75][index] - start) * amount)).join(',')})`;
+      return `rgb(${[245, 232, 241].map((start, index) => Math.round(start + ([122, 0, 94][index] - start) * amount)).join(',')})`;
     };
     const paths = Geography.regions.map((shape) => {
       const region = regions.find((item) => item.id === shape.id);
@@ -383,17 +385,17 @@
     }).join('');
     const labels = regions.map((region) => {
       const [x, y] = project(anchors[region.id]);
-      const fill = region.value / maximum > .6 ? '#fffef8' : '#183f32';
+      const fill = region.value / maximum > .6 ? '#fffef8' : '#2e0a25';
       return `${svgText(region.id, x, y - 10, 16, { anchor: 'middle', fill })}${svgText(pct(region.share), x, y + 20, 27, { anchor: 'middle', fill, bold: true })}`;
     }).join('');
     const details = regions.map((region, index) => {
       const y = 292 + index * 63;
-      return `<circle cx="816" cy="${y - 7}" r="7" fill="${color(region.value)}" stroke="#5c7b68"/>${svgText(region.label, 836, y, 21, { bold: true })}${svgText(`${n(region.value, 1)} kt · ${pct(region.share)}`, 836, y + 27, 21, { fill: '#526458' })}`;
+      return `<circle cx="816" cy="${y - 7}" r="7" fill="${color(region.value)}" stroke="#7a005e"/>${svgText(region.label, 836, y, 21, { bold: true })}${svgText(`${n(region.value, 1)} kt · ${pct(region.share)}`, 836, y + 27, 21, { fill: '#5d4a58' })}`;
     }).join('');
     const legend = [0, .25, .5, .75, 1].map((amount, index) => `<rect x="${58 + index * 24}" y="746" width="24" height="15" fill="${color(amount * maximum)}"/>`).join('');
     return `${paths}${labels}${details}${legend}${svgText(L('Darker = more emissions', 'По-тъмно = повече емисии'), 194, 759, 17)}
-      ${svgText(L('N', 'С'), 744, 260, 15, { anchor: 'middle', bold: true })}<path d="M744 291V270M738 278L744 270L750 278" stroke="#526458" stroke-width="2" fill="none"/>
-      <rect x="804" y="682" width="338" height="84" rx="12" fill="#e5ece0"/>${svgText(L('Displayed total · 2024', 'Показан сбор · 2024 г.'), 824, 709, 17)}${svgText(`${n(total, 3)} kt CO₂`, 824, 744, 27, { bold: true })}`;
+      ${svgText(L('N', 'С'), 744, 260, 15, { anchor: 'middle', bold: true })}<path d="M744 291V270M738 278L744 270L750 278" stroke="#5d4a58" stroke-width="2" fill="none"/>
+      <rect x="804" y="682" width="338" height="84" rx="12" fill="#efe2ec"/>${svgText(L('Displayed total · 2024', 'Показан сбор · 2024 г.'), 824, 709, 17)}${svgText(`${n(total, 3)} kt CO₂`, 824, 744, 27, { bold: true })}`;
   }
 
   function poster(card, body, number, total) {
@@ -409,14 +411,14 @@
       <rect width="1200" height="${height}" fill="#f8f6ed"/>
       <path d="M0 0H1200V12H0Z" fill="#7a005e"/>
       <g font-family="Arial, Helvetica, sans-serif">
-      ${svgText('NET-ZERO LAB', 58, 53, 19, { bold: true, fill: '#7a005e' })}${svgText(`${String(number).padStart(2, '0')} / ${total}`, 1142, 53, 19, { anchor: 'end', fill: '#64756a' })}
+      ${svgText('NET-ZERO LAB', 58, 53, 19, { bold: true, fill: '#7a005e' })}<image href="${LOGO_URI}" x="1098" y="18" width="44" height="44"/>
       ${svgText(card.title, 58, 110, 38, { bold: true, wrap: 49, lineHeight: 44 })}
-      ${svgText(card.subtitle, 58, 211, 23, { wrap: 83, fill: '#526458' })}
+      ${svgText(card.subtitle, 58, 211, 23, { wrap: 83, fill: '#5d4a58' })}
       ${body}
-      <path d="M58 ${footerY}H1142" stroke="#cdd6c7"/>
+      <path d="M58 ${footerY}H1142" stroke="#dccbd6"/>
       ${svgText(card.kind, 58, footerY + 31, 17, { bold: true, fill: '#7a005e' })}
       ${notes}
-      ${printSources.map((source, index) => `<a href="${esc(source.url)}" target="_blank" rel="noopener noreferrer">${svgText(`${index + 1}. ${source.name}`, 58 + index * 1084 / Math.max(3, printSources.length), height - 31, 12, { wrap: printSources.length > 3 ? 36 : 48, fill: '#526458' })}</a>`).join('')}
+      ${printSources.map((source, index) => `<a href="${esc(source.url)}" target="_blank" rel="noopener noreferrer">${svgText(`${index + 1}. ${source.name}`, 58 + index * 1084 / Math.max(3, printSources.length), height - 31, 12, { wrap: printSources.length > 3 ? 36 : 48, fill: '#5d4a58' })}</a>`).join('')}
       </g></svg>`;
   }
 
