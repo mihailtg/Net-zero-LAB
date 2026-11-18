@@ -42,7 +42,7 @@ test('infographic series covers the platform in both languages with exportable s
       assert.match(item.svg, /aria-labelledby=/);
       assert.match(item.svg, new RegExp(`xml:lang="${item.lang}"`));
       assert.doesNotMatch(item.svg, /\b(?:undefined|NaN|Infinity)\b|\?{3}|\uFFFD|svilosa|Свилоза/i);
-      assert.doesNotMatch(item.svg, /<script|<image|<foreignObject|https?:\/\/fonts/);
+      assert.doesNotMatch(item.svg, /<script|<image(?![^>]*href=\"data:image\/png;base64,)|<foreignObject|https?:\/\/fonts/);
       if (['national-emissions', 'industrial-processes', 'emissions-history', 'six-regions', 'regional-emissions-map', 'company-landscape', 'bulgaria-auction-revenue'].includes(item.id)) assert.ok(item.sources.length > 0);
       assert.ok(item.sources.every((entry) => /^https:\/\//.test(entry.url)));
       assert.doesNotMatch(item.svg, /github\.com\/mihailtg|blob\/main|project owner|собственика на проекта|Database_01|Heidelberg-Part01|user-provided/i);
@@ -101,7 +101,7 @@ test('regional map shares reconcile to the bar chart and each shape uses the mat
   assert.match(map.note, /EuroGeographics/);
   assert.match(find('regional-emissions-map', bulgarian).note, /не всички емисии в България/);
   assert.ok(map.sources.some((source) => source.url === Geography.source));
-  assert.ok(english.every((card) => card.svg.includes(' / 11')));
+  assert.ok(english.every((card) => card.svg.includes('data:image/png;base64,') && !/\d\d \/ 11/.test(card.svg)));
   const html = read('index.html');
   assert.ok(html.indexOf('src="bulgaria-regions.js"') < html.indexOf('src="infographics.js"'));
 });
