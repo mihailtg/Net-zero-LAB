@@ -1141,7 +1141,12 @@ function updateEmploymentKpi() {
   value.setAttribute('data-target', String(summary.total));
   value.textContent = registryNumber(summary.total);
   const unit = document.getElementById('dashboardEmployeesUnit');
-  if (unit) unit.textContent = translate('dashboard.employees.unit');
+  [unit, document.getElementById('dashboardCompaniesUnit')].forEach((el) => {
+    if (!el) return;
+    const label = translate('dashboard.employees.unit');
+    el.setAttribute('title', label);
+    el.setAttribute('aria-label', label);
+  });
   const coverage = document.getElementById('dashboardEmployeesCoverage');
   if (coverage) coverage.textContent = translate('dashboard.employees.coverage')
     .replace('{known}', summary.knownOperators).replace('{missing}', summary.missingOperators);
@@ -3569,6 +3574,18 @@ function buildDatasetTable(headers, rows, className = '') {
 function getDatasetCopy() {
   if (getLanguage() === 'bg') {
     return {
+      legend: {
+        title: 'Легенда на съкращенията',
+        items: [
+          ['IPPU', 'Индустриални процеси и използване на продукти (Сектор 2)'],
+          ['CRF', 'Общ формат за отчитане – кодове на категориите в националния инвентар, напр. 1.A.2.c, 2.B.1'],
+          ['LULUCF', 'Земеползване, промени в земеползването и горско стопанство'],
+          ['ODS', 'Озоноразрушаващи вещества'],
+          ['Kt CO₂eq', 'Килотона въглероден диоксид еквивалент'],
+          ['UNFCCC', 'Рамкова конвенция на ООН по изменението на климата'],
+          ['CRT', 'Общи таблици за отчитане (Common Reporting Tables)']
+        ]
+      },
       stats: {
         tables: 'Таблици',
         coverage: 'Обхват',
@@ -3577,19 +3594,19 @@ function getDatasetCopy() {
       },
       snapshot: {
         kicker: 'Снимка на данните',
-        title: 'Национални данни 2023 и IPPU 2024',
-        desc: 'Национален и IPPU срез на данните, използвани в таблото.',
+        title: 'Национални данни 2023 и индустриални процеси и използване на продукти (IPPU) 2024',
+        desc: 'Национален срез и срез на индустриалните процеси и използване на продукти на данните, използвани в таблото.',
         nationalTitle: 'Национален инвентар 2023',
         nationalSub: 'Основни категории емисии и дял от брутните положителни емисии.',
-        ippuTitle: 'IPPU разбивка 2024',
+        ippuTitle: 'Разбивка на индустриални процеси и използване на продукти (IPPU) 2024',
         ippuSub: 'Сектор 2 Industrial Processes and Product Use.',
-        headers: ['Категория', 'Стойност (Kt CO2eq)', 'Дял']
+        headers: ['Категория', 'Стойност (килотона CO₂ еквивалент)', 'Дял']
       },
       historical: {
         kicker: 'Исторически редове',
-        title: 'IPPU 2010–2024 и индустриални под-сектори 2010–2023',
+        title: 'Индустриални процеси и използване на продукти (IPPU) 2010–2024 и индустриални под-сектори 2010–2023',
         desc: 'Пълни таблични серии за индустриалните емисии и под-секторите.',
-        ippuTitle: 'IPPU история',
+        ippuTitle: 'История на индустриалните процеси и използване на продукти',
         ippuSub: 'Годишни тотали и под-сектори от националния инвентар.',
         subsecTitle: 'Индустриални под-сектори',
         subsecSub: 'Енергийни и процесни емисии по ключови производства.'
@@ -3599,23 +3616,23 @@ function getDatasetCopy() {
         title: 'Фирми и горивни профили',
         desc: 'Структурирана справка за компаниите в приложението и горивното разбиване за 2023.',
         companyTitle: 'Фирмен регистър',
-        companySub: 'Локация, сектор, пряко ангажирани служители за 2025 г. и CRF привързване.',
+        companySub: 'Локация, сектор, пряко ангажирани служители за 2025 г. и привързване към категория от Общия формат за отчитане (CRF).',
         fuelTitle: 'Горивно горене 2023',
         fuelSub: 'Редовете от Сектор 1.A с разбивка по вид гориво.',
-        companyHeaders: ['Компания', 'Локация', 'Сектор', 'Пряко ангажирани служители · 2025', 'CRF'],
+        companyHeaders: ['Компания', 'Локация', 'Сектор', 'Пряко ангажирани служители · 2025', 'Категория по Общ формат за отчитане (CRF)'],
         fuelHeaders: ['Код', 'Под-сектор', 'Група', 'Общо', 'Течни', 'Твърди', 'Газ', 'Отпадък', 'Биомаса']
       },
       labels: {
         energy: 'Енергетика',
-        ippu: 'IPPU',
+        ippu: 'Индустриални процеси и използване на продукти (IPPU)',
         agri: 'Земеделие',
         waste: 'Отпадъци',
-        lulucf: 'LULUCF',
+        lulucf: 'Земеползване, промени в земеползването и горско стопанство (LULUCF)',
         mineral: 'Минерална индустрия',
         chemical: 'Химическа индустрия',
         metal: 'Метална индустрия',
         nonenergy: 'Неенергийни продукти',
-        ods: 'ODS заместители',
+        ods: 'Заместители на озоноразрушаващи вещества (ODS)',
         other: 'Други',
         year: 'Година',
         total: 'Общо',
@@ -3635,13 +3652,25 @@ function getDatasetCopy() {
         manufacturing: 'Производство',
         transport: 'Транспорт',
         otherGroup: 'Други',
-        shareIppu: 'Дял от IPPU',
+        shareIppu: 'Дял от общия IPPU',
         sourceNote: 'Източник за националната инвентаризация'
       }
     };
   }
 
   return {
+    legend: {
+      title: 'Abbreviation legend',
+      items: [
+        ['IPPU', 'Industrial Processes and Product Use (Sector 2)'],
+        ['CRF', 'Common Reporting Format – category codes of the national inventory, e.g. 1.A.2.c, 2.B.1'],
+        ['LULUCF', 'Land Use, Land-Use Change and Forestry'],
+        ['ODS', 'Ozone-depleting substances'],
+        ['Kt CO₂eq', 'Kilotonnes of carbon dioxide equivalent'],
+        ['UNFCCC', 'United Nations Framework Convention on Climate Change'],
+        ['CRT', 'Common Reporting Tables']
+      ]
+    },
     stats: {
       tables: 'Tables',
       coverage: 'Coverage',
@@ -3650,19 +3679,19 @@ function getDatasetCopy() {
     },
     snapshot: {
       kicker: 'Dataset snapshot',
-      title: 'National data 2023 and IPPU 2024',
-      desc: 'National and IPPU cuts of the data already used throughout the dashboard.',
+      title: 'National data 2023 and Industrial Processes and Product Use (IPPU) 2024',
+      desc: 'National and Industrial Processes and Product Use cuts of the data already used throughout the dashboard.',
       nationalTitle: 'National inventory 2023',
       nationalSub: 'Core emission categories and share of gross positive emissions.',
-      ippuTitle: 'IPPU breakdown 2024',
+      ippuTitle: 'Industrial Processes and Product Use (IPPU) breakdown 2024',
       ippuSub: 'Sector 2 Industrial Processes and Product Use.',
-      headers: ['Category', 'Value (Kt CO2eq)', 'Share']
+      headers: ['Category', 'Value (kilotonnes CO₂ equivalent)', 'Share']
     },
     historical: {
       kicker: 'Historical series',
-      title: 'IPPU 2010–2024 and industrial sub-sectors 2010–2023',
+      title: 'Industrial Processes and Product Use (IPPU) 2010–2024 and industrial sub-sectors 2010–2023',
       desc: 'Full tabular series for industrial emissions and key sub-sectors.',
-      ippuTitle: 'IPPU history',
+      ippuTitle: 'Industrial Processes and Product Use history',
       ippuSub: 'Annual totals and sub-sectors from the national inventory.',
       subsecTitle: 'Industrial sub-sectors',
       subsecSub: 'Energy and process emissions by major production lines.'
@@ -3672,23 +3701,23 @@ function getDatasetCopy() {
       title: 'Companies and fuel profiles',
       desc: 'Structured reference for the companies in the app and the 2023 fuel-combustion breakdown.',
       companyTitle: 'Company registry',
-      companySub: 'Location, sector, direct employees for 2025, and CRF mapping.',
+      companySub: 'Location, sector, direct employees for 2025, and Common Reporting Format (CRF) category mapping.',
       fuelTitle: 'Fuel combustion 2023',
       fuelSub: 'Sector 1.A rows with fuel-type breakdown.',
-      companyHeaders: ['Company', 'Location', 'Sector', 'Direct employees · 2025', 'CRF'],
+      companyHeaders: ['Company', 'Location', 'Sector', 'Direct employees · 2025', 'Common Reporting Format (CRF) category'],
       fuelHeaders: ['Code', 'Sub-sector', 'Group', 'Total', 'Liquid', 'Solid', 'Gas', 'Waste', 'Biomass']
     },
     labels: {
       energy: 'Energy',
-      ippu: 'IPPU',
+      ippu: 'Industrial Processes and Product Use (IPPU)',
       agri: 'Agriculture',
       waste: 'Waste',
-      lulucf: 'LULUCF',
+      lulucf: 'Land Use, Land-Use Change and Forestry (LULUCF)',
       mineral: 'Mineral industry',
       chemical: 'Chemical industry',
       metal: 'Metal industry',
       nonenergy: 'Non-energy products',
-      ods: 'ODS substitutes',
+      ods: 'Ozone-depleting substance (ODS) substitutes',
       other: 'Other',
       year: 'Year',
       total: 'Total',
@@ -3708,7 +3737,7 @@ function getDatasetCopy() {
       manufacturing: 'Manufacturing',
       transport: 'Transport',
       otherGroup: 'Other',
-      shareIppu: 'Share of IPPU',
+      shareIppu: 'Share of IPPU total',
       sourceNote: 'National inventory source'
     }
   };
@@ -3877,6 +3906,10 @@ function renderDatasetTables() {
         ${buildDatasetTable(copy.operational.fuelHeaders, fuelRows, 'dataset-table-wide')}
       </div>
       <div class="dataset-note">${escapeHtml(copy.labels.sourceNote)}: <a href="https://unfccc.int/documents/656446" target="_blank" rel="noopener noreferrer">UNFCCC · CRT</a> · ${registryCopy('Emissions and allowances', 'Емисии и квоти')}: <a href="${ClusterData.ETS_REGISTRY_URL}" target="_blank" rel="noopener noreferrer">EU ETS · Union Registry</a></div>
+    </div>
+    <div class="dataset-legend">
+      <div class="dataset-legend-title">${escapeHtml(copy.legend.title)}</div>
+      <dl>${copy.legend.items.map(([term, meaning]) => `<dt>${escapeHtml(term)}</dt><dd>${escapeHtml(meaning)}</dd>`).join('')}</dl>
     </div>
   `;
 }
